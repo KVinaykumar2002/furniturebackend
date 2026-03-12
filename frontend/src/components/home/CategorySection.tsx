@@ -1,0 +1,183 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { useScrollReveal } from "@/hooks/useScrollReveal";
+import {
+  mainCategoryTabs,
+  furnitureSubTabs,
+  getFurnitureGridBySub,
+  type MainCategorySlug,
+  type FurnitureSubSlug,
+} from "@/data/categorySection";
+import { useProducts } from "@/hooks/useApi";
+
+const FURNITURE_SLUG: MainCategorySlug = "furniture";
+
+/** Fallback when a category or product image fails to load */
+const FALLBACK_IMAGE =
+  "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=600";
+
+/**
+ * Category section: CATEGORIES heading, one-line main nav, INDOOR/OUTDOOR/OFFICE for Furniture,
+ * and product grid per category. All categories work and show 3+ products with unique images.
+ */
+export default function CategorySection() {
+  const [mainCategory, setMainCategory] = useState<MainCategorySlug>("furniture");
+  const [subCategory, setSubCategory] = useState<FurnitureSubSlug>("indoor");
+
+  const isFurniture = mainCategory === FURNITURE_SLUG;
+  const gridItems = getFurnitureGridBySub(subCategory);
+  const { products: categoryProducts } = useProducts(
+    isFurniture ? undefined : { category: mainCategory }
+  );
+  const ref = useScrollReveal<HTMLElement>(0.08);
+
+  return (
+    <section
+      ref={ref}
+      className="animate-on-scroll py-10 md:py-14 px-4 md:px-6"
+    >
+      <div className="container max-w-7xl mx-auto">
+        <p className="text-center mb-6 tracking-[0.2em] text-muted-foreground uppercase font-sans text-base">
+          Categories
+        </p>
+
+        <nav
+          className="category-main-nav flex flex-nowrap justify-center items-center mb-8 overflow-x-hidden"
+          aria-label="Main categories"
+        >
+          {mainCategoryTabs.map((tab) => (
+            <button
+              key={tab.slug}
+              type="button"
+              onClick={() => setMainCategory(tab.slug)}
+              className="category-main-nav-item shrink-0 whitespace-nowrap uppercase font-medium tracking-wide transition-colors pb-1 border-b-2 -mb-px"
+              style={{
+                fontFamily: "Lato, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+                color: mainCategory === tab.slug ? "#3d3832" : "#8a8378",
+                borderBottomColor: mainCategory === tab.slug ? "#3d3832" : "transparent",
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+        <style>{`
+          .category-main-nav { gap: clamp(0.5rem, 1.5vw, 1.5rem); }
+          .category-main-nav-item { font-size: clamp(0.75rem, 1.25vw, 0.95rem); }
+        `}</style>
+
+        {/* Sub-category: INDOOR / OUTDOOR / OFFICE (only when Furniture is selected) */}
+        {isFurniture && (
+          <div className="flex flex-wrap justify-center items-center gap-2 mb-8">
+            {furnitureSubTabs.map((tab, index) => (
+              <span key={tab.slug} className="flex items-center gap-2">
+                {index > 0 && (
+                  <span className="text-[#8a8378]" style={{ fontSize: "clamp(0.8rem, 1.1vw, 0.9rem)" }}>
+                    /
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setSubCategory(tab.slug)}
+                  className="uppercase font-medium tracking-wide transition-colors pb-1 border-b-2 -mb-px"
+                  style={{
+                    fontFamily: "Lato, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+                    fontSize: "clamp(0.8rem, 1.1vw, 0.9rem)",
+                    color: subCategory === tab.slug ? "#3d3832" : "#8a8378",
+                    borderBottomColor: subCategory === tab.slug ? "#3d3832" : "transparent",
+                  }}
+                >
+                  {tab.label}
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Grid: furniture sub-grid or category products */}
+        <div
+          className="grid gap-4 md:gap-6"
+          style={{
+            gridTemplateColumns: "repeat(4, 1fr)",
+            gridAutoRows: "1fr",
+          }}
+        >
+          {isFurniture
+            ? gridItems.map((item) => (
+                <Link
+                  key={item.slug}
+                  to={item.href}
+                  className="group flex flex-col items-center text-decoration-none text-inherit"
+                >
+                  <div
+                    className="w-full max-w-[140px] md:max-w-[160px] aspect-[4/3] overflow-hidden mb-2 md:mb-3"
+                    style={{ filter: "sepia(0.15) contrast(1.02)" }}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.label}
+                      className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+                      }}
+                    />
+                  </div>
+                  <span
+                    className="text-center uppercase font-medium tracking-wide"
+                    style={{
+                      fontFamily: "Lato, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+                      fontSize: "clamp(0.75rem, 1vw, 0.875rem)",
+                      color: "#3d3832",
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
+              ))
+            : categoryProducts.map((product) => (
+                <Link
+                  key={product.id}
+                  to={`/product/${product.id}`}
+                  className="group flex flex-col items-center text-decoration-none text-inherit"
+                >
+                  <div
+                    className="w-full max-w-[140px] md:max-w-[160px] aspect-[4/3] overflow-hidden mb-2 md:mb-3"
+                    style={{ filter: "sepia(0.15) contrast(1.02)" }}
+                  >
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = FALLBACK_IMAGE;
+                      }}
+                    />
+                  </div>
+                  <span
+                    className="text-center uppercase font-medium tracking-wide"
+                    style={{
+                      fontFamily: "Lato, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
+                      fontSize: "clamp(0.75rem, 1vw, 0.875rem)",
+                      color: "#3d3832",
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {product.name}
+                  </span>
+                </Link>
+              ))}
+        </div>
+
+        <div className="text-center mt-8">
+          <Link
+            to="/collections"
+            className="inline-flex items-center justify-center h-12 px-8 bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition-colors uppercase tracking-wide text-sm"
+          >
+            View All
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}

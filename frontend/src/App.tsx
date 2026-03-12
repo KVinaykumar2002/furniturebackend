@@ -1,0 +1,74 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { CartProvider } from "@/context/CartContext";
+import { WishlistProvider } from "@/context/WishlistContext";
+import CartDrawer from "@/components/CartDrawer";
+import WhatsAppButton from "@/components/WhatsAppButton";
+import ScrollToTop from "@/components/ScrollToTop";
+import EnquiryModal from "@/components/EnquiryModal";
+import Index from "./pages/Index";
+import LivingPage from "./pages/LivingPage";
+import DiningPage from "./pages/DiningPage";
+import BedroomPage from "./pages/BedroomPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
+import AboutPage from "./pages/AboutPage";
+import StoresPage from "./pages/StoresPage";
+import StoreDetailPage from "./pages/StoreDetailPage";
+import CollectionsPage from "./pages/CollectionsPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import CartPage from "./pages/CartPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import WishlistPage from "./pages/WishlistPage";
+import NotFoundPage from "./pages/NotFoundPage";
+import AdminLayout from "./pages/AdminLayout";
+import AdminPage from "./pages/AdminPage";
+import AdminImageManagerPage from "./pages/AdminImageManagerPage";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <CartProvider>
+        <WishlistProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <ScrollToTop />
+            <CartDrawer />
+            <WhatsAppButton />
+            <EnquiryModal />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/living" element={<LivingPage />} />
+              <Route path="/dining" element={<DiningPage />} />
+              <Route path="/bedroom" element={<BedroomPage />} />
+              <Route path="/product/:id" element={<ProductDetailPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/stores" element={<StoresPage />} />
+              <Route path="/stores/:id" element={<StoreDetailPage />} />
+              <Route path="/collections" element={<CollectionsPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/wishlist" element={<WishlistPage />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminPage />} />
+                <Route path="images" element={<AdminImageManagerPage />} />
+              </Route>
+              <Route path="/404" element={<NotFoundPage />} />
+              <Route path="*" element={<Navigate to="/404" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </WishlistProvider>
+      </CartProvider>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;
