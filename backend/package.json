@@ -6,8 +6,15 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
+    "dev": "nodemon src/index.js",
     "seed": "node src/seed.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "nodemonConfig": {
+    "watch": ["src"],
+    "ext": "js,json"
   },
   "dependencies": {
     "cors": "^2.8.5",

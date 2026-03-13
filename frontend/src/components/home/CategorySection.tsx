@@ -47,15 +47,16 @@ export default function CategorySection() {
         </p>
 
         <nav
-          className="category-main-nav flex flex-nowrap justify-center items-center mb-8 overflow-x-hidden"
+          className="category-main-nav flex flex-nowrap justify-start sm:justify-center items-center gap-4 mb-8 overflow-x-auto scroll-smooth scrollbar-thin px-1 -mx-1"
           aria-label="Main categories"
+          style={{ scrollbarWidth: "thin" }}
         >
           {mainCategoryTabs.map((tab) => (
             <button
               key={tab.slug}
               type="button"
               onClick={() => setMainCategory(tab.slug)}
-              className="category-main-nav-item shrink-0 whitespace-nowrap uppercase font-medium tracking-wide transition-colors pb-1 border-b-2 -mb-px"
+              className="category-main-nav-item shrink-0 whitespace-nowrap uppercase font-medium tracking-wide transition-colors pb-1 border-b-2 -mb-px py-1"
               style={{
                 fontFamily: "Lato, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
                 color: effectiveMain === tab.slug ? "#3d3832" : "#8a8378",
@@ -67,7 +68,10 @@ export default function CategorySection() {
           ))}
         </nav>
         <style>{`
-          .category-main-nav { gap: clamp(0.5rem, 1.5vw, 1.5rem); }
+          .category-main-nav { gap: clamp(0.5rem, 1.5vw, 1.5rem); -webkit-overflow-scrolling: touch; }
+          .category-main-nav::-webkit-scrollbar { height: 6px; }
+          .category-main-nav::-webkit-scrollbar-track { background: transparent; }
+          .category-main-nav::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
           .category-main-nav-item { font-size: clamp(0.75rem, 1.25vw, 0.95rem); }
         `}</style>
 
