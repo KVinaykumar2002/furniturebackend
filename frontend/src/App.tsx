@@ -27,6 +27,10 @@ import NotFoundPage from "./pages/NotFoundPage";
 import AdminLayout from "./pages/AdminLayout";
 import AdminPage from "./pages/AdminPage";
 import AdminImageManagerPage from "./pages/AdminImageManagerPage";
+import AdminProductsPage from "./pages/AdminProductsPage";
+import AdminProductFormPage from "./pages/AdminProductFormPage";
+import AdminLoginPage from "./pages/AdminLoginPage";
+import { AdminAuthProvider } from "./context/AdminAuthContext";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +39,7 @@ const App = () => (
     <TooltipProvider>
       <CartProvider>
         <WishlistProvider>
+          <AdminAuthProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -57,14 +62,19 @@ const App = () => (
               <Route path="/cart" element={<CartPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/wishlist" element={<WishlistPage />} />
+              <Route path="/admin/login" element={<AdminLoginPage />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminPage />} />
+                <Route path="products" element={<AdminProductsPage />} />
+                <Route path="products/new" element={<AdminProductFormPage />} />
+                <Route path="products/:id/edit" element={<AdminProductFormPage />} />
                 <Route path="images" element={<AdminImageManagerPage />} />
               </Route>
               <Route path="/404" element={<NotFoundPage />} />
               <Route path="*" element={<Navigate to="/404" replace />} />
             </Routes>
           </BrowserRouter>
+          </AdminAuthProvider>
         </WishlistProvider>
       </CartProvider>
     </TooltipProvider>

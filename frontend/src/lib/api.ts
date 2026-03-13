@@ -6,6 +6,7 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
     headers: { "Content-Type": "application/json", ...options?.headers },
   });
   if (!res.ok) throw new Error(await res.text().catch(() => res.statusText));
+  if (res.status === 204) return undefined as T;
   return res.json();
 }
 
@@ -24,6 +25,11 @@ export const api = {
       return fetchApi<Array<Record<string, unknown>>>(`/api/products${q ? `?${q}` : ""}`);
     },
     byId: (id: string) => fetchApi<Record<string, unknown>>(`/api/products/${id}`),
+    create: (data: Record<string, unknown>) =>
+      fetchApi<Record<string, unknown>>("/api/products", { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: Record<string, unknown>) =>
+      fetchApi<Record<string, unknown>>(`/api/products/${id}`, { method: "PUT", body: JSON.stringify(data) }),
+    delete: (id: string) => fetchApi<void>(`/api/products/${id}`, { method: "DELETE" }),
   },
   categories: () => fetchApi<{ list: Array<Record<string, unknown>>; bySlug: Record<string, Record<string, unknown>> }>("/api/categories"),
   shopCategories: () => fetchApi<{ list: Array<Record<string, unknown>>; bySlug: Record<string, Record<string, unknown>> }>("/api/shop-categories"),

@@ -82,9 +82,8 @@ export default function ProductDetailPage() {
             </h1>
 
             <p className="text-sm text-muted-foreground leading-relaxed mb-8">
-              Crafted with precision and care, this piece combines timeless
-              design with exceptional comfort. Made from premium materials to
-              ensure lasting quality and elegance in your space.
+              {product.description ||
+                "Crafted with precision and care, this piece combines timeless design with exceptional comfort. Made from premium materials to ensure lasting quality and elegance in your space."}
             </p>
 
             <div className="flex flex-wrap gap-3">

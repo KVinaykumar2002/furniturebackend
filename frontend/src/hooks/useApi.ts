@@ -9,6 +9,7 @@ function mapProduct(p: Record<string, unknown>): Product {
   return {
     id: String(p.id),
     name: String(p.name),
+    description: p.description != null ? String(p.description) : undefined,
     price: Number(p.price),
     oldPrice: p.oldPrice != null ? Number(p.oldPrice) : undefined,
     save: p.save != null ? Number(p.save) : undefined,

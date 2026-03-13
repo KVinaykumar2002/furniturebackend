@@ -1,13 +1,21 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
-import { LayoutDashboard, Image, ArrowLeft } from "lucide-react";
+import { Link, Outlet, useLocation, Navigate } from "react-router-dom";
+import { LayoutDashboard, Package, Image, ArrowLeft, LogOut } from "lucide-react";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+import { Button } from "@/components/ui/button";
 
 const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/admin/images", label: "Image manager", icon: Image },
+  { to: "/admin/products", label: "Products", icon: Package },
+  { to: "/admin/images", label: "Images", icon: Image },
 ];
 
 export default function AdminLayout() {
   const location = useLocation();
+  const { isAdmin, logout } = useAdminAuth();
+
+  if (!isAdmin) {
+    return <Navigate to="/admin/login" state={{ from: { pathname: location.pathname } }} replace />;
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -27,7 +35,7 @@ export default function AdminLayout() {
                 key={to}
                 to={to}
                 className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                  location.pathname === to
+                  (location.pathname === to || (to === "/admin/products" && location.pathname.startsWith("/admin/products")))
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 }`}
@@ -37,6 +45,15 @@ export default function AdminLayout() {
               </Link>
             ))}
           </nav>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto text-muted-foreground hover:text-foreground"
+            onClick={logout}
+          >
+            <LogOut className="h-4 w-4 mr-1.5" />
+            Logout
+          </Button>
         </div>
       </header>
       <main className="container py-8 px-4">

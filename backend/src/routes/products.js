@@ -56,4 +56,73 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+/** POST /api/products - create product */
+router.post("/", async (req, res) => {
+  try {
+    const body = req.body;
+    let id = body.id || body.name?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") || "product";
+    const existing = await Product.findOne({ id });
+    if (existing) id = `${id}-${Date.now().toString(36).slice(-6)}`;
+    const doc = await Product.create({
+      id,
+      name: body.name,
+      description: body.description ?? "",
+      price: Number(body.price),
+      oldPrice: body.oldPrice != null ? Number(body.oldPrice) : undefined,
+      save: body.save != null ? Number(body.save) : undefined,
+      rating: Number(body.rating) || 0,
+      reviews: Number(body.reviews) || 0,
+      image: body.image,
+      category: body.category,
+      mainCategory: body.mainCategory,
+      subcategory: body.subcategory || undefined,
+      isNew: Boolean(body.isNew),
+    });
+    res.status(201).json(doc.toObject());
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** PUT /api/products/:id - update product */
+router.put("/:id", async (req, res) => {
+  try {
+    const product = await Product.findOneAndUpdate(
+      { id: req.params.id },
+      {
+        $set: {
+          name: req.body.name,
+          description: req.body.description ?? "",
+          price: Number(req.body.price),
+          oldPrice: req.body.oldPrice != null ? Number(req.body.oldPrice) : undefined,
+          save: req.body.save != null ? Number(req.body.save) : undefined,
+          rating: Number(req.body.rating) || 0,
+          reviews: Number(req.body.reviews) || 0,
+          image: req.body.image,
+          category: req.body.category,
+          mainCategory: req.body.mainCategory,
+          subcategory: req.body.subcategory || undefined,
+          isNew: Boolean(req.body.isNew),
+        },
+      },
+      { new: true, runValidators: true }
+    ).lean();
+    if (!product) return res.status(404).json({ error: "Product not found" });
+    res.json(product);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+/** DELETE /api/products/:id */
+router.delete("/:id", async (req, res) => {
+  try {
+    const result = await Product.findOneAndDelete({ id: req.params.id });
+    if (!result) return res.status(404).json({ error: "Product not found" });
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
