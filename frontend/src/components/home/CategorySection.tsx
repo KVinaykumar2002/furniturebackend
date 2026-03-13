@@ -2,32 +2,37 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import {
-  mainCategoryTabs,
   furnitureSubTabs,
   getFurnitureGridBySub,
-  type MainCategorySlug,
   type FurnitureSubSlug,
 } from "@/data/categorySection";
-import { useProducts } from "@/hooks/useApi";
+import { useProducts, useCategories } from "@/hooks/useApi";
 
-const FURNITURE_SLUG: MainCategorySlug = "furniture";
+const FURNITURE_SLUG = "furniture";
 
 /** Fallback when a category or product image fails to load */
 const FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=600";
 
 /**
- * Category section: CATEGORIES heading, one-line main nav, INDOOR/OUTDOOR/OFFICE for Furniture,
- * and product grid per category. All categories work and show 3+ products with unique images.
+ * Category section: CATEGORIES heading, one-line main nav (from API), INDOOR/OUTDOOR/OFFICE for Furniture,
+ * and product grid per category.
  */
 export default function CategorySection() {
-  const [mainCategory, setMainCategory] = useState<MainCategorySlug>("furniture");
+  const { list: categoryList } = useCategories();
+  const [mainCategory, setMainCategory] = useState<string>("");
   const [subCategory, setSubCategory] = useState<FurnitureSubSlug>("indoor");
 
-  const isFurniture = mainCategory === FURNITURE_SLUG;
+  const mainCategoryTabs = categoryList.map((c) => ({ slug: c.slug, label: c.title }));
+  const effectiveMain =
+    mainCategory && mainCategoryTabs.some((t) => t.slug === mainCategory)
+      ? mainCategory
+      : mainCategoryTabs[0]?.slug ?? "";
+  const isFurniture = effectiveMain === FURNITURE_SLUG;
+  const isAll = effectiveMain === "all";
   const gridItems = getFurnitureGridBySub(subCategory);
   const { products: categoryProducts } = useProducts(
-    isFurniture ? undefined : { category: mainCategory }
+    isFurniture || isAll ? undefined : { category: effectiveMain }
   );
   const ref = useScrollReveal<HTMLElement>(0.08);
 
@@ -53,8 +58,8 @@ export default function CategorySection() {
               className="category-main-nav-item shrink-0 whitespace-nowrap uppercase font-medium tracking-wide transition-colors pb-1 border-b-2 -mb-px"
               style={{
                 fontFamily: "Lato, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif",
-                color: mainCategory === tab.slug ? "#3d3832" : "#8a8378",
-                borderBottomColor: mainCategory === tab.slug ? "#3d3832" : "transparent",
+                color: effectiveMain === tab.slug ? "#3d3832" : "#8a8378",
+                borderBottomColor: effectiveMain === tab.slug ? "#3d3832" : "transparent",
               }}
             >
               {tab.label}

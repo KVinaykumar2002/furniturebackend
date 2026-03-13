@@ -82,7 +82,7 @@ export function useCategories() {
   const q = useQuery({
     queryKey: ["categories"],
     queryFn: async () => {
-      const { list, bySlug } = await api.categories();
+      const { list, bySlug } = await api.categories.list();
       return {
         list: list.map(mapCategory),
         bySlug: Object.fromEntries(Object.entries(bySlug).map(([k, v]) => [k, mapCategory(v)])),

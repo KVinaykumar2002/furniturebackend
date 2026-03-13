@@ -1,4 +1,6 @@
 import "dotenv/config";
+import path from "path";
+import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
@@ -6,7 +8,9 @@ import productRoutes from "./routes/products.js";
 import categoryRoutes from "./routes/categories.js";
 import shopCategoryRoutes from "./routes/shopCategories.js";
 import storeRoutes from "./routes/stores.js";
+import uploadRoutes from "./routes/upload.js";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 4000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/furniture";
 
@@ -14,7 +18,10 @@ const app = express();
 app.use(cors({ origin: true }));
 app.use(express.json());
 
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+
 app.use("/api/products", productRoutes);
+app.use("/api/upload", uploadRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/shop-categories", shopCategoryRoutes);
 app.use("/api/stores", storeRoutes);

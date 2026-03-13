@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { CATEGORY_OPTIONS, MAIN_CATEGORY_OPTIONS, SUBCATEGORY_OPTIONS } from "@/data/adminProductOptions";
 import { toast } from "sonner";
+import { Upload, Link as LinkIcon } from "lucide-react";
 
 const defaultForm = {
   name: "",
@@ -38,6 +39,7 @@ export default function AdminProductFormPage() {
   const isEdit = Boolean(id);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState(defaultForm);
 
   useEffect(() => {
@@ -220,21 +222,62 @@ export default function AdminProductFormPage() {
               onChange={(e) => update("reviews", e.target.value)}
             />
           </div>
-          <div className="sm:col-span-2">
-            <Label htmlFor="image">Image URL *</Label>
-            <Input
-              id="image"
-              type="url"
-              value={form.image}
-              onChange={(e) => update("image", e.target.value)}
-              placeholder="https://..."
-              required
-            />
+          <div className="sm:col-span-2 space-y-3">
+            <Label>Product image *</Label>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col gap-2">
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  className="hidden"
+                  id="product-image-upload"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    setUploading(true);
+                    try {
+                      const { url } = await api.uploadImage(file);
+                      update("image", url);
+                      toast.success("Image uploaded");
+                    } catch (err) {
+                      toast.error(err instanceof Error ? err.message : "Upload failed");
+                    } finally {
+                      setUploading(false);
+                      e.target.value = "";
+                    }
+                  }}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={uploading}
+                  onClick={() => document.getElementById("product-image-upload")?.click()}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {uploading ? "Uploading…" : "Upload image"}
+                </Button>
+                <p className="text-xs text-muted-foreground">JPEG, PNG, GIF or WebP (max 5MB)</p>
+              </div>
+              <div className="flex-1">
+                <Label htmlFor="image" className="text-muted-foreground font-normal flex items-center gap-1.5">
+                  <LinkIcon className="h-3.5 w-3.5" />
+                  Or paste image URL
+                </Label>
+                <Input
+                  id="image"
+                  type="url"
+                  value={form.image}
+                  onChange={(e) => update("image", e.target.value)}
+                  placeholder="https://..."
+                  className="mt-1.5"
+                />
+              </div>
+            </div>
             {form.image && (
               <img
                 src={form.image}
                 alt="Preview"
-                className="mt-2 h-32 w-32 rounded object-cover border"
+                className="h-32 w-32 rounded object-cover border"
                 onError={(e) => (e.currentTarget.style.display = "none")}
               />
             )}

@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
+export const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:4000";
 
 async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
@@ -7,6 +7,17 @@ async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
   });
   if (!res.ok) throw new Error(await res.text().catch(() => res.statusText));
   if (res.status === 204) return undefined as T;
+  return res.json();
+}
+
+async function uploadImage(file: File): Promise<{ url: string }> {
+  const formData = new FormData();
+  formData.append("image", file);
+  const res = await fetch(`${API_BASE}/api/upload`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!res.ok) throw new Error(await res.text().catch(() => res.statusText));
   return res.json();
 }
 
@@ -31,10 +42,18 @@ export const api = {
       fetchApi<Record<string, unknown>>(`/api/products/${id}`, { method: "PUT", body: JSON.stringify(data) }),
     delete: (id: string) => fetchApi<void>(`/api/products/${id}`, { method: "DELETE" }),
   },
-  categories: () => fetchApi<{ list: Array<Record<string, unknown>>; bySlug: Record<string, Record<string, unknown>> }>("/api/categories"),
+  categories: {
+    list: () => fetchApi<{ list: Array<Record<string, unknown>>; bySlug: Record<string, Record<string, unknown>> }>("/api/categories"),
+    create: (data: { slug: string; title: string; description?: string; image: string }) =>
+      fetchApi<Record<string, unknown>>("/api/categories", { method: "POST", body: JSON.stringify(data) }),
+    update: (slug: string, data: { title?: string; description?: string; image?: string }) =>
+      fetchApi<Record<string, unknown>>(`/api/categories/${encodeURIComponent(slug)}`, { method: "PUT", body: JSON.stringify(data) }),
+    delete: (slug: string) => fetchApi<void>(`/api/categories/${encodeURIComponent(slug)}`, { method: "DELETE" }),
+  },
   shopCategories: () => fetchApi<{ list: Array<Record<string, unknown>>; bySlug: Record<string, Record<string, unknown>> }>("/api/shop-categories"),
   stores: {
     list: () => fetchApi<Array<Record<string, unknown>>>("/api/stores"),
     byId: (id: string) => fetchApi<Record<string, unknown>>(`/api/stores/${id}`),
   },
+  uploadImage,
 };

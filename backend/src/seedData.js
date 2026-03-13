@@ -1,6 +1,7 @@
 // Seed data matching frontend static data (with existing image URLs)
 
 export const seedCategories = [
+  { slug: "all", title: "All", description: "Browse all products across every category.", image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800" },
   { slug: "furniture", title: "Furniture", description: "Sofas, chairs, tables, and living room essentials. Timeless designs for every home.", image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=800" },
   { slug: "outdoor", title: "Outdoor", description: "Patio sets, garden furniture, and outdoor living. Built to last through the seasons.", image: "https://images.unsplash.com/photo-1499933374294-4584851497cc?auto=format&fit=crop&q=80&w=800" },
   { slug: "office", title: "Office", description: "Desks, ergonomic chairs, and storage. Create a productive and stylish workspace.", image: "https://images.unsplash.com/photo-1524253482453-3fed8d2fe12b?auto=format&fit=crop&q=80&w=800" },

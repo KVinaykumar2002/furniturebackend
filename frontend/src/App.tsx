@@ -29,6 +29,8 @@ import AdminPage from "./pages/AdminPage";
 import AdminImageManagerPage from "./pages/AdminImageManagerPage";
 import AdminProductsPage from "./pages/AdminProductsPage";
 import AdminProductFormPage from "./pages/AdminProductFormPage";
+import AdminCategoriesPage from "./pages/AdminCategoriesPage";
+import AdminCategoryFormPage from "./pages/AdminCategoryFormPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 
@@ -68,6 +70,9 @@ const App = () => (
                 <Route path="products" element={<AdminProductsPage />} />
                 <Route path="products/new" element={<AdminProductFormPage />} />
                 <Route path="products/:id/edit" element={<AdminProductFormPage />} />
+                <Route path="categories" element={<AdminCategoriesPage />} />
+                <Route path="categories/new" element={<AdminCategoryFormPage />} />
+                <Route path="categories/:slug/edit" element={<AdminCategoryFormPage />} />
                 <Route path="images" element={<AdminImageManagerPage />} />
               </Route>
               <Route path="/404" element={<NotFoundPage />} />
