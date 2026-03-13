@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { CATEGORY_OPTIONS, MAIN_CATEGORY_OPTIONS, SUBCATEGORY_OPTIONS } from "@/data/adminProductOptions";
+import { useCategories, useShopCategories } from "@/hooks/useApi";
 
 const SORT_OPTIONS = [
   { value: "popularity", label: "Popularity" },
@@ -41,10 +41,15 @@ const SORT_OPTIONS = [
 ] as const;
 
 export default function AdminProductsPage() {
+  const { list: categoryList } = useCategories();
+  const { list: shopCategoryList } = useShopCategories();
+  const categoryFilterOptions = categoryList.filter((c) => String(c.slug) !== "all").map((c) => ({ value: c.slug, label: c.title }));
+  const mainCategoryFilterOptions = shopCategoryList.map((c) => ({ value: c.slug, label: c.title }));
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<string>("all");
   const [mainCategory, setMainCategory] = useState<string>("all");
-  const [subcategory, setSubcategory] = useState<string>("all");
+  const [subcategory, setSubcategory] = useState("");
   const [sort, setSort] = useState<string>("popularity");
 
   const filterParams = useMemo(() => {
@@ -52,7 +57,7 @@ export default function AdminProductsPage() {
     if (search.trim()) params.search = search.trim();
     if (category && category !== "all") params.category = category;
     if (mainCategory && mainCategory !== "all") params.mainCategory = mainCategory;
-    if (subcategory && subcategory !== "all") params.subcategory = subcategory;
+    if (subcategory.trim()) params.subcategory = subcategory.trim();
     if (sort && sort !== "popularity") params.sort = sort;
     return params;
   }, [search, category, mainCategory, subcategory, sort]);
@@ -111,9 +116,9 @@ export default function AdminProductsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All categories</SelectItem>
-              {CATEGORY_OPTIONS.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
+              {categoryFilterOptions.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -124,26 +129,19 @@ export default function AdminProductsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All main</SelectItem>
-              {MAIN_CATEGORY_OPTIONS.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
+              {mainCategoryFilterOptions.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Select value={subcategory} onValueChange={setSubcategory}>
-            <SelectTrigger>
-              <SelectValue placeholder="Subcategory" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All sub</SelectItem>
-              {SUBCATEGORY_OPTIONS.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {c}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Input
+            placeholder="Subcategory filter"
+            value={subcategory}
+            onChange={(e) => setSubcategory(e.target.value)}
+            className="max-w-[140px]"
+          />
           <Select value={sort} onValueChange={setSort}>
             <SelectTrigger>
               <SelectValue placeholder="Sort" />
@@ -159,7 +157,7 @@ export default function AdminProductsPage() {
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           Showing {products.length} product{products.length !== 1 ? "s" : ""}
-          {(search || category !== "all" || mainCategory !== "all" || subcategory !== "all") && (
+          {(search || category !== "all" || mainCategory !== "all" || subcategory) && (
             <Button
               variant="ghost"
               size="sm"
@@ -167,7 +165,7 @@ export default function AdminProductsPage() {
                 setSearch("");
                 setCategory("all");
                 setMainCategory("all");
-                setSubcategory("all");
+                setSubcategory("");
                 setSort("popularity");
               }}
             >

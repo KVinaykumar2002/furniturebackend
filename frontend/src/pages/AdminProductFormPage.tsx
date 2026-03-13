@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CATEGORY_OPTIONS, MAIN_CATEGORY_OPTIONS, SUBCATEGORY_OPTIONS } from "@/data/adminProductOptions";
+import { useCategories, useShopCategories } from "@/hooks/useApi";
 import { toast } from "sonner";
 import { Upload, Link as LinkIcon } from "lucide-react";
 import { cn, readFileAsDataUrl } from "@/lib/utils";
@@ -38,11 +38,24 @@ export default function AdminProductFormPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
+  const { list: categoryList } = useCategories();
+  const { list: shopCategoryList } = useShopCategories();
+  const mainCategoryOptions = shopCategoryList.map((c) => ({ value: c.slug, label: c.title }));
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [dropZoneActive, setDropZoneActive] = useState(false);
   const [form, setForm] = useState(defaultForm);
+
+  // Category dropdown: API categories (exclude "all"), plus current value if not in list (e.g. legacy)
+  const categoryOptions = (() => {
+    const fromApi = categoryList.filter((c) => String(c.slug) !== "all").map((c) => ({ value: c.slug, label: c.title }));
+    const current = form.category;
+    if (current && !fromApi.some((o) => o.value === current)) {
+      return [{ value: current, label: current }, ...fromApi];
+    }
+    return fromApi;
+  })();
 
   const setImageFromFile = async (file: File) => {
     setUploading(true);
@@ -315,12 +328,12 @@ export default function AdminProductFormPage() {
             <Label>Category</Label>
             <Select value={form.category} onValueChange={(v) => update("category", v)}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
-                {CATEGORY_OPTIONS.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
+                {categoryOptions.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -330,32 +343,24 @@ export default function AdminProductFormPage() {
             <Label>Main category</Label>
             <Select value={form.mainCategory} onValueChange={(v) => update("mainCategory", v)}>
               <SelectTrigger>
-                <SelectValue />
+                <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
-                {MAIN_CATEGORY_OPTIONS.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
+                {mainCategoryOptions.map((o) => (
+                  <SelectItem key={o.value} value={o.value}>
+                    {o.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label>Subcategory</Label>
-            <Select value={form.subcategory || "none"} onValueChange={(v) => update("subcategory", v === "none" ? "" : v)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Optional" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">— None —</SelectItem>
-                {SUBCATEGORY_OPTIONS.map((c) => (
-                  <SelectItem key={c} value={c}>
-                    {c}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Label>Subcategory (optional)</Label>
+            <Input
+              value={form.subcategory}
+              onChange={(e) => update("subcategory", e.target.value)}
+              placeholder="e.g. sofas, beds"
+            />
           </div>
           <div className="flex items-center gap-2 sm:col-span-2">
             <Switch
