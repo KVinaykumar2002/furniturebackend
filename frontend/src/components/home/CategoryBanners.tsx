@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 
-// Unique Unsplash images for category banners (higher res for larger display)
+// Category banner images (Living & Dining use local assets from public folder)
 const BANNER_IMAGES = {
-  living: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=1600",
-  dining: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&q=80&w=1600",
+  living: "/BED ROOM.jpg.jpeg",
+  dining: "/DINNING 2.jpg.jpeg",
   bedroom: "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&q=80&w=1600",
 };
 
