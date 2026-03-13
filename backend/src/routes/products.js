@@ -6,12 +6,15 @@ const router = Router();
 /** GET /api/products - list with optional filters */
 router.get("/", async (req, res) => {
   try {
-    const { mainCategory, subcategory, category, featured, bestSellers, sort, limit } = req.query;
-    let query = {};
+    const { mainCategory, subcategory, category, featured, bestSellers, sort, limit, search } = req.query;
+    const query = {};
 
+    if (search && String(search).trim()) {
+      query.name = { $regex: String(search).trim(), $options: "i" };
+    }
     if (mainCategory && mainCategory !== "all") query.mainCategory = mainCategory;
-    if (subcategory) query.subcategory = subcategory;
-    if (category) query.category = category;
+    if (subcategory && subcategory !== "all") query.subcategory = subcategory;
+    if (category && category !== "all") query.category = category;
 
     let list = await Product.find(query).lean();
 

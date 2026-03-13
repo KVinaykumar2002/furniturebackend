@@ -23,8 +23,9 @@ async function uploadImage(file: File): Promise<{ url: string }> {
 
 export const api = {
   products: {
-    list: (params?: { mainCategory?: string; subcategory?: string; category?: string; featured?: boolean; bestSellers?: boolean; sort?: string; limit?: number }) => {
+    list: (params?: { search?: string; mainCategory?: string; subcategory?: string; category?: string; featured?: boolean; bestSellers?: boolean; sort?: string; limit?: number }) => {
       const sp = new URLSearchParams();
+      if (params?.search?.trim()) sp.set("search", params.search.trim());
       if (params?.mainCategory) sp.set("mainCategory", params.mainCategory);
       if (params?.subcategory) sp.set("subcategory", params.subcategory);
       if (params?.category) sp.set("category", params.category);

@@ -17,6 +17,7 @@ import {
 import { CATEGORY_OPTIONS, MAIN_CATEGORY_OPTIONS, SUBCATEGORY_OPTIONS } from "@/data/adminProductOptions";
 import { toast } from "sonner";
 import { Upload, Link as LinkIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const defaultForm = {
   name: "",
@@ -40,7 +41,40 @@ export default function AdminProductFormPage() {
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [dropZoneActive, setDropZoneActive] = useState(false);
   const [form, setForm] = useState(defaultForm);
+
+  const uploadFile = async (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please drop an image file (JPEG, PNG, GIF or WebP)");
+      return;
+    }
+    setUploading(true);
+    try {
+      const { url } = await api.uploadImage(file);
+      setForm((prev) => ({ ...prev, image: url }));
+      toast.success("Image uploaded");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleImageDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDropZoneActive(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) uploadFile(file);
+  };
+
+  const handleImageDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    setDropZoneActive(true);
+  };
+
+  const handleImageDragLeave = () => setDropZoneActive(false);
 
   useEffect(() => {
     if (!isEdit) {
@@ -225,28 +259,27 @@ export default function AdminProductFormPage() {
           <div className="sm:col-span-2 space-y-3">
             <Label>Product image *</Label>
             <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex flex-col gap-2">
+              <div
+                className={cn(
+                  "flex flex-col gap-2 rounded-lg border-2 border-dashed p-4 transition-colors min-w-[200px]",
+                  dropZoneActive ? "border-primary bg-primary/5" : "border-muted-foreground/30 bg-muted/20"
+                )}
+                onDrop={handleImageDrop}
+                onDragOver={handleImageDragOver}
+                onDragLeave={handleImageDragLeave}
+              >
                 <input
                   type="file"
                   accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                   className="hidden"
                   id="product-image-upload"
-                  onChange={async (e) => {
+                  onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (!file) return;
-                    setUploading(true);
-                    try {
-                      const { url } = await api.uploadImage(file);
-                      update("image", url);
-                      toast.success("Image uploaded");
-                    } catch (err) {
-                      toast.error(err instanceof Error ? err.message : "Upload failed");
-                    } finally {
-                      setUploading(false);
-                      e.target.value = "";
-                    }
+                    if (file) uploadFile(file);
+                    e.target.value = "";
                   }}
                 />
+                <p className="text-xs text-muted-foreground mb-1">Drag and drop an image here, or</p>
                 <Button
                   type="button"
                   variant="outline"
@@ -254,7 +287,7 @@ export default function AdminProductFormPage() {
                   onClick={() => document.getElementById("product-image-upload")?.click()}
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  {uploading ? "Uploading…" : "Upload image"}
+                  {uploading ? "Uploading…" : "Choose file"}
                 </Button>
                 <p className="text-xs text-muted-foreground">JPEG, PNG, GIF or WebP (max 5MB)</p>
               </div>

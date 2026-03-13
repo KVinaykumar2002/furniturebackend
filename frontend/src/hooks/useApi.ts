@@ -54,7 +54,7 @@ function mapShopCategory(c: Record<string, unknown>): ShopCategory {
   };
 }
 
-export function useProducts(params?: { mainCategory?: string; subcategory?: string; category?: string; featured?: boolean; bestSellers?: boolean; sort?: string; limit?: number }) {
+export function useProducts(params?: { search?: string; mainCategory?: string; subcategory?: string; category?: string; featured?: boolean; bestSellers?: boolean; sort?: string; limit?: number }) {
   const q = useQuery({
     queryKey: ["products", params],
     queryFn: async () => {

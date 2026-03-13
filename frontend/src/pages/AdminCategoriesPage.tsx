@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Pencil, Trash2, FolderTree } from "lucide-react";
+import { Plus, Pencil, Trash2, FolderTree, Search } from "lucide-react";
 import { useCategories } from "@/hooks/useApi";
 import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -25,9 +26,19 @@ import {
 import { toast } from "sonner";
 
 export default function AdminCategoriesPage() {
-  const { list: categories, isPending, isError, refetch } = useCategories();
+  const { list: allCategories, isPending, isError, refetch } = useCategories();
+  const [search, setSearch] = useState("");
   const [deleteSlug, setDeleteSlug] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  const categories = useMemo(() => {
+    if (!search.trim()) return allCategories;
+    const q = search.trim().toLowerCase();
+    return allCategories.filter(
+      (c: { slug: string; title: string }) =>
+        c.slug.toLowerCase().includes(q) || c.title.toLowerCase().includes(q)
+    );
+  }, [allCategories, search]);
 
   const handleDelete = async () => {
     if (!deleteSlug) return;
@@ -59,6 +70,23 @@ export default function AdminCategoriesPage() {
             Add category
           </Link>
         </Button>
+      </div>
+
+      <div className="mb-6 max-w-sm">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by title or slug..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+        {search && (
+          <p className="text-sm text-muted-foreground mt-1.5">
+            Showing {categories.length} of {allCategories.length} categories
+          </p>
+        )}
       </div>
 
       {isPending && <p className="text-muted-foreground py-8">Loading categories...</p>}
