@@ -16,7 +16,8 @@ const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/furnit
 
 const app = express();
 app.use(cors({ origin: true }));
-app.use(express.json());
+// Allow larger payloads for base64 images (e.g. 5MB image ≈ 6.7MB base64)
+app.use(express.json({ limit: "10mb" }));
 
 app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 

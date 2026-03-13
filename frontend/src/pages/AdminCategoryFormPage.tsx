@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn, readFileAsDataUrl } from "@/lib/utils";
 
 function slugFromTitle(title: string): string {
   return title
@@ -34,18 +34,14 @@ export default function AdminCategoryFormPage() {
   const [dropZoneActive, setDropZoneActive] = useState(false);
   const [form, setForm] = useState(defaultForm);
 
-  const uploadFile = async (file: File) => {
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please drop an image file (JPEG, PNG, GIF or WebP)");
-      return;
-    }
+  const setImageFromFile = async (file: File) => {
     setUploading(true);
     try {
-      const { url } = await api.uploadImage(file);
-      setForm((prev) => ({ ...prev, image: url }));
-      toast.success("Image uploaded");
+      const dataUrl = await readFileAsDataUrl(file);
+      setForm((prev) => ({ ...prev, image: dataUrl }));
+      toast.success("Image set (stored as base64)");
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Upload failed");
+      toast.error(err instanceof Error ? err.message : "Failed to read image");
     } finally {
       setUploading(false);
     }
@@ -55,7 +51,7 @@ export default function AdminCategoryFormPage() {
     e.preventDefault();
     setDropZoneActive(false);
     const file = e.dataTransfer.files?.[0];
-    if (file) uploadFile(file);
+    if (file) setImageFromFile(file);
   };
 
   const handleImageDragOver = (e: React.DragEvent) => {
@@ -221,7 +217,7 @@ export default function AdminCategoryFormPage() {
                   id="category-image-upload"
                   onChange={(e) => {
                     const file = e.target.files?.[0];
-                    if (file) uploadFile(file);
+                    if (file) setImageFromFile(file);
                     e.target.value = "";
                   }}
                 />
@@ -233,7 +229,7 @@ export default function AdminCategoryFormPage() {
                   onClick={() => document.getElementById("category-image-upload")?.click()}
                 >
                   <Upload className="h-4 w-4 mr-2" />
-                  {uploading ? "Uploading…" : "Choose file"}
+                  {uploading ? "Reading…" : "Choose file"}
                 </Button>
                 <p className="text-xs text-muted-foreground">JPEG, PNG, GIF or WebP (max 5MB)</p>
               </div>
@@ -244,10 +240,10 @@ export default function AdminCategoryFormPage() {
                 </Label>
                 <Input
                   id="image"
-                  type="url"
-                  value={form.image}
+                  type="text"
+                  value={form.image.startsWith("data:") ? "" : form.image}
                   onChange={(e) => update("image", e.target.value)}
-                  placeholder="https://..."
+                  placeholder={form.image.startsWith("data:") ? "Image from file (paste URL to replace)" : "https://..."}
                   className="mt-1.5"
                 />
               </div>
