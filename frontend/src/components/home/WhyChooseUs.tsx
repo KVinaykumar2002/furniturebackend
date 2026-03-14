@@ -1,10 +1,9 @@
 import SectionWrapper from "@/components/SectionWrapper";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
-import { Truck, RotateCcw, CreditCard, Award } from "lucide-react";
+import { Truck, CreditCard, Award } from "lucide-react";
 
 const features = [
   { icon: Truck, title: "Free Shipping", description: "On orders above ₹5,000. Fast delivery across India." },
-  { icon: RotateCcw, title: "30-Day Returns", description: "Not satisfied? Full refund, no questions asked." },
   { icon: CreditCard, title: "Secure Payment", description: "Industry-standard encryption & secure checkout." },
   { icon: Award, title: "Premium Quality", description: "Handpicked materials & craftsmanship that lasts." },
 ];
@@ -14,7 +13,7 @@ export default function WhyChooseUs() {
   return (
     <div ref={ref} className="animate-on-scroll">
     <SectionWrapper subtitle="Why us" title="Why Choose Us" className="bg-muted/30">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
         {features.map(({ icon: Icon, title, description }, i) => (
           <div
             key={title}
