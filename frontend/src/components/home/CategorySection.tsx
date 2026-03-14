@@ -47,9 +47,9 @@ export default function CategorySection() {
         </p>
 
         <nav
-          className="category-main-nav flex flex-nowrap justify-start sm:justify-center items-center gap-4 mb-8 overflow-x-auto scroll-smooth scrollbar-thin px-1 -mx-1"
+          className="category-main-nav flex flex-nowrap justify-start sm:justify-center items-center gap-4 mb-8 overflow-x-auto scroll-smooth px-1 -mx-1"
           aria-label="Main categories"
-          style={{ scrollbarWidth: "thin" }}
+          style={{ scrollbarWidth: "none" }}
         >
           {mainCategoryTabs.map((tab) => (
             <button
@@ -69,10 +69,9 @@ export default function CategorySection() {
         </nav>
         <style>{`
           .category-main-nav { gap: clamp(0.5rem, 1.5vw, 1.5rem); -webkit-overflow-scrolling: touch; }
-          .category-main-nav::-webkit-scrollbar { height: 6px; }
-          .category-main-nav::-webkit-scrollbar-track { background: transparent; }
-          .category-main-nav::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
-          .category-main-nav-item { font-size: clamp(0.75rem, 1.25vw, 0.95rem); }
+          .category-main-nav::-webkit-scrollbar { display: none; }
+          .category-main-nav { -ms-overflow-style: none; }
+          .category-main-nav-item { font-size: clamp(0.65rem, 1vw, 0.8rem); }
         `}</style>
 
         {/* Sub-category: INDOOR / OUTDOOR / OFFICE (only when Furniture is selected) */}

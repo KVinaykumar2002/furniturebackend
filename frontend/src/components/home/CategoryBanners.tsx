@@ -3,9 +3,9 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 
 // Category banner images (Living & Dining use local assets from public folder)
 const BANNER_IMAGES = {
-  living: "/BED ROOM.jpg.jpeg",
+  living: "/living.png",
   dining: "/DINNING 2.jpg.jpeg",
-  bedroom: "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&q=80&w=1600",
+  bedroom: "/BED ROOM.jpg.jpeg",
 };
 
 interface BannerData {

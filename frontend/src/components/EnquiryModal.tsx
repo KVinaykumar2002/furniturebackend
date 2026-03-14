@@ -48,7 +48,7 @@ export default function EnquiryModal() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="fixed bottom-6 left-6 z-40 w-14 h-14 rounded-2xl bg-[#8C786E] flex items-center justify-center shadow-lg hover:bg-[#7A685E] hover:scale-105 transition-all duration-200 text-white"
+        className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-2xl bg-[#8C786E] flex items-center justify-center shadow-lg hover:bg-[#7A685E] hover:scale-105 transition-all duration-200 text-white ring-2 ring-amber-400/90 ring-offset-2 ring-offset-background"
         aria-label="Open enquiry form"
       >
         <MessageCircle className="w-7 h-7" />
