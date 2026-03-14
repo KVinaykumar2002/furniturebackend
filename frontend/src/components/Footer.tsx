@@ -85,6 +85,8 @@ export default function Footer() {
           <div>
             <h4 className="font-medium text-[#2c2c2c] text-sm mb-4">Stores</h4>
             <ul className="space-y-2.5 text-sm text-[#5a5a5a]">
+              <li><Link to="/stores" className="hover:text-[#2c2c2c] transition-colors">Kondapur</Link></li>
+              <li><Link to="/stores" className="hover:text-[#2c2c2c] transition-colors">Kothapet</Link></li>
               {stores.map((store) => (
                 <li key={store.id}>
                   <Link to={`/stores/${store.id}`} className="hover:text-[#2c2c2c] transition-colors">

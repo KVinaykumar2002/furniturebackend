@@ -19,10 +19,11 @@ router.get("/", async (req, res) => {
     let list = await Product.find(query).lean();
 
     if (featured === "true") {
-      list = list.filter((p) => p.save != null || p.rating === 5);
+      list = list.filter((p) => p.featured === true);
     }
     if (bestSellers === "true") {
-      list = list.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
+      list = list.filter((p) => p.isNew === true);
+      list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
     }
 
     switch (sort) {
@@ -80,6 +81,7 @@ router.post("/", async (req, res) => {
       mainCategory: body.mainCategory,
       subcategory: body.subcategory || undefined,
       isNew: Boolean(body.isNew),
+      featured: Boolean(body.featured),
     });
     res.status(201).json(doc.toObject());
   } catch (err) {
@@ -106,6 +108,7 @@ router.put("/:id", async (req, res) => {
           mainCategory: req.body.mainCategory,
           subcategory: req.body.subcategory || undefined,
           isNew: Boolean(req.body.isNew),
+          featured: Boolean(req.body.featured),
         },
       },
       { new: true, runValidators: true }

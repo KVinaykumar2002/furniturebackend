@@ -32,6 +32,7 @@ const defaultForm = {
   mainCategory: "living",
   subcategory: "",
   isNew: false,
+  featured: false,
 };
 
 export default function AdminProductFormPage() {
@@ -108,6 +109,7 @@ export default function AdminProductFormPage() {
           mainCategory: String(p.mainCategory ?? "living"),
           subcategory: p.subcategory ? String(p.subcategory) : "",
           isNew: Boolean(p.isNew),
+          featured: Boolean(p.featured),
         });
       } catch (e) {
         toast.error("Product not found");
@@ -153,6 +155,7 @@ export default function AdminProductFormPage() {
         mainCategory: form.mainCategory,
         subcategory: form.subcategory || undefined,
         isNew: form.isNew,
+        featured: form.featured,
       };
       if (isEdit) {
         await api.products.update(id!, payload);
@@ -369,6 +372,14 @@ export default function AdminProductFormPage() {
               onCheckedChange={(v) => update("isNew", v)}
             />
             <Label htmlFor="isNew">Mark as New arrival</Label>
+          </div>
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Switch
+              id="featured"
+              checked={form.featured}
+              onCheckedChange={(v) => update("featured", v)}
+            />
+            <Label htmlFor="featured">Mark as Best Deal</Label>
           </div>
         </div>
 

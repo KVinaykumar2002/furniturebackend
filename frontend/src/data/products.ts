@@ -17,6 +17,7 @@ export interface Product {
   mainCategory: MainCategorySlug;
   subcategory?: string;
   isNew?: boolean;
+  featured?: boolean;
 }
 
 export type SortOption = "popularity" | "price-asc" | "price-desc" | "new";

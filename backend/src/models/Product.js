@@ -15,6 +15,7 @@ const productSchema = new mongoose.Schema(
     mainCategory: { type: String, required: true },
     subcategory: String,
     isNew: { type: Boolean, default: false },
+    featured: { type: Boolean, default: false },
   },
   { timestamps: true, suppressReservedKeysWarning: true }
 );

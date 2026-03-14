@@ -20,6 +20,7 @@ function mapProduct(p: Record<string, unknown>): Product {
     mainCategory: p.mainCategory as Product["mainCategory"],
     subcategory: p.subcategory as Product["subcategory"],
     isNew: Boolean(p.isNew),
+    featured: Boolean(p.featured),
   };
 }
 

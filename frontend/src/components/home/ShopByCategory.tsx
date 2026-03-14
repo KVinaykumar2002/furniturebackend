@@ -53,10 +53,13 @@ export default function ShopByCategory() {
               {activeTab === "best-deals" && (
                 <div className="animate-in fade-in duration-300">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 md:gap-7">
-                    {featuredProducts.slice(0, 4).map((product, index) => (
+                    {featuredProducts.map((product, index) => (
                       <ProductCard key={product.id} product={product} index={index} />
                     ))}
                   </div>
+                  {featuredProducts.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">No best deals yet. Mark products as Best Deal in Admin.</p>
+                  )}
                   <div className="text-center mt-8">
                     <Link
                       to="/collections"
@@ -70,10 +73,13 @@ export default function ShopByCategory() {
               {activeTab === "new-arrivals" && (
                 <div className="animate-in fade-in duration-300">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 md:gap-7">
-                    {bestSellersProducts.slice(0, 4).map((product, index) => (
+                    {bestSellersProducts.map((product, index) => (
                       <ProductCard key={product.id} product={product} index={index} />
                     ))}
                   </div>
+                  {bestSellersProducts.length === 0 && (
+                    <p className="text-center text-muted-foreground py-8">No new arrivals yet. Mark products as New arrival in Admin.</p>
+                  )}
                   <div className="text-center mt-8">
                     <Link
                       to="/collections"
