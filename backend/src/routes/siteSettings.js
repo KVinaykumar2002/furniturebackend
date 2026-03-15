@@ -1,6 +1,7 @@
 import { Router } from "express";
 import SiteSettings from "../models/SiteSettings.js";
 
+const router = Router();
 const ID = "default";
 
 /** GET /api/site-settings — return single settings document (create with defaults if missing) */
