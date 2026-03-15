@@ -81,7 +81,14 @@ export function useProducts(params?: { search?: string; mainCategory?: string; s
     queryKey: ["products", params],
     queryFn: async () => {
       const list = await api.products.list(params);
-      return list.map(mapProduct);
+      const mapped = list.map(mapProduct);
+      // Remove duplicates by id so the same product (and image) never appears twice
+      const seen = new Set<string>();
+      return mapped.filter((p) => {
+        if (seen.has(p.id)) return false;
+        seen.add(p.id);
+        return true;
+      });
     },
   });
   return { ...q, products: q.data ?? [] };

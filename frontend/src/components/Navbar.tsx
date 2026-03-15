@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Search, Heart, ShoppingBag, User, ChevronDown, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
@@ -21,6 +21,18 @@ const Navbar = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (q) {
+      navigate(`/collections?search=${encodeURIComponent(q)}`);
+      setSearchOpen(false);
+      setMobileOpen(false);
+      setSearchQuery("");
+    }
+  };
   const { itemCount, openCart } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { list: shopCategoryList } = useShopCategories();
@@ -81,7 +93,7 @@ const Navbar = () => {
 
         {/* Desktop: search bar when expanded */}
         {searchOpen && (
-          <div className="hidden md:flex flex-1 max-w-md mx-4 animate-in fade-in duration-200">
+          <form onSubmit={handleSearchSubmit} className="hidden md:flex flex-1 max-w-md mx-4 animate-in fade-in duration-200 gap-1">
             <Input
               type="search"
               placeholder="Search products..."
@@ -89,11 +101,15 @@ const Navbar = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="rounded-none h-10 border-neutral-300"
               autoFocus
+              aria-label="Search products"
             />
-            <Button variant="ghost" size="icon" className="shrink-0" onClick={() => setSearchOpen(false)}>
+            <Button type="submit" variant="ghost" size="icon" className="shrink-0" aria-label="Search">
+              <Search className="h-4 w-4" />
+            </Button>
+            <Button type="button" variant="ghost" size="icon" className="shrink-0" onClick={() => setSearchOpen(false)} aria-label="Close search">
               <X className="h-4 w-4" />
             </Button>
-          </div>
+          </form>
         )}
 
         {/* Desktop: main nav */}
@@ -232,15 +248,16 @@ const Navbar = () => {
           </div>
 
           {/* Mobile search */}
-          <div className="p-4 border-b border-neutral-200">
+          <form onSubmit={handleSearchSubmit} className="p-4 border-b border-neutral-200">
             <Input
               type="search"
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="rounded-none h-11 border-neutral-300 text-base"
+              aria-label="Search products"
             />
-          </div>
+          </form>
 
           <nav className="px-2 py-4 space-y-1 overflow-y-auto max-h-[calc(100vh-180px)] overscroll-contain">
             {mainNavWithDropdowns.map((item) => (

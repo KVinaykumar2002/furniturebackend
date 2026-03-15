@@ -17,6 +17,14 @@ router.get("/", async (req, res) => {
     if (category && category !== "all") query.category = category;
 
     let list = await Product.find(query).lean();
+    // Remove duplicate products by id (keep first occurrence)
+    const seenIds = new Set();
+    list = list.filter((p) => {
+      const id = p && p.id;
+      if (!id || seenIds.has(id)) return false;
+      seenIds.add(id);
+      return true;
+    });
 
     if (featured === "true") {
       list = list.filter((p) => p.featured === true);

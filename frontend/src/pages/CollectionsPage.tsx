@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
@@ -48,6 +48,9 @@ type ProductTypeFilter =
   | { type: "category"; slug: string };
 
 export default function CollectionsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchFromUrl = searchParams.get("search")?.trim() ?? "";
+
   const [productTypeFilter, setProductTypeFilter] = useState<ProductTypeFilter>("all");
   const [sort, setSort] = useState<SortOption>("popularity");
   const [layout, setLayout] = useState<LayoutMode>("grid-4");
@@ -64,6 +67,7 @@ export default function CollectionsPage() {
   const { list: shopCategoriesList } = useShopCategories();
   const { list: categoriesList } = useCategories();
   const { products: rawProducts, isPending, isError } = useProducts({
+    search: searchFromUrl || undefined,
     mainCategory: productTypeFilter === "all" ? undefined : productTypeFilter.type === "mainCategory" ? productTypeFilter.slug : undefined,
     category: productTypeFilter === "all" ? undefined : productTypeFilter.type === "category" ? productTypeFilter.slug : undefined,
     sort,
@@ -149,9 +153,26 @@ export default function CollectionsPage() {
             <span className="text-foreground">All Collections</span>
           </nav>
 
-          <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-light text-foreground mb-6 sm:mb-8">
+          <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-light text-foreground mb-2 sm:mb-3">
             All Collections
           </h1>
+          {searchFromUrl && (
+            <p className="text-sm text-muted-foreground mb-6 sm:mb-8">
+              Search results for &quot;{searchFromUrl}&quot;.{" "}
+              <button
+                type="button"
+                onClick={() => setSearchParams((prev) => {
+                  const next = new URLSearchParams(prev);
+                  next.delete("search");
+                  return next;
+                })}
+                className="text-foreground underline hover:no-underline"
+              >
+                Clear search
+              </button>
+            </p>
+          )}
+          {!searchFromUrl && <div className="mb-6 sm:mb-8" />}
 
           <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
             {/* Filter sidebar — full width on mobile, fixed width on desktop */}

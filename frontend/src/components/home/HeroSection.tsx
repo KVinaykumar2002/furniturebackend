@@ -114,12 +114,6 @@ export default function HeroSection() {
             }`}
         >
           <Link
-            to="/#featured"
-            className="inline-flex items-center justify-center min-h-[48px] px-6 sm:px-8 bg-white text-neutral-900 font-medium hover:bg-white/90 transition-colors uppercase tracking-wide text-sm rounded-sm"
-          >
-            Shop Now
-          </Link>
-          <Link
             to="/collections"
             className="inline-flex items-center justify-center min-h-[48px] px-6 sm:px-8 border-2 border-white text-white font-medium hover:bg-white/10 transition-colors uppercase tracking-wide text-sm rounded-sm"
           >
