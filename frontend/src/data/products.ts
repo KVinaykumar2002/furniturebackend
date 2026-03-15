@@ -18,6 +18,11 @@ export interface Product {
   subcategory?: string;
   isNew?: boolean;
   featured?: boolean;
+  color?: string;
+  size?: string;
+  inStock?: boolean;
+  productLocation?: string;
+  has3d?: boolean;
 }
 
 export type SortOption = "popularity" | "price-asc" | "price-desc" | "new";

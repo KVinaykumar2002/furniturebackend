@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import { useProducts, useShopCategories } from "@/hooks/useApi";
-import type { SortOption, FilterCategory } from "@/data/products";
+import { useProducts, useShopCategories, useCategories } from "@/hooks/useApi";
+import type { SortOption } from "@/data/products";
 import { LayoutGrid, LayoutList, Rows2, ChevronDown, ChevronRight } from "lucide-react";
 import {
   Collapsible,
@@ -27,19 +27,109 @@ const FILTER_SECTIONS = [
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: "popularity", label: "Most Popular" },
   { value: "new", label: "Newest First" },
+  { value: "price-asc", label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
 ];
 
+const COLOR_OPTIONS = ["Black", "White", "Grey", "Brown", "Beige", "Blue"];
+const SIZE_OPTIONS = ["S", "M", "L", "XL"];
+
+/** Normalize color for filter comparison: trim, lowercase, treat Gray/Grey as same */
+function normalizeColorForFilter(color: string): string {
+  const n = (color || "").trim().toLowerCase();
+  if (n === "gray") return "grey";
+  return n;
+}
+
+type ProductTypeFilter =
+  | "all"
+  | { type: "mainCategory"; slug: string }
+  | { type: "category"; slug: string };
+
 export default function CollectionsPage() {
-  const [category, setCategory] = useState<FilterCategory>("all");
+  const [productTypeFilter, setProductTypeFilter] = useState<ProductTypeFilter>("all");
   const [sort, setSort] = useState<SortOption>("popularity");
   const [layout, setLayout] = useState<LayoutMode>("grid-4");
   const [openFilter, setOpenFilter] = useState<string | null>("product-type");
+  const [selectedColors, setSelectedColors] = useState<Set<string>>(new Set());
+  const [selectedSizes, setSelectedSizes] = useState<Set<string>>(new Set());
+  const [inStockOnly, setInStockOnly] = useState(false);
+  const [outOfStockOnly, setOutOfStockOnly] = useState(false);
+  const [productLocationShowroom, setProductLocationShowroom] = useState(false);
+  const [productLocationWarehouse, setProductLocationWarehouse] = useState(false);
+  const [has3dYes, setHas3dYes] = useState(false);
+  const [has3dNo, setHas3dNo] = useState(false);
 
-  const { shopCategorySlugs } = useShopCategories();
-  const { products, isPending, isError } = useProducts({
-    mainCategory: category === "all" ? undefined : category,
+  const { list: shopCategoriesList } = useShopCategories();
+  const { list: categoriesList } = useCategories();
+  const { products: rawProducts, isPending, isError } = useProducts({
+    mainCategory: productTypeFilter === "all" ? undefined : productTypeFilter.type === "mainCategory" ? productTypeFilter.slug : undefined,
+    category: productTypeFilter === "all" ? undefined : productTypeFilter.type === "category" ? productTypeFilter.slug : undefined,
     sort,
   });
+
+  const toggleSet = (setter: React.Dispatch<React.SetStateAction<Set<string>>>, value: string) => {
+    setter((prev) => {
+      const next = new Set(prev);
+      if (next.has(value)) next.delete(value);
+      else next.add(value);
+      return next;
+    });
+  };
+
+  const products = rawProducts.filter((p) => {
+    if (selectedColors.size > 0) {
+      const productColorNorm = normalizeColorForFilter(p.color ?? "");
+      if (!productColorNorm) return false;
+      const selectedNorm = [...selectedColors].map(normalizeColorForFilter);
+      const colorMatch = selectedNorm.some((s) => s === productColorNorm);
+      if (!colorMatch) return false;
+    }
+    if (selectedSizes.size > 0) {
+      const productSize = (p.size || "").trim();
+      const sizeMatch = productSize && selectedSizes.has(productSize);
+      if (!sizeMatch) return false;
+    }
+    if (inStockOnly && p.inStock === false) return false;
+    if (outOfStockOnly && p.inStock !== false) return false;
+    if (productLocationShowroom || productLocationWarehouse) {
+      const loc = (p.productLocation || "").toLowerCase();
+      if (!loc) return false;
+      if (productLocationShowroom && productLocationWarehouse) {
+        if (loc !== "showroom" && loc !== "warehouse") return false;
+      } else if (productLocationShowroom && loc !== "showroom") return false;
+      else if (productLocationWarehouse && loc !== "warehouse") return false;
+    }
+    if (has3dYes || has3dNo) {
+      if (p.has3d === undefined) return false;
+      if (has3dYes && !p.has3d) return false;
+      if (has3dNo && p.has3d) return false;
+    }
+    return true;
+  });
+
+  const hasActiveFilters =
+    productTypeFilter !== "all" ||
+    selectedColors.size > 0 ||
+    selectedSizes.size > 0 ||
+    inStockOnly ||
+    outOfStockOnly ||
+    productLocationShowroom ||
+    productLocationWarehouse ||
+    has3dYes ||
+    has3dNo;
+
+  const clearAllFilters = () => {
+    setProductTypeFilter("all");
+    setSelectedColors(new Set());
+    setSelectedSizes(new Set());
+    setInStockOnly(false);
+    setOutOfStockOnly(false);
+    setProductLocationShowroom(false);
+    setProductLocationWarehouse(false);
+    setHas3dYes(false);
+    setHas3dNo(false);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -96,50 +186,70 @@ export default function CollectionsPage() {
                               <input
                                 type="radio"
                                 name="product-type"
-                                checked={category === "all"}
-                                onChange={() => setCategory("all")}
+                                checked={productTypeFilter === "all"}
+                                onChange={() => setProductTypeFilter("all")}
                               />
                               All
                             </label>
-                            {shopCategorySlugs.map((slug) => (
+                            {shopCategoriesList.map((cat) => (
                               <label
-                                key={slug}
+                                key={`main-${cat.slug}`}
                                 className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer"
                               >
                                 <input
                                   type="radio"
                                   name="product-type"
-                                  checked={category === slug}
-                                  onChange={() => setCategory(slug)}
+                                  checked={productTypeFilter !== "all" && productTypeFilter.type === "mainCategory" && productTypeFilter.slug === cat.slug}
+                                  onChange={() => setProductTypeFilter({ type: "mainCategory", slug: cat.slug })}
                                 />
-                                {slug.charAt(0).toUpperCase() + slug.slice(1)}
+                                {cat.title}
+                              </label>
+                            ))}
+                            {categoriesList.map((cat) => (
+                              <label
+                                key={`cat-${cat.slug}`}
+                                className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer"
+                              >
+                                <input
+                                  type="radio"
+                                  name="product-type"
+                                  checked={productTypeFilter !== "all" && productTypeFilter.type === "category" && productTypeFilter.slug === cat.slug}
+                                  onChange={() => setProductTypeFilter({ type: "category", slug: cat.slug })}
+                                />
+                                {cat.title}
                               </label>
                             ))}
                           </div>
                         )}
                         {section.id === "color" && (
                           <div className="space-y-2 text-sm text-muted-foreground">
-                            {["Black", "White", "Grey", "Brown", "Beige", "Blue"].map(
-                              (c) => (
-                                <label
-                                  key={c}
-                                  className="flex items-center gap-2 cursor-pointer"
-                                >
-                                  <input type="checkbox" />
-                                  {c}
-                                </label>
-                              )
-                            )}
+                            {COLOR_OPTIONS.map((c) => (
+                              <label
+                                key={c}
+                                className="flex items-center gap-2 cursor-pointer"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedColors.has(c)}
+                                  onChange={() => toggleSet(setSelectedColors, c)}
+                                />
+                                {c}
+                              </label>
+                            ))}
                           </div>
                         )}
                         {section.id === "size" && (
                           <div className="space-y-2 text-sm text-muted-foreground">
-                            {["S", "M", "L", "XL"].map((s) => (
+                            {SIZE_OPTIONS.map((s) => (
                               <label
                                 key={s}
                                 className="flex items-center gap-2 cursor-pointer"
                               >
-                                <input type="checkbox" />
+                                <input
+                                  type="checkbox"
+                                  checked={selectedSizes.has(s)}
+                                  onChange={() => toggleSet(setSelectedSizes, s)}
+                                />
                                 {s}
                               </label>
                             ))}
@@ -148,11 +258,25 @@ export default function CollectionsPage() {
                         {section.id === "availability" && (
                           <div className="space-y-2 text-sm text-muted-foreground">
                             <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" defaultChecked />
+                              <input
+                                type="checkbox"
+                                checked={inStockOnly}
+                                onChange={(e) => {
+                                  setInStockOnly(e.target.checked);
+                                  if (e.target.checked) setOutOfStockOnly(false);
+                                }}
+                              />
                               In stock
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" />
+                              <input
+                                type="checkbox"
+                                checked={outOfStockOnly}
+                                onChange={(e) => {
+                                  setOutOfStockOnly(e.target.checked);
+                                  if (e.target.checked) setInStockOnly(false);
+                                }}
+                              />
                               Out of stock
                             </label>
                           </div>
@@ -160,11 +284,19 @@ export default function CollectionsPage() {
                         {section.id === "product-location" && (
                           <div className="space-y-2 text-sm text-muted-foreground">
                             <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" />
+                              <input
+                                type="checkbox"
+                                checked={productLocationShowroom}
+                                onChange={(e) => setProductLocationShowroom(e.target.checked)}
+                              />
                               Showroom
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" />
+                              <input
+                                type="checkbox"
+                                checked={productLocationWarehouse}
+                                onChange={(e) => setProductLocationWarehouse(e.target.checked)}
+                              />
                               Warehouse
                             </label>
                           </div>
@@ -172,11 +304,25 @@ export default function CollectionsPage() {
                         {section.id === "has-3d" && (
                           <div className="space-y-2 text-sm text-muted-foreground">
                             <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" />
+                              <input
+                                type="checkbox"
+                                checked={has3dYes}
+                                onChange={(e) => {
+                                  setHas3dYes(e.target.checked);
+                                  if (e.target.checked) setHas3dNo(false);
+                                }}
+                              />
                               Yes
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
-                              <input type="checkbox" defaultChecked />
+                              <input
+                                type="checkbox"
+                                checked={has3dNo}
+                                onChange={(e) => {
+                                  setHas3dNo(e.target.checked);
+                                  if (e.target.checked) setHas3dYes(false);
+                                }}
+                              />
                               No
                             </label>
                           </div>
@@ -249,9 +395,20 @@ export default function CollectionsPage() {
 
               {isPending && <p className="text-sm text-muted-foreground mb-4">Loading...</p>}
               {isError && <p className="text-sm text-destructive mb-4">Failed to load products.</p>}
-              <p className="text-sm text-muted-foreground mb-4">
-                {products.length} products
-              </p>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <p className="text-sm text-muted-foreground">
+                  {products.length} product{products.length !== 1 ? "s" : ""}
+                </p>
+                {hasActiveFilters && (
+                  <button
+                    type="button"
+                    onClick={clearAllFilters}
+                    className="text-sm font-medium text-foreground underline hover:no-underline"
+                  >
+                    Clear all filters
+                  </button>
+                )}
+              </div>
 
               <div
                 className={cn(
@@ -295,10 +452,10 @@ export default function CollectionsPage() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => setCategory("all")}
-                    className="mt-4 text-sm font-medium text-foreground underline"
+                    onClick={clearAllFilters}
+                    className="mt-4 text-sm font-medium text-foreground underline hover:no-underline"
                   >
-                    Clear filters
+                    Clear all filters
                   </button>
                 </div>
               )}

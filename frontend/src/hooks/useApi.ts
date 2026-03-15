@@ -21,6 +21,11 @@ function mapProduct(p: Record<string, unknown>): Product {
     subcategory: p.subcategory as Product["subcategory"],
     isNew: Boolean(p.isNew),
     featured: Boolean(p.featured),
+    color: p.color != null ? String(p.color) : undefined,
+    size: p.size != null ? String(p.size) : undefined,
+    inStock: p.inStock != null ? Boolean(p.inStock) : undefined,
+    productLocation: p.productLocation != null ? String(p.productLocation) : undefined,
+    has3d: p.has3d != null ? Boolean(p.has3d) : undefined,
   };
 }
 
@@ -114,7 +119,7 @@ export function useShopCategories() {
   return {
     ...q,
     shopCategories: q.data?.bySlug ?? {},
-    shopCategorySlugs: q.data?.shopCategorySlugs ?? ["living", "dining", "bedroom"],
+    shopCategorySlugs: q.data?.shopCategorySlugs ?? [],
     list: q.data?.list ?? [],
   };
 }

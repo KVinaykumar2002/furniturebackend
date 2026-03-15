@@ -49,12 +49,19 @@ router.get("/", async (req, res) => {
   }
 });
 
-/** GET /api/products/:id - single product */
+/** GET /api/products/:id - single product (ensure optional filter fields are always present) */
 router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findOne({ id: req.params.id }).lean();
     if (!product) return res.status(404).json({ error: "Product not found" });
-    res.json(product);
+    res.json({
+      ...product,
+      color: product.color != null && product.color !== "" ? product.color : undefined,
+      size: product.size != null && product.size !== "" ? product.size : undefined,
+      productLocation: product.productLocation != null && product.productLocation !== "" ? product.productLocation : undefined,
+      inStock: product.inStock !== undefined ? product.inStock : true,
+      has3d: product.has3d === true,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -82,6 +89,11 @@ router.post("/", async (req, res) => {
       subcategory: body.subcategory || undefined,
       isNew: Boolean(body.isNew),
       featured: Boolean(body.featured),
+      color: body.color != null ? String(body.color) : undefined,
+      size: body.size != null ? String(body.size) : undefined,
+      inStock: body.inStock != null ? Boolean(body.inStock) : undefined,
+      productLocation: body.productLocation != null ? String(body.productLocation) : undefined,
+      has3d: body.has3d != null ? Boolean(body.has3d) : undefined,
     });
     res.status(201).json(doc.toObject());
   } catch (err) {
@@ -92,25 +104,45 @@ router.post("/", async (req, res) => {
 /** PUT /api/products/:id - update product */
 router.put("/:id", async (req, res) => {
   try {
+    const body = req.body;
+    const setFields = {
+      name: body.name,
+      description: body.description ?? "",
+      price: Number(body.price),
+      oldPrice: body.oldPrice != null ? Number(body.oldPrice) : undefined,
+      save: body.save != null ? Number(body.save) : undefined,
+      rating: Number(body.rating) || 0,
+      reviews: Number(body.reviews) || 0,
+      image: body.image,
+      category: body.category,
+      mainCategory: body.mainCategory,
+      subcategory: body.subcategory || undefined,
+      isNew: Boolean(body.isNew),
+      featured: Boolean(body.featured),
+      inStock: body.inStock != null ? Boolean(body.inStock) : undefined,
+      has3d: body.has3d != null ? Boolean(body.has3d) : undefined,
+    };
+    const unsetFields = {};
+    if (body.color !== undefined && body.color !== null && String(body.color).trim() !== "") {
+      setFields.color = String(body.color).trim();
+    } else if (body.color !== undefined) {
+      unsetFields.color = 1;
+    }
+    if (body.size !== undefined && body.size !== null && String(body.size).trim() !== "") {
+      setFields.size = String(body.size).trim();
+    } else if (body.size !== undefined) {
+      unsetFields.size = 1;
+    }
+    if (body.productLocation !== undefined && body.productLocation !== null && String(body.productLocation).trim() !== "") {
+      setFields.productLocation = String(body.productLocation).trim();
+    } else if (body.productLocation !== undefined) {
+      unsetFields.productLocation = 1;
+    }
+    const update = { $set: setFields };
+    if (Object.keys(unsetFields).length) update.$unset = unsetFields;
     const product = await Product.findOneAndUpdate(
       { id: req.params.id },
-      {
-        $set: {
-          name: req.body.name,
-          description: req.body.description ?? "",
-          price: Number(req.body.price),
-          oldPrice: req.body.oldPrice != null ? Number(req.body.oldPrice) : undefined,
-          save: req.body.save != null ? Number(req.body.save) : undefined,
-          rating: Number(req.body.rating) || 0,
-          reviews: Number(req.body.reviews) || 0,
-          image: req.body.image,
-          category: req.body.category,
-          mainCategory: req.body.mainCategory,
-          subcategory: req.body.subcategory || undefined,
-          isNew: Boolean(req.body.isNew),
-          featured: Boolean(req.body.featured),
-        },
-      },
+      update,
       { new: true, runValidators: true }
     ).lean();
     if (!product) return res.status(404).json({ error: "Product not found" });

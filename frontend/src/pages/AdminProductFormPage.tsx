@@ -19,6 +19,14 @@ import { toast } from "sonner";
 import { Upload, Link as LinkIcon } from "lucide-react";
 import { cn, readFileAsDataUrl } from "@/lib/utils";
 
+const COLOR_OPTIONS = ["Black", "White", "Grey", "Brown", "Beige", "Blue"];
+const SIZE_OPTIONS = ["S", "M", "L", "XL"];
+const PRODUCT_LOCATION_OPTIONS = [
+  { value: "", label: "Not set" },
+  { value: "showroom", label: "Showroom" },
+  { value: "warehouse", label: "Warehouse" },
+];
+
 const defaultForm = {
   name: "",
   description: "",
@@ -31,6 +39,11 @@ const defaultForm = {
   category: "furniture",
   mainCategory: "living",
   subcategory: "",
+  color: "",
+  size: "",
+  inStock: true,
+  productLocation: "",
+  has3d: false,
   isNew: false,
   featured: false,
 };
@@ -96,6 +109,9 @@ export default function AdminProductFormPage() {
       try {
         const p = await api.products.byId(id!);
         if (cancelled) return;
+        const colorVal = p.color;
+        const sizeVal = p.size;
+        const locationVal = p.productLocation;
         setForm({
           name: String(p.name ?? ""),
           description: String(p.description ?? ""),
@@ -108,6 +124,11 @@ export default function AdminProductFormPage() {
           category: String(p.category ?? "furniture"),
           mainCategory: String(p.mainCategory ?? "living"),
           subcategory: p.subcategory ? String(p.subcategory) : "",
+          color: colorVal != null && String(colorVal).trim() !== "" ? String(colorVal).trim() : "",
+          size: sizeVal != null && String(sizeVal).trim() !== "" ? String(sizeVal).trim() : "",
+          inStock: p.inStock !== false,
+          productLocation: locationVal != null && String(locationVal).trim() !== "" ? String(locationVal).trim() : "",
+          has3d: Boolean(p.has3d),
           isNew: Boolean(p.isNew),
           featured: Boolean(p.featured),
         });
@@ -154,6 +175,11 @@ export default function AdminProductFormPage() {
         category: form.category,
         mainCategory: form.mainCategory,
         subcategory: form.subcategory || undefined,
+        color: form.color.trim() || null,
+        size: form.size.trim() || null,
+        inStock: form.inStock,
+        productLocation: form.productLocation.trim() || null,
+        has3d: form.has3d,
         isNew: form.isNew,
         featured: form.featured,
       };
@@ -364,6 +390,78 @@ export default function AdminProductFormPage() {
               onChange={(e) => update("subcategory", e.target.value)}
               placeholder="e.g. sofas, beds"
             />
+          </div>
+          <div>
+            <Label>Color (for filtering)</Label>
+            <Select
+              value={form.color || "__none__"}
+              onValueChange={(v) => update("color", v === "__none__" ? "" : v)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select color" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">Not set</SelectItem>
+                {COLOR_OPTIONS.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Size (for filtering)</Label>
+            <Select
+              value={form.size || "__none__"}
+              onValueChange={(v) => update("size", v === "__none__" ? "" : v)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__none__">Not set</SelectItem>
+                {SIZE_OPTIONS.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Switch
+              id="inStock"
+              checked={form.inStock}
+              onCheckedChange={(v) => update("inStock", v)}
+            />
+            <Label htmlFor="inStock">In stock (availability)</Label>
+          </div>
+          <div>
+            <Label>Product location (for filtering)</Label>
+            <Select
+              value={form.productLocation || "__none__"}
+              onValueChange={(v) => update("productLocation", v === "__none__" ? "" : v)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select location" />
+              </SelectTrigger>
+              <SelectContent>
+                {PRODUCT_LOCATION_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value || "__none__"} value={opt.value || "__none__"}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center gap-2 sm:col-span-2">
+            <Switch
+              id="has3d"
+              checked={form.has3d}
+              onCheckedChange={(v) => update("has3d", v)}
+            />
+            <Label htmlFor="has3d">Has 3D model</Label>
           </div>
           <div className="flex items-center gap-2 sm:col-span-2">
             <Switch

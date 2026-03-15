@@ -200,6 +200,7 @@ export default function AdminProductsPage() {
                 <TableHead className="text-right">Price</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead className="w-[100px]">Main</TableHead>
+                <TableHead className="min-w-[140px]">Filters</TableHead>
                 <TableHead className="w-[120px] text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -236,6 +237,47 @@ export default function AdminProductsPage() {
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">{p.category}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">{p.mainCategory}</TableCell>
+                  <TableCell className="align-top">
+                    <div className="flex flex-wrap gap-1.5">
+                      {p.color ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded border border-neutral-200 bg-muted/50">
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0 border border-neutral-300"
+                            style={{
+                              backgroundColor:
+                                p.color.toLowerCase() === "white" ? "#f5f5f5"
+                                  : p.color.toLowerCase() === "black" ? "#1a1a1a"
+                                  : p.color.toLowerCase() === "grey" || p.color.toLowerCase() === "gray" ? "#737373"
+                                  : p.color.toLowerCase() === "brown" ? "#92400e"
+                                  : p.color.toLowerCase() === "beige" ? "#d4b896"
+                                  : p.color.toLowerCase() === "blue" ? "#3b82f6"
+                                  : "#94a3b8",
+                            }}
+                            aria-hidden
+                          />
+                          {p.color}
+                        </span>
+                      ) : null}
+                      {p.size ? (
+                        <span className="text-xs px-1.5 py-0.5 rounded border border-neutral-200 bg-muted/50">
+                          {p.size}
+                        </span>
+                      ) : null}
+                      <span className={p.inStock !== false ? "text-xs text-green-700 px-1.5 py-0.5 rounded bg-green-50 border border-green-200" : "text-xs text-amber-700 px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200"}>
+                        {p.inStock !== false ? "In stock" : "Out of stock"}
+                      </span>
+                      {p.productLocation ? (
+                        <span className="text-xs px-1.5 py-0.5 rounded border border-neutral-200 bg-muted/50 capitalize">
+                          {p.productLocation}
+                        </span>
+                      ) : null}
+                      {p.has3d ? (
+                        <span className="text-xs px-1.5 py-0.5 rounded border border-neutral-200 bg-muted/50">
+                          3D
+                        </span>
+                      ) : null}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-1">
                       <Button variant="ghost" size="icon" asChild>

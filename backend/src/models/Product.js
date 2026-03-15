@@ -16,6 +16,11 @@ const productSchema = new mongoose.Schema(
     subcategory: String,
     isNew: { type: Boolean, default: false },
     featured: { type: Boolean, default: false },
+    color: String,
+    size: String,
+    inStock: { type: Boolean, default: true },
+    productLocation: String,
+    has3d: Boolean,
   },
   { timestamps: true, suppressReservedKeysWarning: true }
 );
