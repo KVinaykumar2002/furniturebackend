@@ -146,8 +146,9 @@ export default function CategorySection() {
             : categoryProducts.map((product) => (
                 <Link
                   key={product.id}
-                  to={`/product/${product.id}`}
+                  to={`/collections?category=${encodeURIComponent(effectiveMain)}`}
                   className="group flex flex-col items-center text-decoration-none text-inherit"
+                  aria-label={`View all ${effectiveMain} products`}
                 >
                   <div
                     className="w-full max-w-[140px] md:max-w-[160px] aspect-[4/3] overflow-hidden mb-2 md:mb-3"

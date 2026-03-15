@@ -1,14 +1,55 @@
-import { Plus } from "lucide-react";
-// Local images removed to ensure 100% unique product images
+import { Link } from "react-router-dom";
+import { useProducts } from "@/hooks/useApi";
+import ProductCard from "@/components/ProductCard";
+import { ProductGridSkeleton } from "@/components/ProductCardSkeleton";
 
-const products = [
-  { name: "MOVO SERVICE TROLLEY - JK-D208", image: "https://images.unsplash.com/photo-1532323544230-7191fd51bc1b?auto=format&fit=crop&q=80&w=600", price: 2035, oldPrice: 2325, save: 290, rating: 5, reviews: 3 },
-  { name: "43 PIECES PASSIFOY DINING SET - PAS", image: "https://images.unsplash.com/photo-1617806118233-18e1c0945594?auto=format&fit=crop&q=80&w=600", price: 1015, oldPrice: 1410, save: 395 },
-  { name: "39-PIECE 6 PERSON TERRA DINNERWARE & STONEWARE SET", image: "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&q=80&w=600", price: 875, oldPrice: 1345, save: 470 },
-  { name: "37-PIECE 6 PERSON HAVEN EBARZA DINNERWARE SET", image: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&q=80&w=600", price: 755, oldPrice: 1165, save: 410 },
-];
+export default function SneakPeek() {
+  const { products, isPending, isError } = useProducts({ featured: true, limit: 8 });
 
-const SneakPeek = () => {
+  if (isPending) {
+    return (
+      <section className="py-20 px-6 bg-muted">
+        <div className="container">
+          <div className="text-center mb-12">
+            <p className="text-xs tracking-[0.3em] text-muted-foreground/60 uppercase mb-4">
+              Featured Collections
+            </p>
+            <h2 className="font-display text-2xl md:text-4xl tracking-[0.15em] text-foreground uppercase">
+              Best Deals
+            </h2>
+          </div>
+          <ProductGridSkeleton count={8} className="max-w-5xl mx-auto" />
+        </div>
+      </section>
+    );
+  }
+
+  if (isError) {
+    return (
+      <section className="py-20 px-6 bg-muted">
+        <div className="container text-center py-12">
+          <p className="text-muted-foreground">Failed to load featured products.</p>
+          <Link to="/collections" className="text-primary font-medium mt-2 inline-block">
+            View all collections
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  if (products.length === 0) {
+    return (
+      <section className="py-20 px-6 bg-muted">
+        <div className="container text-center py-12">
+          <p className="text-muted-foreground">No featured products yet.</p>
+          <Link to="/collections" className="text-primary font-medium mt-2 inline-block">
+            View all collections
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-20 px-6 bg-muted">
       <div className="container">
@@ -16,54 +57,26 @@ const SneakPeek = () => {
           <p className="text-xs tracking-[0.3em] text-muted-foreground/60 uppercase mb-4">
             Featured Collections
           </p>
-          <div className="flex items-center justify-center gap-10">
-            <button className="font-display text-2xl md:text-4xl tracking-[0.15em] text-foreground border-b-2 border-primary pb-2 uppercase">
-              Best Deals
-            </button>
-            <button className="font-display text-2xl md:text-4xl tracking-[0.15em] text-muted-foreground/40 pb-2 uppercase hover:text-muted-foreground/60 transition-colors">
-              New Arrivals
-            </button>
-          </div>
+          <h2 className="font-display text-2xl md:text-4xl tracking-[0.15em] text-foreground border-b-2 border-primary pb-2 uppercase inline-block">
+            Best Deals
+          </h2>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-12">
-          {products.map((product) => (
-            <a key={product.name} href="#" className="group text-center">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-sm mb-4">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs font-bold px-2.5 py-1">
-                  SAVE{product.save}
-                </span>
-                <button className="absolute bottom-3 right-3 w-9 h-9 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background">
-                  <Plus className="w-4 h-4 text-foreground" />
-                </button>
-              </div>
-              <p className="text-xs tracking-[0.1em] text-muted-foreground uppercase mb-2 line-clamp-2 leading-relaxed">
-                {product.name}
-              </p>
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-sm text-foreground">₹{product.price.toLocaleString('en-IN')}</span>
-                <span className="text-sm text-muted-foreground/50 line-through">₹{product.oldPrice?.toLocaleString('en-IN')}</span>
-              </div>
-            </a>
+          {products.map((product, index) => (
+            <ProductCard key={product.id} product={product} index={index} />
           ))}
         </div>
 
         <div className="text-center mt-12">
-          <a
-            href="#"
-            className="inline-block border border-muted-foreground/30 text-muted-foreground text-sm tracking-[0.15em] uppercase px-10 py-3 hover:bg-muted-foreground/5 transition-colors"
+          <Link
+            to="/collections"
+            className="inline-block border border-muted-foreground/30 text-muted-foreground text-sm tracking-[0.15em] uppercase px-10 py-3 hover:bg-muted-foreground/5 transition-colors min-h-[44px] flex items-center justify-center"
           >
             View All
-          </a>
+          </Link>
         </div>
       </div>
     </section>
   );
-};
-
-export default SneakPeek;
+}

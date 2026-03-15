@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -50,8 +50,22 @@ type ProductTypeFilter =
 export default function CollectionsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const searchFromUrl = searchParams.get("search")?.trim() ?? "";
+  const categoryFromUrl = searchParams.get("category")?.trim();
+  const mainCategoryFromUrl = searchParams.get("mainCategory")?.trim();
 
-  const [productTypeFilter, setProductTypeFilter] = useState<ProductTypeFilter>("all");
+  const [productTypeFilter, setProductTypeFilter] = useState<ProductTypeFilter>(() => {
+    if (categoryFromUrl) return { type: "category", slug: categoryFromUrl };
+    if (mainCategoryFromUrl) return { type: "mainCategory", slug: mainCategoryFromUrl };
+    return "all";
+  });
+
+  useEffect(() => {
+    if (categoryFromUrl && (productTypeFilter === "all" || productTypeFilter.type !== "category" || productTypeFilter.slug !== categoryFromUrl)) {
+      setProductTypeFilter({ type: "category", slug: categoryFromUrl });
+    } else if (mainCategoryFromUrl && (productTypeFilter === "all" || productTypeFilter.type !== "mainCategory" || productTypeFilter.slug !== mainCategoryFromUrl)) {
+      setProductTypeFilter({ type: "mainCategory", slug: mainCategoryFromUrl });
+    }
+  }, [categoryFromUrl, mainCategoryFromUrl]);
   const [sort, setSort] = useState<SortOption>("popularity");
   const [layout, setLayout] = useState<LayoutMode>("grid-4");
   const [openFilter, setOpenFilter] = useState<string | null>("product-type");
