@@ -1,8 +1,15 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail } from "lucide-react";
+import { Phone, Mail, Instagram, Facebook, Twitter } from "lucide-react";
 import { useStores, useSiteSettings } from "@/hooks/useApi";
 
 const DEFAULT_TAGLINE = "Premium furniture for inspired living. Quality craftsmanship and timeless design.";
+
+const SOCIAL_LINKS = [
+  { icon: Instagram, label: "Instagram", href: "https://instagram.com" },
+  { icon: Facebook, label: "Facebook", href: "https://facebook.com" },
+  { icon: Twitter, label: "Twitter", href: "https://twitter.com" },
+  { label: "Pinterest", href: "https://pinterest.com", letter: "P" },
+] as const;
 
 export default function Footer() {
   const { stores } = useStores();
@@ -11,7 +18,6 @@ export default function Footer() {
   const contactEmail = settings?.contactEmail ?? "";
   const address = settings?.address ?? "";
   const brandTagline = (settings?.brandTagline ?? "").trim() || DEFAULT_TAGLINE;
-  const socialLinks = settings?.socialLinks ?? [];
 
   return (
     <footer className="bg-[#eae8e3] text-[#2c2c2c] safe-bottom">
@@ -46,22 +52,24 @@ export default function Footer() {
                 {address}
               </p>
             )}
-            {socialLinks.length > 0 && (
-              <div className="flex gap-2 flex-wrap">
-                {socialLinks.map(({ name, href }) => (
-                  <a
-                    key={name}
-                    href={href || "#"}
-                    aria-label={name}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 border border-[#c9c7c2] bg-white/60 flex items-center justify-center text-[#4a4a4a] hover:text-[#2c2c2c] hover:bg-white/80 transition-colors font-semibold text-xs"
-                  >
-                    {name.charAt(0).toUpperCase()}
-                  </a>
-                ))}
-              </div>
-            )}
+            <div className="flex gap-2">
+              {SOCIAL_LINKS.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  aria-label={item.label}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 border border-[#c9c7c2] bg-white/60 flex items-center justify-center text-[#4a4a4a] hover:text-[#2c2c2c] hover:bg-white/80 transition-colors"
+                >
+                  {"icon" in item && item.icon ? (
+                    <item.icon className="h-4 w-4" strokeWidth={1.5} />
+                  ) : (
+                    <span className="font-semibold text-sm">{item.letter}</span>
+                  )}
+                </a>
+              ))}
+            </div>
           </div>
 
           {/* Company */}
