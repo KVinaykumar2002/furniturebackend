@@ -2,12 +2,13 @@ import SectionWrapper from "@/components/SectionWrapper";
 import ProductCard from "@/components/ProductCard";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useProducts } from "@/hooks/useApi";
+import { ProductGridSkeleton } from "@/components/ProductCardSkeleton";
 
 export default function BestSellers() {
   const { products, isPending, isError } = useProducts({ bestSellers: true, limit: 4 });
   const ref = useScrollReveal<HTMLDivElement>(0.08);
 
-  if (isPending) return <div className="py-12 text-center text-muted-foreground">Loading...</div>;
+  if (isPending) return <div className="py-12"><ProductGridSkeleton count={4} /></div>;
   if (isError) return <div className="py-12 text-center text-destructive">Failed to load products.</div>;
 
   return (

@@ -150,6 +150,48 @@
   }
 }
 
+/* Smooth loading animations — minimal, furniture-friendly */
+@keyframes loader-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes loader-pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes loader-dot {
+  0%, 80%, 100% { transform: scale(0.75); opacity: 0.5; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes loader-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.loader-spin {
+  animation: loader-spin 0.9s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.loader-pulse {
+  animation: loader-pulse 1.4s ease-in-out infinite;
+}
+
+.loader-dot {
+  animation: loader-dot 1.2s ease-in-out infinite;
+}
+
+.loader-size-sm { width: 24px; height: 24px; }
+.loader-size-md { width: 40px; height: 40px; }
+.loader-size-lg { width: 56px; height: 56px; }
+
+/* Gentle skeleton pulse — slower than default for a calmer look */
+.skeleton-shimmer {
+  animation: loader-pulse 2s ease-in-out infinite;
+}
+
 /* Respect prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
   .animate-on-scroll {
@@ -168,5 +210,17 @@
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+  .loader-spin {
+    animation: none !important;
+  }
+  .loader-pulse {
+    animation: none !important;
+  }
+  .loader-dot {
+    animation: none !important;
+  }
+  .skeleton-shimmer {
+    animation: none !important;
   }
 }

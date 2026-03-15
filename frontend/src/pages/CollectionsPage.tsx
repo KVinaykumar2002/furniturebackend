@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import { ProductCardSkeleton } from "@/components/ProductCardSkeleton";
 import { useProducts, useShopCategories, useCategories } from "@/hooks/useApi";
 import type { SortOption } from "@/data/products";
 import { LayoutGrid, LayoutList, Rows2, ChevronDown, ChevronRight } from "lucide-react";
@@ -393,12 +394,12 @@ export default function CollectionsPage() {
                 </select>
               </div>
 
-              {isPending && <p className="text-sm text-muted-foreground mb-4">Loading...</p>}
               {isError && <p className="text-sm text-destructive mb-4">Failed to load products.</p>}
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-                <p className="text-sm text-muted-foreground">
-                  {products.length} product{products.length !== 1 ? "s" : ""}
-                </p>
+              {!isPending && (
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
+                  <p className="text-sm text-muted-foreground">
+                    {products.length} product{products.length !== 1 ? "s" : ""}
+                  </p>
                 {hasActiveFilters && (
                   <button
                     type="button"
@@ -409,6 +410,7 @@ export default function CollectionsPage() {
                   </button>
                 )}
               </div>
+              )}
 
               <div
                 className={cn(
@@ -419,7 +421,23 @@ export default function CollectionsPage() {
                   layout === "list" && "flex flex-col gap-4"
                 )}
               >
-                {products.map((p, index) =>
+                {isPending && layout !== "list" &&
+                  Array.from({ length: layout === "grid-2" ? 4 : 8 }, (_, i) => (
+                    <ProductCardSkeleton key={i} />
+                  ))
+                }
+                {isPending && layout === "list" &&
+                  Array.from({ length: 5 }, (_, i) => (
+                    <div key={i} className="flex gap-4 p-4 border-b border-neutral-100 animate-pulse">
+                      <div className="w-24 h-24 md:w-32 md:h-32 rounded bg-muted shrink-0" />
+                      <div className="flex-1 space-y-2 py-2">
+                        <div className="h-4 bg-muted rounded w-3/4" />
+                        <div className="h-3 bg-muted rounded w-1/2" />
+                      </div>
+                    </div>
+                  ))
+                }
+                {!isPending && products.map((p, index) =>
                   layout === "list" ? (
                     <Link
                       key={p.id}
@@ -445,7 +463,7 @@ export default function CollectionsPage() {
                 )}
               </div>
 
-              {products.length === 0 && (
+              {!isPending && products.length === 0 && (
                 <div className="text-center py-16">
                   <p className="text-muted-foreground text-sm">
                     No products match your filters.

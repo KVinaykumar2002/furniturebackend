@@ -54,11 +54,15 @@ router.get("/:id", async (req, res) => {
   try {
     const product = await Product.findOne({ id: req.params.id }).lean();
     if (!product) return res.status(404).json({ error: "Product not found" });
+    // Always return filter fields (use null when empty so keys are present in JSON)
+    const colorVal = product.color != null && String(product.color).trim() !== "" ? String(product.color).trim() : null;
+    const sizeVal = product.size != null && String(product.size).trim() !== "" ? String(product.size).trim() : null;
+    const locationVal = product.productLocation != null && String(product.productLocation).trim() !== "" ? String(product.productLocation).trim() : null;
     res.json({
       ...product,
-      color: product.color != null && product.color !== "" ? product.color : undefined,
-      size: product.size != null && product.size !== "" ? product.size : undefined,
-      productLocation: product.productLocation != null && product.productLocation !== "" ? product.productLocation : undefined,
+      color: colorVal,
+      size: sizeVal,
+      productLocation: locationVal,
       inStock: product.inStock !== undefined ? product.inStock : true,
       has3d: product.has3d === true,
     });
@@ -101,7 +105,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-/** PUT /api/products/:id - update product */
+/** PUT /api/products/:id - update product (always set filter fields so they persist) */
 router.put("/:id", async (req, res) => {
   try {
     const body = req.body;
@@ -119,30 +123,15 @@ router.put("/:id", async (req, res) => {
       subcategory: body.subcategory || undefined,
       isNew: Boolean(body.isNew),
       featured: Boolean(body.featured),
-      inStock: body.inStock != null ? Boolean(body.inStock) : undefined,
-      has3d: body.has3d != null ? Boolean(body.has3d) : undefined,
+      inStock: body.inStock != null ? Boolean(body.inStock) : true,
+      has3d: body.has3d === true,
+      color: (body.color != null && String(body.color).trim() !== "") ? String(body.color).trim() : "",
+      size: (body.size != null && String(body.size).trim() !== "") ? String(body.size).trim() : "",
+      productLocation: (body.productLocation != null && String(body.productLocation).trim() !== "") ? String(body.productLocation).trim() : "",
     };
-    const unsetFields = {};
-    if (body.color !== undefined && body.color !== null && String(body.color).trim() !== "") {
-      setFields.color = String(body.color).trim();
-    } else if (body.color !== undefined) {
-      unsetFields.color = 1;
-    }
-    if (body.size !== undefined && body.size !== null && String(body.size).trim() !== "") {
-      setFields.size = String(body.size).trim();
-    } else if (body.size !== undefined) {
-      unsetFields.size = 1;
-    }
-    if (body.productLocation !== undefined && body.productLocation !== null && String(body.productLocation).trim() !== "") {
-      setFields.productLocation = String(body.productLocation).trim();
-    } else if (body.productLocation !== undefined) {
-      unsetFields.productLocation = 1;
-    }
-    const update = { $set: setFields };
-    if (Object.keys(unsetFields).length) update.$unset = unsetFields;
     const product = await Product.findOneAndUpdate(
       { id: req.params.id },
-      update,
+      { $set: setFields },
       { new: true, runValidators: true }
     ).lean();
     if (!product) return res.status(404).json({ error: "Product not found" });

@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, Heart, ShoppingBag, User, ChevronDown, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
-import {
-  mainNavWithDropdowns,
-  mainNavLinks,
-} from "@/data/nav";
+import { useShopCategories } from "@/hooks/useApi";
+import { aboutDropdown, mainNavLinks } from "@/data/nav";
+import type { NavItemWithDropdown } from "@/data/nav";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,6 +23,22 @@ const Navbar = () => {
   const location = useLocation();
   const { itemCount, openCart } = useCart();
   const { count: wishlistCount } = useWishlist();
+  const { list: shopCategoryList } = useShopCategories();
+
+  /** Nav category dropdowns from backend only (Living, Dining, Bedroom + subcategories) */
+  const mainNavWithDropdowns = useMemo((): NavItemWithDropdown[] => {
+    const fromBackend: NavItemWithDropdown[] = (shopCategoryList ?? []).map((cat) => {
+      const items =
+        cat.subcategories && cat.subcategories.length > 0
+          ? cat.subcategories.map((sub) => ({
+              label: sub.label,
+              href: `/${cat.slug}?sub=${encodeURIComponent(sub.slug)}`,
+            }))
+          : [{ label: cat.title, href: `/${cat.slug}` }];
+      return { label: cat.title, items };
+    });
+    return [...fromBackend, { label: "About", items: aboutDropdown }];
+  }, [shopCategoryList]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -45,9 +60,14 @@ const Navbar = () => {
     };
   }, [mobileOpen]);
 
-  const isActive = (href: string) => location.pathname === href;
+  const isActive = (href: string) => {
+    const [path, qs] = href.split("?");
+    if (location.pathname !== path) return false;
+    if (!qs) return true;
+    return location.search === `?${qs}`;
+  };
   const isDropdownActive = (items: { href: string }[]) =>
-    items.some((item) => location.pathname === item.href);
+    items.some((item) => isActive(item.href));
 
   return (
     <header

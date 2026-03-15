@@ -4,6 +4,8 @@ import Footer from "@/components/Footer";
 import ProductGrid from "@/components/ProductGrid";
 import { useCategories, useProducts } from "@/hooks/useApi";
 import type { CategorySlug } from "@/data/categories";
+import { LoadingSection } from "@/components/ui/loader";
+import { ProductGridSkeleton } from "@/components/ProductCardSkeleton";
 
 interface CategoryPageProps {
   slug: CategorySlug;
@@ -30,7 +32,9 @@ const CategoryPage = ({ slug }: CategoryPageProps) => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="pt-32 pb-20 px-6 text-center"><p className="text-muted-foreground">Loading...</p></div>
+        <div className="pt-32 pb-20 px-6">
+          <LoadingSection label="Loading…" size="lg" />
+        </div>
         <Footer />
       </div>
     );
@@ -66,13 +70,19 @@ const CategoryPage = ({ slug }: CategoryPageProps) => {
           </Link>
         </div>
       </section>
-      {productsPending && <p className="text-center text-muted-foreground py-8">Loading products...</p>}
+      {productsPending && (
+        <div className="py-12">
+          <ProductGridSkeleton count={8} />
+        </div>
+      )}
       {productsError && <p className="text-center text-destructive py-8">Failed to load products.</p>}
+      {!productsPending && (
       <ProductGrid
         products={products}
         title={`${categoryData.title} Collection`}
         sectionId="category-products"
       />
+      )}
       <Footer />
     </div>
   );

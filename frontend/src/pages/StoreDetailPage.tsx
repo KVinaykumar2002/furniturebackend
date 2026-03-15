@@ -3,6 +3,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { MapPin } from "lucide-react";
 import { useStore } from "@/hooks/useApi";
+import { LoadingSection } from "@/components/ui/loader";
 
 export default function StoreDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -12,7 +13,9 @@ export default function StoreDetailPage() {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container py-32 text-center"><p className="text-muted-foreground">Loading...</p></div>
+        <div className="container py-32">
+          <LoadingSection label="Loading store…" size="lg" />
+        </div>
         <Footer />
       </div>
     );

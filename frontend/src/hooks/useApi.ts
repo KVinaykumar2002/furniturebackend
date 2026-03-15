@@ -21,10 +21,10 @@ function mapProduct(p: Record<string, unknown>): Product {
     subcategory: p.subcategory as Product["subcategory"],
     isNew: Boolean(p.isNew),
     featured: Boolean(p.featured),
-    color: p.color != null ? String(p.color) : undefined,
-    size: p.size != null ? String(p.size) : undefined,
+    color: p.color != null && String(p.color).trim() !== "" ? String(p.color).trim() : undefined,
+    size: p.size != null && String(p.size).trim() !== "" ? String(p.size).trim() : undefined,
     inStock: p.inStock != null ? Boolean(p.inStock) : undefined,
-    productLocation: p.productLocation != null ? String(p.productLocation) : undefined,
+    productLocation: p.productLocation != null && String(p.productLocation).trim() !== "" ? String(p.productLocation).trim() : undefined,
     has3d: p.has3d != null ? Boolean(p.has3d) : undefined,
   };
 }
@@ -52,12 +52,28 @@ function mapStore(s: Record<string, unknown>): Store {
 }
 
 function mapShopCategory(c: Record<string, unknown>): ShopCategory {
+  const rawSubs = c.subcategories as Array<{ slug?: string; label?: string }> | undefined;
+  const subcategories = Array.isArray(rawSubs)
+    ? rawSubs
+        .filter((s) => s && (s.slug != null || s.label != null))
+        .map((s) => ({ slug: String(s.slug ?? ""), label: String(s.label ?? slugToLabel(s.slug ?? "")) }))
+    : undefined;
   return {
     slug: c.slug as ShopCategory["slug"],
     title: String(c.title),
     description: String(c.description),
     image: String(c.image),
+    subcategories: subcategories?.length ? subcategories : undefined,
   };
+}
+
+function slugToLabel(slug: string): string {
+  if (!slug.trim()) return "";
+  return slug
+    .trim()
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(" ");
 }
 
 export function useProducts(params?: { search?: string; mainCategory?: string; subcategory?: string; category?: string; featured?: boolean; bestSellers?: boolean; sort?: string; limit?: number }) {

@@ -6,6 +6,7 @@ import SectionWrapper from "@/components/SectionWrapper";
 import ProductCard from "@/components/ProductCard";
 import { useShopCategories, useProducts } from "@/hooks/useApi";
 import { getSubcategoryInfo } from "@/data/subcategories";
+import { ProductGridSkeleton } from "@/components/ProductCardSkeleton";
 
 export default function DiningPage() {
   const [searchParams] = useSearchParams();
@@ -42,7 +43,9 @@ export default function DiningPage() {
       </section>
       <SectionWrapper className="bg-white">
         {isPending ? (
-          <p className="text-center text-muted-foreground py-12">Loading...</p>
+          <div className="py-12">
+            <ProductGridSkeleton count={8} />
+          </div>
         ) : isError ? (
           <p className="text-center text-destructive py-12">Failed to load products.</p>
         ) : products.length === 0 ? (

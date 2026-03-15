@@ -15,9 +15,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCategories, useShopCategories } from "@/hooks/useApi";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Upload, Link as LinkIcon } from "lucide-react";
 import { cn, readFileAsDataUrl } from "@/lib/utils";
+import { LoadingSection } from "@/components/ui/loader";
 
 const COLOR_OPTIONS = ["Black", "White", "Grey", "Brown", "Beige", "Blue"];
 const SIZE_OPTIONS = ["S", "M", "L", "XL"];
@@ -52,6 +54,7 @@ export default function AdminProductFormPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const isEdit = Boolean(id);
+  const queryClient = useQueryClient();
   const { list: categoryList } = useCategories();
   const { list: shopCategoryList } = useShopCategories();
   const mainCategoryOptions = shopCategoryList.map((c) => ({ value: c.slug, label: c.title }));
@@ -109,9 +112,9 @@ export default function AdminProductFormPage() {
       try {
         const p = await api.products.byId(id!);
         if (cancelled) return;
-        const colorVal = p.color;
-        const sizeVal = p.size;
-        const locationVal = p.productLocation;
+        const colorVal = p.color ?? "";
+        const sizeVal = p.size ?? "";
+        const locationVal = p.productLocation ?? "";
         setForm({
           name: String(p.name ?? ""),
           description: String(p.description ?? ""),
@@ -124,10 +127,10 @@ export default function AdminProductFormPage() {
           category: String(p.category ?? "furniture"),
           mainCategory: String(p.mainCategory ?? "living"),
           subcategory: p.subcategory ? String(p.subcategory) : "",
-          color: colorVal != null && String(colorVal).trim() !== "" ? String(colorVal).trim() : "",
-          size: sizeVal != null && String(sizeVal).trim() !== "" ? String(sizeVal).trim() : "",
+          color: typeof colorVal === "string" && colorVal.trim() !== "" ? colorVal.trim() : "",
+          size: typeof sizeVal === "string" && sizeVal.trim() !== "" ? sizeVal.trim() : "",
           inStock: p.inStock !== false,
-          productLocation: locationVal != null && String(locationVal).trim() !== "" ? String(locationVal).trim() : "",
+          productLocation: typeof locationVal === "string" && locationVal.trim() !== "" ? locationVal.trim() : "",
           has3d: Boolean(p.has3d),
           isNew: Boolean(p.isNew),
           featured: Boolean(p.featured),
@@ -174,11 +177,11 @@ export default function AdminProductFormPage() {
         image: form.image.trim(),
         category: form.category,
         mainCategory: form.mainCategory,
-        subcategory: form.subcategory || undefined,
-        color: form.color.trim() || null,
-        size: form.size.trim() || null,
+        subcategory: (form.subcategory || "").trim() || undefined,
+        color: (form.color || "").trim() || null,
+        size: (form.size || "").trim() || null,
         inStock: form.inStock,
-        productLocation: form.productLocation.trim() || null,
+        productLocation: (form.productLocation || "").trim() || null,
         has3d: form.has3d,
         isNew: form.isNew,
         featured: form.featured,
@@ -186,9 +189,11 @@ export default function AdminProductFormPage() {
       if (isEdit) {
         await api.products.update(id!, payload);
         toast.success("Product updated");
+        queryClient.invalidateQueries({ queryKey: ["products"] });
       } else {
         await api.products.create(payload);
         toast.success("Product created");
+        queryClient.invalidateQueries({ queryKey: ["products"] });
       }
       navigate("/admin/products");
     } catch (err) {
@@ -199,7 +204,11 @@ export default function AdminProductFormPage() {
   };
 
   if (loading) {
-    return <p className="text-muted-foreground py-8">Loading product...</p>;
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <LoadingSection label="Loading product…" size="md" />
+      </div>
+    );
   }
 
   return (
@@ -394,6 +403,7 @@ export default function AdminProductFormPage() {
           <div>
             <Label>Color (for filtering)</Label>
             <Select
+              key={isEdit ? `color-${id}-${loading}` : "color-new"}
               value={form.color || "__none__"}
               onValueChange={(v) => update("color", v === "__none__" ? "" : v)}
             >
@@ -413,6 +423,7 @@ export default function AdminProductFormPage() {
           <div>
             <Label>Size (for filtering)</Label>
             <Select
+              key={isEdit ? `size-${id}-${loading}` : "size-new"}
               value={form.size || "__none__"}
               onValueChange={(v) => update("size", v === "__none__" ? "" : v)}
             >
@@ -440,6 +451,7 @@ export default function AdminProductFormPage() {
           <div>
             <Label>Product location (for filtering)</Label>
             <Select
+              key={isEdit ? `location-${id}-${loading}` : "location-new"}
               value={form.productLocation || "__none__"}
               onValueChange={(v) => update("productLocation", v === "__none__" ? "" : v)}
             >

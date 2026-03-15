@@ -4,6 +4,7 @@ import SectionWrapper from "@/components/SectionWrapper";
 import ProductCard from "@/components/ProductCard";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useProducts } from "@/hooks/useApi";
+import { ProductGridSkeleton } from "@/components/ProductCardSkeleton";
 
 type TabId = "best-deals" | "new-arrivals";
 
@@ -47,7 +48,9 @@ export default function ShopByCategory() {
 
         <div className="w-full">
           {isPending ? (
-            <div className="py-12 text-center text-muted-foreground">Loading...</div>
+            <div className="py-12">
+              <ProductGridSkeleton count={4} className="max-w-4xl mx-auto" />
+            </div>
           ) : (
             <>
               {activeTab === "best-deals" && (
@@ -58,7 +61,7 @@ export default function ShopByCategory() {
                     ))}
                   </div>
                   {featuredProducts.length === 0 && (
-                    <p className="text-center text-muted-foreground py-8">No best deals yet. Mark products as Best Deal in Admin.</p>
+                    <p className="text-center text-muted-foreground py-8">No best deals yet.</p>
                   )}
                   <div className="text-center mt-8">
                     <Link

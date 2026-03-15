@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useCategories } from "@/hooks/useApi";
+import { LoadingSection } from "@/components/ui/loader";
 
 const CategoriesGrid = () => {
   const { categories, categorySlugs, isPending, isError } = useCategories();
@@ -12,7 +13,11 @@ const CategoriesGrid = () => {
         <h2 className="font-display text-2xl md:text-3xl font-light tracking-wider text-foreground mb-10 text-center md:text-left">
           Product Categories
         </h2>
-        {isPending && <p className="text-muted-foreground py-8">Loading categories...</p>}
+        {isPending && (
+          <div className="py-8 flex justify-center">
+            <LoadingSection label="Loading categories…" size="md" />
+          </div>
+        )}
         {isError && <p className="text-destructive py-8">Failed to load categories.</p>}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {categorySlugs.map((slug) => {

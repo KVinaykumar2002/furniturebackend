@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { LoadingSection } from "@/components/ui/loader";
 
 export default function AdminCategoriesPage() {
   const { list: allCategories, isPending, isError, refetch } = useCategories();
@@ -89,7 +90,11 @@ export default function AdminCategoriesPage() {
         )}
       </div>
 
-      {isPending && <p className="text-muted-foreground py-8">Loading categories...</p>}
+      {isPending && (
+        <div className="flex min-h-[280px] items-center justify-center py-12">
+          <LoadingSection label="Loading categories…" size="md" />
+        </div>
+      )}
       {isError && (
         <p className="text-destructive py-8">Failed to load categories. Is the API running?</p>
       )}

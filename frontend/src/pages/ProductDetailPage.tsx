@@ -6,6 +6,7 @@ import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useProduct, useProducts } from "@/hooks/useApi";
+import { LoadingSection } from "@/components/ui/loader";
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -18,7 +19,9 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container py-32 text-center"><p className="text-muted-foreground">Loading...</p></div>
+        <div className="container py-32">
+          <LoadingSection label="Loading product…" size="lg" />
+        </div>
         <Footer />
       </div>
     );

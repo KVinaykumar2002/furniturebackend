@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Plus, Pencil, Trash2, Package, Search } from "lucide-react";
 import { useProducts } from "@/hooks/useApi";
 import { api } from "@/lib/api";
+import { LoadingSection } from "@/components/ui/loader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -175,7 +176,11 @@ export default function AdminProductsPage() {
         </div>
       </div>
 
-      {isPending && <p className="text-muted-foreground py-8">Loading products...</p>}
+      {isPending && (
+        <div className="flex min-h-[280px] items-center justify-center py-12">
+          <LoadingSection label="Loading products…" size="md" />
+        </div>
+      )}
       {isError && (
         <p className="text-destructive py-8">Failed to load products. Is the API running?</p>
       )}

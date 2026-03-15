@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import SectionWrapper from "@/components/SectionWrapper";
 import { MapPin, ArrowLeft } from "lucide-react";
 import { useStores } from "@/hooks/useApi";
+import { LoadingSection } from "@/components/ui/loader";
 
 export default function StoresPage() {
   const { stores, isPending, isError } = useStores();
@@ -23,7 +24,7 @@ export default function StoresPage() {
         </div>
       </div>
       <SectionWrapper subtitle="Find us" title="Store Locator" className="pt-0">
-        {isPending && <p className="text-center text-muted-foreground py-8">Loading...</p>}
+        {isPending && <LoadingSection label="Loading stores…" />}
         {isError && <p className="text-center text-destructive py-8">Failed to load stores.</p>}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {stores.map((store) => (

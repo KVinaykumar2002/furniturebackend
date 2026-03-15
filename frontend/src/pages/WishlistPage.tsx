@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import { ProductGridSkeleton } from "@/components/ProductCardSkeleton";
 import { useWishlist } from "@/context/WishlistContext";
 import { useProducts } from "@/hooks/useApi";
 
@@ -15,7 +16,11 @@ export default function WishlistPage() {
       <Navbar />
       <div className="container py-8 md:py-12 px-4 pt-24">
         <h1 className="font-display text-2xl font-light text-foreground mb-8">Wishlist</h1>
-        {isPending && <p className="text-muted-foreground py-8">Loading...</p>}
+        {isPending && (
+          <div className="py-8">
+            <ProductGridSkeleton count={4} />
+          </div>
+        )}
         {isError && <p className="text-destructive py-8">Failed to load products.</p>}
         {!isPending && !isError && wishlistProducts.length === 0 ? (
           <div className="text-center py-16">

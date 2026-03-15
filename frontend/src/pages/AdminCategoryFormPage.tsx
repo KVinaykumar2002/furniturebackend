@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { cn, readFileAsDataUrl } from "@/lib/utils";
+import { LoadingSection } from "@/components/ui/loader";
 
 function slugFromTitle(title: string): string {
   return title
@@ -146,7 +147,11 @@ export default function AdminCategoryFormPage() {
   };
 
   if (loading) {
-    return <p className="text-muted-foreground py-8">Loading category...</p>;
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <LoadingSection label="Loading category…" size="md" />
+      </div>
+    );
   }
 
   return (
