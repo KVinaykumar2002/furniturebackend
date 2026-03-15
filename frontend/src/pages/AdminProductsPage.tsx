@@ -196,8 +196,8 @@ export default function AdminProductsPage() {
       )}
 
       {!isPending && !isError && products.length > 0 && (
-        <div className="rounded-lg border bg-card overflow-hidden">
-          <Table>
+        <div className="rounded-lg border bg-card -mx-4 sm:mx-0 overflow-x-auto">
+          <Table className="min-w-[800px]">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[60px]">Image</TableHead>

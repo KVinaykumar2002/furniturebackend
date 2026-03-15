@@ -11,8 +11,8 @@ interface SectionWrapperProps {
 
 export default function SectionWrapper({ children, className = "", id, title, subtitle, subtitleClassName }: SectionWrapperProps) {
   return (
-    <section id={id} className={`py-16 md:py-20 px-4 md:px-6 ${className}`}>
-      <div className="container">
+    <section id={id} className={`py-12 sm:py-16 md:py-20 px-4 sm:px-5 md:px-6 ${className}`}>
+      <div className="container max-w-[100vw] overflow-hidden">
         {(title || subtitle) && (
           <div
             className={`text-center ${title ? "mb-10 md:mb-12" : "mb-6 md:mb-8"}`}

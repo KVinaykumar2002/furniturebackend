@@ -1,95 +1,97 @@
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Twitter, Phone, Mail } from "lucide-react";
-import { useStores } from "@/hooks/useApi";
+import { Phone, Mail } from "lucide-react";
+import { useStores, useSiteSettings } from "@/hooks/useApi";
 
-const CONTACT_PHONE = "8121806688";
-const CONTACT_EMAIL = "info@designerzhub.co.in";
-
-const socialLinks = [
-  { icon: Instagram, label: "Instagram", href: "#" },
-  { icon: Facebook, label: "Facebook", href: "#" },
-  { icon: Twitter, label: "Twitter", href: "#" },
-];
+const DEFAULT_TAGLINE = "Premium furniture for inspired living. Quality craftsmanship and timeless design.";
 
 export default function Footer() {
   const { stores } = useStores();
+  const { settings } = useSiteSettings();
+  const contactPhone = settings?.contactPhone ?? "";
+  const contactEmail = settings?.contactEmail ?? "";
+  const address = settings?.address ?? "";
+  const brandTagline = (settings?.brandTagline ?? "").trim() || DEFAULT_TAGLINE;
+  const socialLinks = settings?.socialLinks ?? [];
+
   return (
-    <footer className="bg-[#eae8e3] text-[#2c2c2c]">
-      <div className="container py-14 md:py-16 px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
-          {/* DesignerZhub - brand column */}
+    <footer className="bg-[#eae8e3] text-[#2c2c2c] safe-bottom">
+      <div className="container py-10 sm:py-14 md:py-16 px-4 sm:px-5 md:px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 lg:gap-8">
+          {/* DesignerZhub - brand column (contact + address from admin) */}
           <div>
             <h3 className="font-display text-xl font-semibold text-[#2c2c2c] mb-3 tracking-tight">
               DesignerZhub
             </h3>
             <p className="text-sm text-[#5a5a5a] leading-relaxed mb-4 max-w-xs">
-              Premium furniture for inspired living. Quality craftsmanship and timeless design.
+              {brandTagline}
             </p>
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[#5a5a5a] mb-6">
-              <a href={`tel:${CONTACT_PHONE}`} className="inline-flex items-center gap-2 hover:text-[#2c2c2c] transition-colors">
-                <Phone className="h-4 w-4 shrink-0" strokeWidth={1.5} />
-                <span>{CONTACT_PHONE}</span>
-              </a>
-              <a href={`mailto:${CONTACT_EMAIL}`} className="inline-flex items-center gap-2 hover:text-[#2c2c2c] transition-colors break-all">
-                <Mail className="h-4 w-4 shrink-0" strokeWidth={1.5} />
-                <span>{CONTACT_EMAIL}</span>
-              </a>
-            </div>
-            <div className="flex gap-2">
-              {socialLinks.map(({ icon: Icon, label, href }) => (
-                <a
-                  key={label}
-                  href={href}
-                  aria-label={label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 border border-[#c9c7c2] bg-white/60 flex items-center justify-center text-[#4a4a4a] hover:text-[#2c2c2c] hover:bg-white/80 transition-colors"
-                >
-                  <Icon className="h-4 w-4" strokeWidth={1.5} />
-                </a>
-              ))}
-              <a
-                href="#"
-                aria-label="Pinterest"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-lg border border-[#c9c7c2] bg-white/60 flex items-center justify-center text-[#4a4a4a] hover:text-[#2c2c2c] hover:bg-white/80 transition-colors font-semibold text-sm"
-              >
-                P
-              </a>
-            </div>
+            {(contactPhone || contactEmail) && (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-[#5a5a5a] mb-4">
+                {contactPhone && (
+                  <a href={`tel:${contactPhone}`} className="inline-flex items-center gap-2 hover:text-[#2c2c2c] transition-colors">
+                    <Phone className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+                    <span>{contactPhone}</span>
+                  </a>
+                )}
+                {contactEmail && (
+                  <a href={`mailto:${contactEmail}`} className="inline-flex items-center gap-2 hover:text-[#2c2c2c] transition-colors break-all">
+                    <Mail className="h-4 w-4 shrink-0" strokeWidth={1.5} />
+                    <span>{contactEmail}</span>
+                  </a>
+                )}
+              </div>
+            )}
+            {address && (
+              <p className="text-sm text-[#5a5a5a] leading-relaxed mb-4 max-w-xs whitespace-pre-line">
+                {address}
+              </p>
+            )}
+            {socialLinks.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {socialLinks.map(({ name, href }) => (
+                  <a
+                    key={name}
+                    href={href || "#"}
+                    aria-label={name}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 border border-[#c9c7c2] bg-white/60 flex items-center justify-center text-[#4a4a4a] hover:text-[#2c2c2c] hover:bg-white/80 transition-colors font-semibold text-xs"
+                  >
+                    {name.charAt(0).toUpperCase()}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Company */}
           <div>
             <h4 className="font-medium text-[#2c2c2c] text-sm mb-4">Company</h4>
-            <ul className="space-y-2.5 text-sm text-[#5a5a5a]">
-              <li><Link to="/about" className="hover:text-[#2c2c2c] transition-colors">About Us</Link></li>
-              <li><a href="#" className="hover:text-[#2c2c2c] transition-colors">Careers</a></li>
-              <li><a href="#" className="hover:text-[#2c2c2c] transition-colors">Blogs</a></li>
+            <ul className="space-y-1 text-sm text-[#5a5a5a]">
+              <li><Link to="/about" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">About Us</Link></li>
+              <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Careers</a></li>
+              <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Blogs</a></li>
             </ul>
           </div>
 
           {/* Customer Support */}
           <div>
             <h4 className="font-medium text-[#2c2c2c] text-sm mb-4">Customer Support</h4>
-            <ul className="space-y-2.5 text-sm text-[#5a5a5a]">
-              <li><a href="/#contact" className="hover:text-[#2c2c2c] transition-colors">Contact Us</a></li>
-              <li><a href="#" className="hover:text-[#2c2c2c] transition-colors">FAQs</a></li>
-              <li><a href="#" className="hover:text-[#2c2c2c] transition-colors">Shipping Policy</a></li>
-              <li><a href="#" className="hover:text-[#2c2c2c] transition-colors">Return Policy</a></li>
+            <ul className="space-y-1 text-sm text-[#5a5a5a]">
+              <li><a href="/#contact" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Contact Us</a></li>
+              <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">FAQs</a></li>
+              <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Shipping Policy</a></li>
+              <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Return Policy</a></li>
             </ul>
           </div>
 
-          {/* Stores */}
+          {/* Stores — from API only (no hardcoded duplicates) */}
           <div>
             <h4 className="font-medium text-[#2c2c2c] text-sm mb-4">Stores</h4>
-            <ul className="space-y-2.5 text-sm text-[#5a5a5a]">
-              <li><Link to="/stores" className="hover:text-[#2c2c2c] transition-colors">Kondapur</Link></li>
-              <li><Link to="/stores" className="hover:text-[#2c2c2c] transition-colors">Kothapet</Link></li>
+            <ul className="space-y-1 text-sm text-[#5a5a5a]">
               {stores.map((store) => (
                 <li key={store.id}>
-                  <Link to={`/stores/${store.id}`} className="hover:text-[#2c2c2c] transition-colors">
+                  <Link to={`/stores/${store.id}`} className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">
                     {store.name}
                   </Link>
                 </li>

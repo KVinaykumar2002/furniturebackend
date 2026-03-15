@@ -56,5 +56,10 @@ export const api = {
     list: () => fetchApi<Array<Record<string, unknown>>>("/api/stores"),
     byId: (id: string) => fetchApi<Record<string, unknown>>(`/api/stores/${id}`),
   },
+  siteSettings: {
+    get: () => fetchApi<Record<string, unknown>>("/api/site-settings"),
+    update: (data: Record<string, unknown>) =>
+      fetchApi<Record<string, unknown>>("/api/site-settings", { method: "PUT", body: JSON.stringify(data) }),
+  },
   uploadImage,
 };

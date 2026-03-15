@@ -135,8 +135,8 @@ export default function CollectionsPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 pb-16 px-4 md:px-6">
-        <div className="container">
+      <div className="pt-20 sm:pt-24 pb-12 sm:pb-16 px-4 sm:px-5 md:px-6">
+        <div className="container max-w-[100vw] overflow-hidden">
           {/* Breadcrumb */}
           <nav
             className="flex items-center gap-1.5 text-sm text-muted-foreground mb-6"
@@ -149,13 +149,13 @@ export default function CollectionsPage() {
             <span className="text-foreground">All Collections</span>
           </nav>
 
-          <h1 className="font-display text-2xl md:text-3xl font-light text-foreground mb-8">
+          <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-light text-foreground mb-6 sm:mb-8">
             All Collections
           </h1>
 
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Filter sidebar — flat, no rounded corners */}
-            <aside className="lg:w-56 xl:w-64 shrink-0 border border-neutral-200 overflow-hidden">
+          <div className="flex flex-col lg:flex-row gap-6 sm:gap-8">
+            {/* Filter sidebar — full width on mobile, fixed width on desktop */}
+            <aside className="w-full lg:w-56 xl:w-64 shrink-0 border border-neutral-200 overflow-hidden rounded-none">
               {FILTER_SECTIONS.map((section, index) => (
                 <Collapsible
                   key={section.id}
@@ -170,7 +170,7 @@ export default function CollectionsPage() {
                       index === 0 && "border-t-0"
                     )}
                   >
-                    <CollapsibleTrigger className="flex w-full items-center justify-between py-4 px-4 text-left text-sm font-medium uppercase tracking-wide text-foreground hover:bg-muted/30 transition-colors">
+                    <CollapsibleTrigger className="flex w-full items-center justify-between py-4 px-4 text-left text-sm font-medium uppercase tracking-wide text-foreground hover:bg-muted/30 transition-colors min-h-[48px] touch-manipulation">
                       {section.label}
                       <ChevronDown
                         className={cn(
@@ -336,15 +336,15 @@ export default function CollectionsPage() {
             </aside>
 
             {/* Main content */}
-            <div className="flex-1 min-w-0">
-              {/* Toolbar: layout toggles + sort */}
-              <div className="flex items-center justify-between gap-4 mb-6">
+            <div className="flex-1 min-w-0 overflow-hidden">
+              {/* Toolbar: layout toggles + sort — stacks on small screens */}
+              <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
                     onClick={() => setLayout("grid-2")}
                     className={cn(
-                      "p-2.5 border transition-colors",
+                      "p-3 min-w-[44px] min-h-[44px] border transition-colors touch-manipulation flex items-center justify-center",
                       layout === "grid-2"
                         ? "bg-muted border-neutral-400 text-foreground"
                         : "border-neutral-200 text-muted-foreground hover:bg-muted/50"
@@ -357,7 +357,7 @@ export default function CollectionsPage() {
                     type="button"
                     onClick={() => setLayout("grid-4")}
                     className={cn(
-                      "p-2.5 border transition-colors",
+                      "p-3 min-w-[44px] min-h-[44px] border transition-colors touch-manipulation flex items-center justify-center",
                       layout === "grid-4"
                         ? "bg-muted border-neutral-400 text-foreground"
                         : "border-neutral-200 text-muted-foreground hover:bg-muted/50"
@@ -370,7 +370,7 @@ export default function CollectionsPage() {
                     type="button"
                     onClick={() => setLayout("list")}
                     className={cn(
-                      "p-2.5 border transition-colors",
+                      "p-3 min-w-[44px] min-h-[44px] border transition-colors touch-manipulation flex items-center justify-center",
                       layout === "list"
                         ? "bg-muted border-neutral-400 text-foreground"
                         : "border-neutral-200 text-muted-foreground hover:bg-muted/50"
@@ -384,7 +384,7 @@ export default function CollectionsPage() {
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value as SortOption)}
-                  className="h-10 px-3 border border-neutral-200 bg-background text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-neutral-400"
+                  className="min-h-[44px] px-3 py-2 border border-neutral-200 bg-background text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-neutral-400 w-full sm:w-auto min-w-[140px]"
                 >
                   {SORT_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -414,11 +414,11 @@ export default function CollectionsPage() {
 
               <div
                 className={cn(
-                  "gap-4 md:gap-6",
+                  "gap-3 sm:gap-4 md:gap-6",
                   layout === "grid-2" && "grid grid-cols-2",
                   layout === "grid-4" &&
-                  "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
-                  layout === "list" && "flex flex-col gap-4"
+                  "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+                  layout === "list" && "flex flex-col gap-3 sm:gap-4"
                 )}
               >
                 {isPending && layout !== "list" &&

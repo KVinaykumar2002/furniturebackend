@@ -9,6 +9,7 @@ import categoryRoutes from "./routes/categories.js";
 import shopCategoryRoutes from "./routes/shopCategories.js";
 import storeRoutes from "./routes/stores.js";
 import uploadRoutes from "./routes/upload.js";
+import siteSettingsRoutes from "./routes/siteSettings.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 4000;
@@ -26,6 +27,7 @@ app.use("/api/upload", uploadRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/shop-categories", shopCategoryRoutes);
 app.use("/api/stores", storeRoutes);
+app.use("/api/site-settings", siteSettingsRoutes);
 
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 

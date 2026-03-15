@@ -71,11 +71,11 @@ const Navbar = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled ? "bg-white/95 shadow-md backdrop-blur" : "bg-white"
+      className={`sticky top-0 z-50 w-full transition-all duration-300 safe-top ${scrolled ? "bg-white/95 shadow-md backdrop-blur" : "bg-white"
         }`}
     >
-      <div className="container flex h-16 items-center justify-between gap-4 px-4 md:px-6">
-        <Link to="/" className="font-display text-2xl font-light tracking-wide text-foreground shrink-0">
+      <div className="container flex h-14 sm:h-16 items-center justify-between gap-2 sm:gap-4 px-4 sm:px-5 md:px-6 max-w-[100vw]">
+        <Link to="/" className="font-display text-xl sm:text-2xl font-light tracking-wide text-foreground shrink-0 min-h-[44px] flex items-center">
           DesignerZhub
         </Link>
 
@@ -214,16 +214,18 @@ const Navbar = () => {
           onClick={() => setMobileOpen(false)}
         />
 
-        {/* Menu panel — slides from right */}
+        {/* Menu panel — slides from right, safe area aware */}
         <div
-          className={`absolute top-0 right-0 h-full w-80 max-w-[85vw] bg-white shadow-xl transform transition-transform duration-300 ease-out ${mobileOpen ? "translate-x-0" : "translate-x-full"
+          className={`absolute top-0 right-0 h-full w-[min(320px,85vw)] bg-white shadow-xl transform transition-transform duration-300 ease-out ${mobileOpen ? "translate-x-0" : "translate-x-full"
             }`}
+          style={{ paddingRight: "env(safe-area-inset-right)" }}
         >
-          <div className="flex items-center justify-between p-4 border-b border-neutral-200">
+          <div className="flex items-center justify-between px-4 py-4 border-b border-neutral-200 min-h-[56px]">
             <span className="font-display text-lg font-light">Menu</span>
             <button
               onClick={() => setMobileOpen(false)}
-              className="p-2 text-foreground hover:bg-muted/50 transition-colors"
+              className="p-3 -m-2 text-foreground hover:bg-muted/50 transition-colors rounded min-w-[44px] min-h-[44px] flex items-center justify-center"
+              aria-label="Close menu"
             >
               <X className="h-5 w-5" />
             </button>
@@ -236,11 +238,11 @@ const Navbar = () => {
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="rounded-none h-10 border-neutral-300"
+              className="rounded-none h-11 border-neutral-300 text-base"
             />
           </div>
 
-          <nav className="px-4 py-4 space-y-2 overflow-y-auto max-h-[calc(100vh-140px)]">
+          <nav className="px-2 py-4 space-y-1 overflow-y-auto max-h-[calc(100vh-180px)] overscroll-contain">
             {mainNavWithDropdowns.map((item) => (
               <div key={item.label}>
                 <p className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -250,7 +252,7 @@ const Navbar = () => {
                   <Link
                     key={sub.href}
                     to={sub.href}
-                    className={`block py-2.5 px-4 text-foreground hover:bg-muted/50 transition-colors ${isActive(sub.href) ? "font-medium bg-muted/30" : ""
+                    className={`block py-3 px-4 rounded-md text-foreground hover:bg-muted/50 transition-colors min-h-[44px] flex items-center ${isActive(sub.href) ? "font-medium bg-muted/30" : ""
                       }`}
                     onClick={() => setMobileOpen(false)}
                   >
@@ -263,7 +265,7 @@ const Navbar = () => {
               <Link
                 key={link.href}
                 to={link.href}
-                className={`block py-3 px-4 text-foreground font-medium hover:bg-muted/50 transition-colors ${isActive(link.href) ? "bg-muted/30" : ""
+                className={`block py-3 px-4 rounded-md text-foreground font-medium hover:bg-muted/50 transition-colors min-h-[44px] flex items-center ${isActive(link.href) ? "bg-muted/30" : ""
                   }`}
                 onClick={() => setMobileOpen(false)}
               >

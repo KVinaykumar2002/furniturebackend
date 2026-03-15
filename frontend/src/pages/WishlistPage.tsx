@@ -14,8 +14,8 @@ export default function WishlistPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container py-8 md:py-12 px-4 pt-24">
-        <h1 className="font-display text-2xl font-light text-foreground mb-8">Wishlist</h1>
+      <div className="container py-6 sm:py-8 md:py-12 px-4 sm:px-5 pt-20 sm:pt-24">
+        <h1 className="font-display text-xl sm:text-2xl font-light text-foreground mb-6 sm:mb-8">Wishlist</h1>
         {isPending && (
           <div className="py-8">
             <ProductGridSkeleton count={4} />
@@ -30,7 +30,7 @@ export default function WishlistPage() {
             </Link>
           </div>
         ) : !isPending && !isError ? (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {wishlistProducts.map((p, index) => (
               <ProductCard key={p.id} product={p} index={index} />
             ))}

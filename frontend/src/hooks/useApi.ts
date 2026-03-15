@@ -163,3 +163,47 @@ export function useStore(id: string | undefined) {
   });
   return { ...q, store: q.data ?? null };
 }
+
+export type SiteSettings = {
+  contactPhone: string;
+  contactEmail: string;
+  address: string;
+  brandTagline: string;
+  heroSlides: { image: string; title: string; subtitle: string }[];
+  socialLinks: { name: string; href: string }[];
+};
+
+function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
+  const slides = Array.isArray(r.heroSlides)
+    ? (r.heroSlides as Array<Record<string, unknown>>).map((s) => ({
+        image: s && typeof s.image === "string" ? s.image : "",
+        title: s && typeof s.title === "string" ? s.title : "",
+        subtitle: s && typeof s.subtitle === "string" ? s.subtitle : "",
+      }))
+    : [];
+  const links = Array.isArray(r.socialLinks)
+    ? (r.socialLinks as Array<Record<string, unknown>>).map((l) => ({
+        name: l && typeof l.name === "string" ? l.name : "",
+        href: l && typeof l.href === "string" ? l.href : "#",
+      }))
+    : [];
+  return {
+    contactPhone: r.contactPhone != null ? String(r.contactPhone) : "",
+    contactEmail: r.contactEmail != null ? String(r.contactEmail) : "",
+    address: r.address != null ? String(r.address) : "",
+    brandTagline: r.brandTagline != null ? String(r.brandTagline) : "",
+    heroSlides: slides,
+    socialLinks: links,
+  };
+}
+
+export function useSiteSettings() {
+  const q = useQuery({
+    queryKey: ["siteSettings"],
+    queryFn: async () => {
+      const r = await api.siteSettings.get();
+      return mapSiteSettings(r);
+    },
+  });
+  return { ...q, settings: q.data ?? null };
+}

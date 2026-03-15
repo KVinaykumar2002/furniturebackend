@@ -45,30 +45,30 @@ export default function ProductDetailPage() {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <div className="container py-6 px-4 md:px-6">
+      <div className="container py-4 sm:py-6 px-4 sm:px-5 md:px-6 max-w-[100vw] overflow-hidden">
         {/* Breadcrumb */}
         <nav
-          className="flex items-center gap-1.5 text-sm text-muted-foreground mb-8"
+          className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground mb-6 sm:mb-8 overflow-x-auto scrollbar-hide min-h-[44px] items-center"
           aria-label="Breadcrumb"
         >
-          <Link to="/" className="hover:text-foreground transition-colors">
+          <Link to="/" className="hover:text-foreground transition-colors shrink-0">
             Home
           </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
+          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
           <Link
             to="/collections"
-            className="hover:text-foreground transition-colors"
+            className="hover:text-foreground transition-colors shrink-0"
           >
             Collections
           </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
-          <span className="text-foreground truncate max-w-[200px]">
+          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+          <span className="text-foreground truncate max-w-[120px] sm:max-w-[200px]">
             {product.name}
           </span>
         </nav>
 
         {/* Product Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-16">
           {/* Image — square, sharp corners, no shadow */}
           <div className="aspect-square overflow-hidden">
             <img
@@ -80,16 +80,16 @@ export default function ProductDetailPage() {
 
           {/* Product Info — flat, no card */}
           <div className="flex flex-col justify-center opacity-0 animate-content-reveal">
-            <h1 className="font-display text-2xl md:text-3xl font-light text-foreground mb-6">
+            <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-light text-foreground mb-4 sm:mb-6">
               {product.name}
             </h1>
 
-            <p className="text-sm text-muted-foreground leading-relaxed mb-8">
+            <p className="text-sm text-muted-foreground leading-relaxed mb-6 sm:mb-8">
               {product.description ||
                 "Crafted with precision and care, this piece combines timeless design with exceptional comfort. Made from premium materials to ensure lasting quality and elegance in your space."}
             </p>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() =>
@@ -100,7 +100,7 @@ export default function ProductDetailPage() {
                     image: product.image,
                   })
                 }
-                className="inline-flex items-center gap-2 h-12 px-8 bg-neutral-900 text-white font-medium hover:bg-neutral-800 hover:-translate-y-0.5 transition-all duration-300 ease-in-out uppercase tracking-wide text-sm"
+                className="inline-flex items-center justify-center gap-2 min-h-[48px] px-6 sm:px-8 bg-neutral-900 text-white font-medium hover:bg-neutral-800 hover:-translate-y-0.5 transition-all duration-300 ease-in-out uppercase tracking-wide text-sm w-full sm:w-auto touch-manipulation"
               >
                 <ShoppingCart className="h-5 w-5" />
                 Add to Cart
@@ -108,7 +108,7 @@ export default function ProductDetailPage() {
               <button
                 type="button"
                 onClick={() => toggle(product.id)}
-                className={`inline-flex items-center gap-2 h-12 px-6 border transition-all duration-300 ease-in-out hover:-translate-y-0.5 ${isInWishlist(product.id)
+                className={`inline-flex items-center justify-center gap-2 min-h-[48px] px-6 border transition-all duration-300 ease-in-out hover:-translate-y-0.5 w-full sm:w-auto touch-manipulation ${isInWishlist(product.id)
                   ? "bg-red-50 text-red-600 border-red-200"
                   : "border-neutral-300 text-neutral-700 hover:border-neutral-400"
                   }`}

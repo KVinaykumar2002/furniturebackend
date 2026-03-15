@@ -31,6 +31,7 @@ import AdminProductsPage from "./pages/AdminProductsPage";
 import AdminProductFormPage from "./pages/AdminProductFormPage";
 import AdminCategoriesPage from "./pages/AdminCategoriesPage";
 import AdminCategoryFormPage from "./pages/AdminCategoryFormPage";
+import AdminSiteSettingsPage from "./pages/AdminSiteSettingsPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 
@@ -73,6 +74,7 @@ const App = () => (
                 <Route path="categories" element={<AdminCategoriesPage />} />
                 <Route path="categories/new" element={<AdminCategoryFormPage />} />
                 <Route path="categories/:slug/edit" element={<AdminCategoryFormPage />} />
+                <Route path="site-settings" element={<AdminSiteSettingsPage />} />
                 <Route path="images" element={<AdminImageManagerPage />} />
               </Route>
               <Route path="/404" element={<NotFoundPage />} />

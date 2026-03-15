@@ -1,34 +1,36 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useSiteSettings } from "@/hooks/useApi";
 
 import hero2 from "@/assets/hero-2.jpg";
 import heroNewFirst from "@/assets/hero-new-first.jpg";
 import heroSaleBanner from "@/assets/hero-sale-banner.png";
 
-const slides = [
-  {
-    image: heroNewFirst,
-    title: "Modern Furniture for Inspired Living",
-    subtitle: "Curate your space with elegance. Premium pieces for every room.",
-  },
-  {
-    image: hero2,
-    title: "Timeless Design, Lasting Comfort",
-    subtitle: "Discover collections that transform your home into a sanctuary.",
-  },
-  {
-    image: heroSaleBanner,
-    title: "Best Deal Today — 20% Off",
-    subtitle: "Premium furniture for every room. Limited time offer.",
-  },
+const DEFAULT_SLIDES = [
+  { image: heroNewFirst, title: "Modern Furniture for Inspired Living", subtitle: "Curate your space with elegance. Premium pieces for every room." },
+  { image: hero2, title: "Timeless Design, Lasting Comfort", subtitle: "Discover collections that transform your home into a sanctuary." },
+  { image: heroSaleBanner, title: "Best Deal Today — 20% Off", subtitle: "Premium furniture for every room. Limited time offer." },
 ];
 
 const SLIDE_DURATION = 6000;
 
 export default function HeroSection() {
+  const { settings } = useSiteSettings();
+  const slides = useMemo(() => {
+    const fromApi = settings?.heroSlides?.filter((s) => s?.image?.trim()) ?? [];
+    if (fromApi.length > 0) {
+      return fromApi.map((s) => ({ image: s.image, title: s.title || "", subtitle: s.subtitle || "" }));
+    }
+    return DEFAULT_SLIDES;
+  }, [settings?.heroSlides]);
+
   const [current, setCurrent] = useState(0);
   const [progress, setProgress] = useState(0);
   const [textVisible, setTextVisible] = useState(true);
+
+  useEffect(() => {
+    if (current >= slides.length) setCurrent(0);
+  }, [slides.length, current]);
 
   const goTo = useCallback((index: number) => {
     setTextVisible(false);
@@ -88,9 +90,9 @@ export default function HeroSection() {
         </div>
       ))}
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 px-4">
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center z-10 px-4 sm:px-6 safe-top safe-bottom">
         <h1
-          className={`font-display text-4xl md:text-6xl lg:text-7xl font-light tracking-wide text-white text-shadow-hero mb-4 transition-all duration-700 ${textVisible
+          className={`font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-light tracking-wide text-white text-shadow-hero mb-3 sm:mb-4 transition-all duration-700 ${textVisible
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-4"
             }`}
@@ -98,7 +100,7 @@ export default function HeroSection() {
           {slides[current].title}
         </h1>
         <p
-          className={`text-lg md:text-xl text-white/90 font-light mb-8 max-w-xl transition-all duration-700 delay-150 ${textVisible
+          className={`text-base sm:text-lg md:text-xl text-white/90 font-light mb-6 sm:mb-8 max-w-xl mx-auto transition-all duration-700 delay-150 ${textVisible
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-4"
             }`}
@@ -106,20 +108,20 @@ export default function HeroSection() {
           {slides[current].subtitle}
         </p>
         <div
-          className={`flex flex-wrap items-center justify-center gap-4 transition-all duration-700 delay-300 ${textVisible
+          className={`flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full max-w-sm sm:max-w-none transition-all duration-700 delay-300 ${textVisible
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-4"
             }`}
         >
           <Link
             to="/#featured"
-            className="inline-flex items-center justify-center h-12 px-8 bg-white text-neutral-900 font-medium hover:bg-white/90 transition-colors uppercase tracking-wide text-sm"
+            className="inline-flex items-center justify-center min-h-[48px] px-6 sm:px-8 bg-white text-neutral-900 font-medium hover:bg-white/90 transition-colors uppercase tracking-wide text-sm rounded-sm"
           >
             Shop Now
           </Link>
           <Link
             to="/collections"
-            className="inline-flex items-center justify-center h-12 px-8 border-2 border-white text-white font-medium hover:bg-white/10 transition-colors uppercase tracking-wide text-sm"
+            className="inline-flex items-center justify-center min-h-[48px] px-6 sm:px-8 border-2 border-white text-white font-medium hover:bg-white/10 transition-colors uppercase tracking-wide text-sm rounded-sm"
           >
             Explore Collection
           </Link>

@@ -12,11 +12,11 @@ export default function StoresPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="pt-24 pb-4 px-4 md:px-6">
+      <div className="pt-20 sm:pt-24 pb-4 px-4 sm:px-5 md:px-6">
         <div className="container">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground text-sm font-medium transition-colors min-h-[44px] items-center"
           >
             <ArrowLeft className="w-4 h-4 shrink-0" />
             Back to Home
@@ -31,7 +31,7 @@ export default function StoresPage() {
             <Link
               key={store.id}
               to={`/stores/${store.id}`}
-              className="block p-6 border border-border bg-white hover:shadow-lg transition-shadow"
+              className="block p-4 sm:p-6 border border-border bg-white hover:shadow-lg transition-shadow min-h-[80px] flex items-center"
             >
               <div className="flex gap-4">
                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">

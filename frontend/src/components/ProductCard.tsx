@@ -88,9 +88,9 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
       </Link>
 
       {/* Product info — flat, no card, no background */}
-      <div className="pt-3 pb-1">
+      <div className="pt-3 pb-1 min-w-0">
         <Link to={`/product/${product.id}`} className="block">
-          <p className="text-xs font-normal text-neutral-600 uppercase tracking-wide line-clamp-2 leading-relaxed">
+          <p className="text-xs font-normal text-neutral-600 uppercase tracking-wide line-clamp-2 leading-relaxed break-words">
             {product.name}
           </p>
         </Link>
