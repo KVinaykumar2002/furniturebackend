@@ -56,7 +56,7 @@ export default function HeroSection() {
       });
     }, 50);
     return () => clearInterval(interval);
-  }, [current, goTo]);
+  }, [current, goTo, slides.length]);
 
   // Keyboard navigation
   useEffect(() => {

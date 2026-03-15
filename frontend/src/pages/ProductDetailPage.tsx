@@ -28,14 +28,26 @@ export default function ProductDetailPage() {
   }
   if (productError || !product) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background flex flex-col">
         <Navbar />
-        <div className="container py-32 text-center">
-          <p className="text-muted-foreground mb-4">Product not found.</p>
-          <Link to="/" className="text-primary font-medium">
-            Back to Home
-          </Link>
-        </div>
+        <main className="flex-1 flex items-center justify-center min-h-[60vh] px-4">
+          <div className="text-center max-w-md">
+            <h1 className="font-display text-xl sm:text-2xl font-light text-foreground mb-2">Product not found</h1>
+            <p className="text-muted-foreground text-sm mb-6">
+              There is no product with this ID, or it may have been removed.
+            </p>
+            <Link
+              to="/collections"
+              className="inline-flex items-center gap-2 text-foreground font-medium underline hover:no-underline"
+            >
+              View all collections
+            </Link>
+            <span className="mx-2 text-muted-foreground">or</span>
+            <Link to="/" className="text-primary font-medium underline hover:no-underline">
+              Back to Home
+            </Link>
+          </div>
+        </main>
         <Footer />
       </div>
     );
@@ -70,7 +82,7 @@ export default function ProductDetailPage() {
         {/* Product Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-16">
           {/* Image — square, sharp corners, no shadow */}
-          <div className="aspect-square overflow-hidden">
+          <div className="aspect-square overflow-hidden bg-muted">
             <img
               src={product.image}
               alt={product.name}
@@ -79,7 +91,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Product Info — flat, no card */}
-          <div className="flex flex-col justify-center opacity-0 animate-content-reveal">
+          <div className="flex flex-col justify-center">
             <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-light text-foreground mb-4 sm:mb-6">
               {product.name}
             </h1>

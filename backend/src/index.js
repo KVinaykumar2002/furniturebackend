@@ -16,7 +16,8 @@ const PORT = process.env.PORT || 4000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/furniture";
 
 const app = express();
-app.use(cors({ origin: true }));
+const corsOrigin = process.env.CORS_ORIGIN;
+app.use(cors({ origin: corsOrigin ? corsOrigin.split(",").map((o) => o.trim()) : true }));
 // Allow larger payloads for base64 images
 app.use(express.json({ limit: "100mb" }));
 
