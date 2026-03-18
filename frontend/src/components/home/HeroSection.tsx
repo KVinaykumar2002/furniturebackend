@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useApi";
 
 import hero2 from "@/assets/hero-2.jpg";
@@ -86,7 +85,6 @@ export default function HeroSection() {
             alt=""
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/10" />
         </div>
       ))}
 
@@ -107,19 +105,6 @@ export default function HeroSection() {
         >
           {slides[current].subtitle}
         </p>
-        <div
-          className={`flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-center gap-3 sm:gap-4 w-full max-w-sm sm:max-w-none transition-all duration-700 delay-300 ${textVisible
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-4"
-            }`}
-        >
-          <Link
-            to="/collections"
-            className="inline-flex items-center justify-center min-h-[48px] px-6 sm:px-8 border-2 border-white text-white font-medium hover:bg-white/10 transition-colors uppercase tracking-wide text-sm rounded-sm"
-          >
-            Explore Collection
-          </Link>
-        </div>
       </div>
 
 

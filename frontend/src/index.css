@@ -204,6 +204,27 @@
   animation: whatsapp-blink 2s ease-in-out infinite;
 }
 
+.enquiry-fab {
+  animation: enquiry-fab-float 3.6s ease-in-out infinite;
+  transform-origin: 50% 60%;
+}
+
+.enquiry-fab:hover,
+.enquiry-fab:focus-visible {
+  animation-play-state: paused;
+}
+
+@keyframes enquiry-fab-float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+  }
+}
+
 .loader-spin {
   animation: loader-spin 0.9s cubic-bezier(0.5, 0, 0.5, 1) infinite;
 }
@@ -258,5 +279,9 @@
   }
   .animate-whatsapp-blink {
     animation: none !important;
+  }
+  .enquiry-fab {
+    animation: none !important;
+    transform: none !important;
   }
 }
