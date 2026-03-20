@@ -176,6 +176,7 @@ export type SiteSettings = {
   contactEmail: string;
   address: string;
   brandTagline: string;
+  ourStoresImage: string;
   heroSlides: { image: string; title: string; subtitle: string }[];
   socialLinks: { name: string; href: string }[];
 };
@@ -199,6 +200,7 @@ function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
     contactEmail: r.contactEmail != null ? String(r.contactEmail) : "",
     address: r.address != null ? String(r.address) : "",
     brandTagline: r.brandTagline != null ? String(r.brandTagline) : "",
+    ourStoresImage: r.ourStoresImage != null ? String(r.ourStoresImage) : "",
     heroSlides: slides,
     socialLinks: links,
   };

@@ -69,7 +69,7 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative w-full min-h-screen h-screen overflow-hidden"
+      className="relative w-full overflow-hidden h-[calc(100svh-64px)] min-h-[calc(100svh-64px)]"
       aria-label="Hero carousel"
       aria-live="polite"
     >
@@ -83,7 +83,7 @@ export default function HeroSection() {
           <img
             src={slide.image}
             alt=""
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top sm:object-center"
           />
         </div>
       ))}
@@ -110,7 +110,7 @@ export default function HeroSection() {
 
 
       {/* Progress-bar style indicators */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2">
+      <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 safe-bottom">
         {slides.map((_, i) => (
           <button
             key={i}

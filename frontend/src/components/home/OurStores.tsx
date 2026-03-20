@@ -1,10 +1,13 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useSiteSettings } from "@/hooks/useApi";
 import storeShowroom from "@/assets/our-stores-showroom.png";
 
 export default function OurStores() {
     const ref = useScrollReveal<HTMLElement>(0.08);
+    const { settings } = useSiteSettings();
+    const storeImage = (settings?.ourStoresImage ?? "").trim() || storeShowroom;
     return (
         <section ref={ref} className="animate-on-scroll w-full py-8 md:py-12 px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col w-full mx-auto max-w-[1400px]">
@@ -40,7 +43,7 @@ export default function OurStores() {
                     {/* Image Block (70%) */}
                     <div className="w-full md:w-[70%] relative aspect-[16/9] md:aspect-[2.8/1] lg:aspect-[3.2/1] overflow-hidden order-1 md:order-2">
                         <img
-                            src={storeShowroom}
+                            src={storeImage}
                             alt="Our furniture showroom — living rooms, dining sets, and displays"
                             className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
                         />

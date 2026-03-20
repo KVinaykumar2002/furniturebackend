@@ -24,6 +24,7 @@ const siteSettingsSchema = new mongoose.Schema(
     contactEmail: { type: String, default: "" },
     address: { type: String, default: "" },
     brandTagline: { type: String, default: "" },
+    ourStoresImage: { type: String, default: "" },
     heroSlides: { type: [heroSlideSchema], default: [] },
     socialLinks: { type: [socialLinkSchema], default: [] },
   },

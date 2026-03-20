@@ -15,6 +15,7 @@ router.get("/", async (req, res) => {
         contactEmail: "",
         address: "",
         brandTagline: "",
+        ourStoresImage: "",
         heroSlides: [],
         socialLinks: [],
       });
@@ -35,6 +36,7 @@ router.put("/", async (req, res) => {
       contactEmail: body.contactEmail != null ? String(body.contactEmail) : undefined,
       address: body.address != null ? String(body.address) : undefined,
       brandTagline: body.brandTagline != null ? String(body.brandTagline) : undefined,
+      ourStoresImage: body.ourStoresImage != null ? String(body.ourStoresImage) : undefined,
       heroSlides: Array.isArray(body.heroSlides)
         ? body.heroSlides.map((s) => ({
             image: s && typeof s.image === "string" ? s.image : "",

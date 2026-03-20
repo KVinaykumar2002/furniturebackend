@@ -8,17 +8,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { LoadingSection } from "@/components/ui/loader";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Upload, Link as LinkIcon } from "lucide-react";
+import { cn, readFileAsDataUrl } from "@/lib/utils";
 
 export default function AdminSiteSettingsPage() {
   const queryClient = useQueryClient();
   const { settings, isPending, isError } = useSiteSettings();
   const [saving, setSaving] = useState(false);
+  const [uploadingStoreImage, setUploadingStoreImage] = useState(false);
+  const [storeImageDropZoneActive, setStoreImageDropZoneActive] = useState(false);
   const [form, setForm] = useState<SiteSettings>({
     contactPhone: "",
     contactEmail: "",
     address: "",
     brandTagline: "",
+    ourStoresImage: "",
     heroSlides: [],
     socialLinks: [],
   });
@@ -30,6 +34,7 @@ export default function AdminSiteSettingsPage() {
         contactEmail: settings.contactEmail ?? "",
         address: settings.address ?? "",
         brandTagline: settings.brandTagline ?? "",
+        ourStoresImage: settings.ourStoresImage ?? "",
         heroSlides: settings.heroSlides?.length ? [...settings.heroSlides] : [],
         socialLinks: settings.socialLinks?.length ? [...settings.socialLinks] : [],
       });
@@ -39,6 +44,34 @@ export default function AdminSiteSettingsPage() {
   const update = <K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
+
+  const setStoreImageFromFile = async (file: File) => {
+    setUploadingStoreImage(true);
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      update("ourStoresImage", dataUrl);
+      toast.success("Store image set (stored as base64)");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to read image");
+    } finally {
+      setUploadingStoreImage(false);
+    }
+  };
+
+  const handleStoreImageDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setStoreImageDropZoneActive(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) void setStoreImageFromFile(file);
+  };
+
+  const handleStoreImageDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    setStoreImageDropZoneActive(true);
+  };
+
+  const handleStoreImageDragLeave = () => setStoreImageDropZoneActive(false);
 
   const addHeroSlide = () => {
     setForm((prev) => ({
@@ -93,6 +126,7 @@ export default function AdminSiteSettingsPage() {
         contactEmail: form.contactEmail.trim(),
         address: form.address.trim(),
         brandTagline: form.brandTagline.trim(),
+        ourStoresImage: form.ourStoresImage.trim(),
         heroSlides: form.heroSlides.filter((s) => s.image.trim()),
         socialLinks: form.socialLinks.filter((l) => l.name.trim()),
       });
@@ -164,6 +198,83 @@ export default function AdminSiteSettingsPage() {
                 placeholder="e.g. Premium furniture for inspired living."
               />
             </div>
+          </div>
+        </section>
+
+        {/* Our Stores section */}
+        <section className="rounded-lg border bg-card p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Our Stores section</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Update the image shown in the "Our Stores" block on the homepage.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2 space-y-3">
+              <Label>Store image</Label>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div
+                  className={cn(
+                    "flex flex-col gap-2 rounded-lg border-2 border-dashed p-4 transition-colors min-w-[200px]",
+                    storeImageDropZoneActive ? "border-primary bg-primary/5" : "border-muted-foreground/30 bg-muted/20"
+                  )}
+                  onDrop={handleStoreImageDrop}
+                  onDragOver={handleStoreImageDragOver}
+                  onDragLeave={handleStoreImageDragLeave}
+                >
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    id="our-stores-image-upload"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) void setStoreImageFromFile(file);
+                      e.target.value = "";
+                    }}
+                  />
+                  <p className="text-xs text-muted-foreground mb-1">Drag and drop an image here, or</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={uploadingStoreImage}
+                    onClick={() => document.getElementById("our-stores-image-upload")?.click()}
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    {uploadingStoreImage ? "Reading…" : "Choose file"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">JPEG, PNG, GIF or WebP (max 5MB)</p>
+                </div>
+                <div className="flex-1">
+                  <Label htmlFor="ourStoresImage" className="text-muted-foreground font-normal flex items-center gap-1.5">
+                    <LinkIcon className="h-3.5 w-3.5" />
+                    Or paste image URL
+                  </Label>
+                  <Input
+                    id="ourStoresImage"
+                    value={form.ourStoresImage.startsWith("data:") ? "" : form.ourStoresImage}
+                    onChange={(e) => update("ourStoresImage", e.target.value)}
+                    placeholder={
+                      form.ourStoresImage.startsWith("data:")
+                        ? "Image from file (paste URL to replace)"
+                        : "https://… (recommended: wide image)"
+                    }
+                    className="mt-1.5"
+                  />
+                </div>
+              </div>
+            </div>
+            {form.ourStoresImage?.trim() && (
+              <div className="sm:col-span-2">
+                <div className="text-xs text-muted-foreground mb-2">Preview</div>
+                <div className="w-full overflow-hidden rounded-md border bg-muted/20">
+                  <img
+                    src={form.ourStoresImage}
+                    alt="Our Stores image preview"
+                    className="w-full h-[180px] sm:h-[220px] object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
