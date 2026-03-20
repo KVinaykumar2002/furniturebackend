@@ -69,7 +69,7 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative w-full overflow-hidden h-[calc(100svh-64px)] min-h-[calc(100svh-64px)]"
+      className="relative w-full overflow-hidden h-[calc((100svh-64px)*0.4)] min-h-[calc((100svh-64px)*0.4)] sm:h-[calc(100svh-64px)] sm:min-h-[calc(100svh-64px)]"
       aria-label="Hero carousel"
       aria-live="polite"
     >
@@ -83,7 +83,7 @@ export default function HeroSection() {
           <img
             src={slide.image}
             alt=""
-            className="w-full h-full object-cover object-top sm:object-center"
+            className="w-full h-full object-contain sm:object-cover object-center bg-[#081536]"
           />
         </div>
       ))}
