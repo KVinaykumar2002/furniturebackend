@@ -48,10 +48,15 @@ export default function EnquiryModal() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="enquiry-fab fixed bottom-24 right-6 z-50 w-14 h-14 rounded-2xl bg-[#8C786E] flex items-center justify-center shadow-lg hover:bg-[#7A685E] hover:scale-105 transition-all duration-200 text-white ring-2 ring-amber-400/90 ring-offset-2 ring-offset-background"
+        className="enquiry-fab fixed bottom-24 right-6 z-50 w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200 ring-2 ring-amber-400/90 ring-offset-2 ring-offset-background"
         aria-label="Open enquiry form"
       >
-        <MessageCircle className="w-7 h-7" />
+        <span className="enquiry-fab-ripple enquiry-fab-ripple-one" aria-hidden="true" />
+        <span className="enquiry-fab-ripple enquiry-fab-ripple-two" aria-hidden="true" />
+        <span className="enquiry-fab-icon" aria-hidden="true">
+          <MessageCircle className="w-7 h-7 text-white" />
+        </span>
+        <span className="enquiry-fab-badge" aria-hidden="true" />
       </button>
       <Dialog open={open} onOpenChange={handleClose}>
         <DialogContent className="sm:max-w-md">

@@ -205,7 +205,10 @@
 }
 
 .enquiry-fab {
-  animation: enquiry-fab-float 3.6s ease-in-out infinite;
+  position: fixed;
+  overflow: visible;
+  isolation: isolate;
+  animation: enquiry-fab-float 2.4s ease-in-out infinite;
   transform-origin: 50% 60%;
 }
 
@@ -214,14 +217,72 @@
   animation-play-state: paused;
 }
 
+.enquiry-fab-icon {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #9d8c83 0%, #8c786e 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.24),
+    0 10px 24px rgba(0, 0, 0, 0.26),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.enquiry-fab-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  z-index: 4;
+  width: 11px;
+  height: 11px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 30% 30%, #ff8d8d 0%, #ff4d6d 68%, #e63558 100%);
+  border: 2px solid #0f1730;
+  box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.2);
+}
+
+.enquiry-fab-ripple {
+  position: absolute;
+  inset: -2px;
+  z-index: 1;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  animation: enquiry-fab-ripple 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.enquiry-fab-ripple-two {
+  animation-delay: 1.2s;
+}
+
 @keyframes enquiry-fab-float {
   0%, 100% {
-    transform: translateY(0) scale(1);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    transform: scale(1);
+    filter: drop-shadow(0 10px 18px rgba(0, 0, 0, 0.3));
   }
   50% {
-    transform: translateY(-4px) scale(1.03);
-    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.22);
+    transform: scale(1.045);
+    filter: drop-shadow(0 14px 24px rgba(0, 0, 0, 0.36));
+  }
+}
+
+@keyframes enquiry-fab-ripple {
+  0% {
+    transform: scale(1);
+    opacity: 0.34;
+  }
+  70% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
   }
 }
 
@@ -283,5 +344,10 @@
   .enquiry-fab {
     animation: none !important;
     transform: none !important;
+    filter: none !important;
+  }
+  .enquiry-fab-ripple {
+    animation: none !important;
+    opacity: 0 !important;
   }
 }
