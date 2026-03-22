@@ -23,7 +23,20 @@ async function uploadImage(file: File): Promise<{ url: string }> {
 
 export const api = {
   products: {
-    list: (params?: { search?: string; mainCategory?: string; subcategory?: string; category?: string; featured?: boolean; bestSellers?: boolean; sort?: string; limit?: number }) => {
+    list: (params?: {
+      search?: string;
+      mainCategory?: string;
+      subcategory?: string;
+      category?: string;
+      featured?: boolean;
+      bestSellers?: boolean;
+      /** Best deals OR new arrivals, sorted (efficient on server) */
+      highlights?: boolean;
+      /** Comma-separated product ids (batch, order preserved) */
+      ids?: string[];
+      sort?: string;
+      limit?: number;
+    }) => {
       const sp = new URLSearchParams();
       if (params?.search?.trim()) sp.set("search", params.search.trim());
       if (params?.mainCategory) sp.set("mainCategory", params.mainCategory);
@@ -31,6 +44,8 @@ export const api = {
       if (params?.category) sp.set("category", params.category);
       if (params?.featured) sp.set("featured", "true");
       if (params?.bestSellers) sp.set("bestSellers", "true");
+      if (params?.highlights) sp.set("highlights", "true");
+      if (params?.ids?.length) sp.set("ids", params.ids.join(","));
       if (params?.sort) sp.set("sort", params.sort);
       if (params?.limit != null) sp.set("limit", String(params.limit));
       const q = sp.toString();
@@ -58,8 +73,14 @@ export const api = {
   },
   siteSettings: {
     get: () => fetchApi<Record<string, unknown>>("/api/site-settings"),
-    update: (data: Record<string, unknown>) =>
-      fetchApi<Record<string, unknown>>("/api/site-settings", { method: "PUT", body: JSON.stringify(data) }),
+    /** Use `minimal: true` to skip downloading the full document (avoids large base64 payloads on save). */
+    update: (data: Record<string, unknown>, opts?: { minimal?: boolean }) => {
+      const q = opts?.minimal ? "?minimal=1" : "";
+      return fetchApi<Record<string, unknown> | undefined>(`/api/site-settings${q}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      });
+    },
   },
   uploadImage,
 };

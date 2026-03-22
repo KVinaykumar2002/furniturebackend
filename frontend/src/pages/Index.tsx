@@ -8,7 +8,7 @@ import CompletedProjectsAndShowrooms from "@/components/home/CompletedProjectsAn
 import WhyChooseUs from "@/components/home/WhyChooseUs";
 import PromoStrip from "@/components/home/PromoStrip";
 import OurStores from "@/components/home/OurStores";
-import BestSellers from "@/components/home/BestSellers";
+import RecentlyViewed from "@/components/home/RecentlyViewed";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import NewsletterSection from "@/components/home/NewsletterSection";
 
@@ -24,7 +24,7 @@ export default function Index() {
       <WhyChooseUs />
       <PromoStrip />
       <OurStores />
-      <BestSellers />
+      <RecentlyViewed />
       <TestimonialsSection />
       <NewsletterSection />
       <Footer />

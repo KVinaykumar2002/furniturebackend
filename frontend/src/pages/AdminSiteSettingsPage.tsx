@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { useSiteSettings, type SiteSettings } from "@/hooks/useApi";
+
+type SiteSettingsForm = Omit<SiteSettings, "completedProjectStats">;
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +19,7 @@ export default function AdminSiteSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingStoreImage, setUploadingStoreImage] = useState(false);
   const [storeImageDropZoneActive, setStoreImageDropZoneActive] = useState(false);
-  const [form, setForm] = useState<SiteSettings>({
+  const [form, setForm] = useState<SiteSettingsForm>({
     contactPhone: "",
     contactEmail: "",
     address: "",
@@ -41,7 +43,7 @@ export default function AdminSiteSettingsPage() {
     }
   }, [settings]);
 
-  const update = <K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) => {
+  const update = <K extends keyof SiteSettingsForm>(key: K, value: SiteSettingsForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
@@ -151,7 +153,7 @@ export default function AdminSiteSettingsPage() {
     <div>
       <h1 className="font-display text-2xl font-light text-foreground mb-2">Site Settings</h1>
       <p className="text-muted-foreground text-sm mb-8">
-        Manage contact details, address, and hero section for the storefront.
+        Manage contact details, store image, hero carousel, and footer links for the storefront.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-10">

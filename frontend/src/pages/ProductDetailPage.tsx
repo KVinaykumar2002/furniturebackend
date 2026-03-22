@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useEffect } from "react";
 import { ShoppingCart, Heart, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -6,6 +7,7 @@ import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useProduct, useProducts } from "@/hooks/useApi";
+import { addRecentlyViewedId } from "@/lib/recentlyViewed";
 import { LoadingSection } from "@/components/ui/loader";
 
 export default function ProductDetailPage() {
@@ -14,6 +16,13 @@ export default function ProductDetailPage() {
   const { addItem } = useCart();
   const { isInWishlist, toggle } = useWishlist();
   const { products: relatedProducts } = useProducts({ featured: true, limit: 4 });
+
+  /** Record only after a real product loads (valid page open), newest-first in localStorage */
+  useEffect(() => {
+    if (!product?.id || !id) return;
+    if (String(product.id) !== String(id)) return;
+    addRecentlyViewedId(product.id);
+  }, [product?.id, id]);
 
   if (productPending) {
     return (

@@ -6,7 +6,50 @@ const router = Router();
 /** GET /api/products - list with optional filters */
 router.get("/", async (req, res) => {
   try {
-    const { mainCategory, subcategory, category, featured, bestSellers, sort, limit, search } = req.query;
+    const { mainCategory, subcategory, category, featured, bestSellers, sort, limit, search, highlights, ids } = req.query;
+    const highlightsMode = highlights === "true" || highlights === "1";
+
+    /** Batch fetch by id list (e.g. recently viewed) — preserves request order, bounded */
+    if (ids != null && String(ids).trim()) {
+      const parts = String(ids)
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const unique = [...new Set(parts)].slice(0, 50);
+      if (unique.length > 0) {
+        let list = await Product.find({ id: { $in: unique } }).lean();
+        const byId = new Map(list.map((p) => [p.id, p]));
+        list = unique.map((id) => byId.get(id)).filter(Boolean);
+        return res.json(list);
+      }
+    }
+
+    /** Homepage spotlight: best deals (featured) + new arrivals (isNew) — DB filter + limit (no full-catalog scan) */
+    if (highlightsMode) {
+      const filters = [];
+      if (search && String(search).trim()) {
+        filters.push({ name: { $regex: String(search).trim(), $options: "i" } });
+      }
+      if (mainCategory && mainCategory !== "all") filters.push({ mainCategory });
+      if (subcategory && subcategory !== "all") filters.push({ subcategory });
+      if (category && category !== "all") filters.push({ category });
+      filters.push({ $or: [{ featured: true }, { isNew: true }] });
+      const query = filters.length === 1 ? filters[0] : { $and: filters };
+      const lim = Math.min(parseInt(String(limit), 10) || 8, 200);
+      let list = await Product.find(query)
+        .sort({ featured: -1, isNew: -1, reviews: -1 })
+        .limit(lim)
+        .lean();
+      const seenIds = new Set();
+      list = list.filter((p) => {
+        const id = p && p.id;
+        if (!id || seenIds.has(id)) return false;
+        seenIds.add(id);
+        return true;
+      });
+      return res.json(list);
+    }
+
     const query = {};
 
     if (search && String(search).trim()) {

@@ -1,14 +1,21 @@
-import { Building2, Sofa, Users, MapPin, Phone } from "lucide-react";
+import { Building2, Sofa, Users, MapPin, Phone, type LucideIcon } from "lucide-react";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useSiteSettings, DEFAULT_COMPLETED_PROJECT_STATS } from "@/hooks/useApi";
 
-const stats = [
-  { icon: Building2, label: "Fit-out", value: "553" },
-  { icon: Sofa, label: "Furnishing", value: "10,154" },
-  { icon: Users, label: "Consultation", value: "756" },
-];
+const STAT_ICONS: LucideIcon[] = [Building2, Sofa, Users];
 
 export default function CompletedProjectsAndShowrooms() {
   const ref = useScrollReveal<HTMLDivElement>(0.08);
+  const { settings } = useSiteSettings();
+  const rows = settings?.completedProjectStats?.length
+    ? settings.completedProjectStats
+    : DEFAULT_COMPLETED_PROJECT_STATS;
+  const stats = rows.map((row, i) => ({
+    icon: STAT_ICONS[i] ?? Building2,
+    label: row.label,
+    value: row.value,
+  }));
+
   return (
     <div ref={ref} className="animate-on-scroll bg-muted/30">
       {/* Completed Projects */}

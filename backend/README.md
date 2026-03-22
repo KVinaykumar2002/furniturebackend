@@ -20,7 +20,7 @@ Node/Express + MongoDB API for the furniture app.
 ## API
 
 - `GET /api/health` – health check
-- `GET /api/products` – list products (query: `mainCategory`, `subcategory`, `category`, `featured`, `bestSellers`, `sort`, `limit`)
+- `GET /api/products` – list products (query: `mainCategory`, `subcategory`, `category`, `featured`, `bestSellers`, `highlights`, `ids` (comma-separated `id` values, order preserved), `sort`, `limit`). Use `highlights=true` for best-deals-or-new-arrivals with a fast DB-scoped query.
 - `GET /api/products/:id` – single product
 - `GET /api/categories` – categories (list + bySlug)
 - `GET /api/shop-categories` – shop categories (living, dining, bedroom)

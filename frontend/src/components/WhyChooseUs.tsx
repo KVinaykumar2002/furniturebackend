@@ -4,7 +4,7 @@ const features = [
   {
     icon: Truck,
     title: "Free Shipping",
-    description: "On orders above ₹5,000. Fast and reliable delivery across India.",
+    description: "Fast and reliable delivery across Hyderabad.",
   },
   {
     icon: RotateCcw,

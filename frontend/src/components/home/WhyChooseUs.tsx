@@ -3,7 +3,7 @@ import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { Truck, CreditCard, Award } from "lucide-react";
 
 const features = [
-  { icon: Truck, title: "Free Shipping", description: "On orders above ₹5,000. Fast delivery across India." },
+  { icon: Truck, title: "Free Shipping", description: "Fast and reliable delivery across Hyderabad." },
   { icon: CreditCard, title: "Secure Payment", description: "Industry-standard encryption & secure checkout.", showPaymentIcons: true },
   { icon: Award, title: "Premium Quality", description: "Handpicked materials & craftsmanship that lasts." },
 ];

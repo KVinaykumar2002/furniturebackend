@@ -1,5 +1,14 @@
 import { Link, Outlet, useLocation, Navigate } from "react-router-dom";
-import { LayoutDashboard, Package, Image, FolderTree, ArrowLeft, LogOut, Settings } from "lucide-react";
+import {
+  LayoutDashboard,
+  Package,
+  Image,
+  FolderTree,
+  ArrowLeft,
+  LogOut,
+  Settings,
+  ClipboardList,
+} from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { Button } from "@/components/ui/button";
 
@@ -7,6 +16,7 @@ const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/categories", label: "Categories", icon: FolderTree },
+  { to: "/admin/completed-projects", label: "Completed projects", icon: ClipboardList },
   { to: "/admin/images", label: "Images", icon: Image },
   { to: "/admin/site-settings", label: "Site Settings", icon: Settings },
 ];
@@ -40,7 +50,9 @@ export default function AdminLayout() {
                   (location.pathname === to ||
                     (to === "/admin/products" && location.pathname.startsWith("/admin/products")) ||
                     (to === "/admin/categories" && location.pathname.startsWith("/admin/categories")) ||
-                    (to === "/admin/site-settings" && location.pathname.startsWith("/admin/site-settings")))
+                    (to === "/admin/site-settings" && location.pathname.startsWith("/admin/site-settings")) ||
+                    (to === "/admin/completed-projects" &&
+                      location.pathname.startsWith("/admin/completed-projects")))
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 }`}

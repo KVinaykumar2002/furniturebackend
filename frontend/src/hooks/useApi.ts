@@ -1,5 +1,8 @@
+import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { getRecentlyViewedIds } from "@/lib/recentlyViewed";
 import type { Product } from "@/data/products";
 import type { Category } from "@/data/categories";
 import type { Store } from "@/data/stores";
@@ -76,7 +79,18 @@ function slugToLabel(slug: string): string {
     .join(" ");
 }
 
-export function useProducts(params?: { search?: string; mainCategory?: string; subcategory?: string; category?: string; featured?: boolean; bestSellers?: boolean; sort?: string; limit?: number }) {
+export function useProducts(params?: {
+  search?: string;
+  mainCategory?: string;
+  subcategory?: string;
+  category?: string;
+  featured?: boolean;
+  bestSellers?: boolean;
+  highlights?: boolean;
+  ids?: string[];
+  sort?: string;
+  limit?: number;
+}) {
   const q = useQuery({
     queryKey: ["products", params],
     queryFn: async () => {
@@ -90,8 +104,56 @@ export function useProducts(params?: { search?: string; mainCategory?: string; s
         return true;
       });
     },
+    /** Highlights grid is stable; avoid refetch on every navigation */
+    staleTime: params?.highlights ? 2 * 60 * 1000 : undefined,
   });
   return { ...q, products: q.data ?? [] };
+}
+
+/** Homepage “Recently viewed” — ids from localStorage (newest first); product rows from API in that same order */
+export function useRecentlyViewedProducts() {
+  const location = useLocation();
+  const [ids, setIds] = useState<string[]>(() => getRecentlyViewedIds());
+
+  const syncIdsFromStorage = () => setIds(getRecentlyViewedIds());
+
+  useEffect(() => {
+    window.addEventListener("recentlyViewedChanged", syncIdsFromStorage);
+    window.addEventListener("storage", syncIdsFromStorage);
+    const onPageShow = () => syncIdsFromStorage();
+    window.addEventListener("pageshow", onPageShow);
+    return () => {
+      window.removeEventListener("recentlyViewedChanged", syncIdsFromStorage);
+      window.removeEventListener("storage", syncIdsFromStorage);
+      window.removeEventListener("pageshow", onPageShow);
+    };
+  }, []);
+
+  /** Coming back to home (or bfcache) — re-read so the list matches what the user just opened */
+  useEffect(() => {
+    if (location.pathname === "/") {
+      syncIdsFromStorage();
+    }
+  }, [location.pathname]);
+
+  const q = useQuery({
+    queryKey: ["products", "recentlyViewed", ids.join("|")],
+    queryFn: async () => {
+      const list = await api.products.list({ ids });
+      const mapped = list.map(mapProduct);
+      const byId = new Map(mapped.map((p) => [p.id, p]));
+      /** Enforce same order as open history (newest first), not API return order */
+      return ids.map((id) => byId.get(id)).filter((p): p is Product => p !== undefined);
+    },
+    enabled: ids.length > 0,
+    staleTime: 30 * 1000,
+  });
+
+  return {
+    ...q,
+    ids,
+    products: q.data ?? [],
+  };
 }
 
 export function useProduct(id: string | undefined) {
@@ -171,6 +233,31 @@ export function useStore(id: string | undefined) {
   return { ...q, store: q.data ?? null };
 }
 
+export type CompletedProjectStat = { label: string; value: string };
+
+export const DEFAULT_COMPLETED_PROJECT_STATS: CompletedProjectStat[] = [
+  { label: "Fit-out", value: "553" },
+  { label: "Furnishing", value: "10,154" },
+  { label: "Consultation", value: "756" },
+];
+
+function normalizeCompletedProjectStats(raw: unknown): CompletedProjectStat[] {
+  const rows = Array.isArray(raw)
+    ? (raw as Array<Record<string, unknown>>).map((row) => ({
+        label: row && typeof row.label === "string" ? row.label : "",
+        value: row && typeof row.value === "string" ? row.value : "",
+      }))
+    : [];
+  return DEFAULT_COMPLETED_PROJECT_STATS.map((d, i) => {
+    const row = rows[i];
+    if (row === undefined) return { ...d };
+    return {
+      label: row.label,
+      value: row.value,
+    };
+  });
+}
+
 export type SiteSettings = {
   contactPhone: string;
   contactEmail: string;
@@ -179,6 +266,7 @@ export type SiteSettings = {
   ourStoresImage: string;
   heroSlides: { image: string; title: string; subtitle: string }[];
   socialLinks: { name: string; href: string }[];
+  completedProjectStats: CompletedProjectStat[];
 };
 
 function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
@@ -203,6 +291,7 @@ function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
     ourStoresImage: r.ourStoresImage != null ? String(r.ourStoresImage) : "",
     heroSlides: slides,
     socialLinks: links,
+    completedProjectStats: normalizeCompletedProjectStats(r.completedProjectStats),
   };
 }
 

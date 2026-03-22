@@ -17,6 +17,15 @@ const socialLinkSchema = new mongoose.Schema(
   { _id: false }
 );
 
+/** Homepage "Completed projects" row: label + display value (e.g. "10,154") */
+const completedProjectStatSchema = new mongoose.Schema(
+  {
+    label: { type: String, default: "" },
+    value: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
 const siteSettingsSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true, default: "default" },
@@ -27,6 +36,7 @@ const siteSettingsSchema = new mongoose.Schema(
     ourStoresImage: { type: String, default: "" },
     heroSlides: { type: [heroSlideSchema], default: [] },
     socialLinks: { type: [socialLinkSchema], default: [] },
+    completedProjectStats: { type: [completedProjectStatSchema], default: [] },
   },
   { timestamps: true }
 );

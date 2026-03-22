@@ -4,6 +4,12 @@ import SiteSettings from "../models/SiteSettings.js";
 const router = Router();
 const ID = "default";
 
+const DEFAULT_COMPLETED_PROJECT_STATS = [
+  { label: "Fit-out", value: "553" },
+  { label: "Furnishing", value: "10,154" },
+  { label: "Consultation", value: "756" },
+];
+
 /** GET /api/site-settings — return single settings document (create with defaults if missing) */
 router.get("/", async (req, res) => {
   try {
@@ -18,6 +24,7 @@ router.get("/", async (req, res) => {
         ourStoresImage: "",
         heroSlides: [],
         socialLinks: [],
+        completedProjectStats: DEFAULT_COMPLETED_PROJECT_STATS,
       });
       doc = await SiteSettings.findOne({ id: ID }).lean();
     }
@@ -50,6 +57,12 @@ router.put("/", async (req, res) => {
             href: l && typeof l.href === "string" ? l.href : "#",
           }))
         : undefined,
+      completedProjectStats: Array.isArray(body.completedProjectStats)
+        ? body.completedProjectStats.map((row) => ({
+            label: row && typeof row.label === "string" ? row.label : "",
+            value: row && typeof row.value === "string" ? row.value : "",
+          }))
+        : undefined,
     };
     const filtered = Object.fromEntries(Object.entries(update).filter(([, v]) => v !== undefined));
     const doc = await SiteSettings.findOneAndUpdate(
@@ -57,6 +70,16 @@ router.put("/", async (req, res) => {
       { $set: filtered },
       { new: true, upsert: true, runValidators: true }
     ).lean();
+
+    /** Avoid sending huge payloads (e.g. base64 hero images) when only small fields changed */
+    const minimal =
+      req.query.minimal === "1" ||
+      req.query.minimal === "true" ||
+      req.query.quick === "1";
+    if (minimal) {
+      return res.status(204).end();
+    }
+
     res.json(doc);
   } catch (err) {
     res.status(400).json({ error: err.message });
