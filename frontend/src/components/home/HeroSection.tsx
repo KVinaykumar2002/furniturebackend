@@ -69,21 +69,25 @@ export default function HeroSection() {
 
   return (
     <section
-      className="relative w-full overflow-hidden h-[calc((100svh-64px)*0.4)] min-h-[calc((100svh-64px)*0.4)] sm:h-[calc(100svh-64px)] sm:min-h-[calc(100svh-64px)]"
+      className="relative w-full overflow-hidden sm:h-[calc(100svh-64px)] sm:min-h-[calc(100svh-64px)]"
       aria-label="Hero carousel"
       aria-live="polite"
     >
       {slides.map((slide, i) => (
         <div
           key={i}
-          className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+          className={`transition-opacity duration-1000 ease-in-out w-full sm:absolute sm:inset-0 sm:h-full ${
+            i === current ? "relative z-[1] sm:absolute sm:inset-0" : "absolute inset-0 pointer-events-none"
+          }`}
           style={{ opacity: i === current ? 1 : 0 }}
           aria-hidden={i !== current}
         >
           <img
             src={slide.image}
             alt=""
-            className="w-full h-full object-contain sm:object-cover object-center bg-[#081536]"
+            className={`w-full bg-[#081536] object-center sm:absolute sm:inset-0 sm:h-full sm:w-full sm:object-cover ${
+              i === current ? "relative block h-auto" : "absolute inset-0 h-full object-cover"
+            }`}
           />
         </div>
       ))}

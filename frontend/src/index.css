@@ -194,7 +194,42 @@
   100% { background-position: 200% 0; }
 }
 
-/* Blink animation for WhatsApp / CTA icons */
+/* WhatsApp FAB — concentric pulse rings (fixed bottom-right in component) */
+@keyframes whatsapp-fab-pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(2.35);
+    opacity: 0;
+  }
+}
+
+.whatsapp-fab-wrap {
+  isolation: isolate;
+}
+
+.whatsapp-fab-pulse-ring {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border-radius: 9999px;
+  border: 2px solid rgba(7, 94, 84, 0.42);
+  box-shadow: 0 0 12px rgba(7, 94, 84, 0.12);
+  pointer-events: none;
+  animation: whatsapp-fab-pulse-ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.whatsapp-fab-pulse-ring--d1 {
+  animation-delay: 0.8s;
+}
+
+.whatsapp-fab-pulse-ring--d2 {
+  animation-delay: 1.6s;
+}
+
+/* Legacy — still used by FloatingButtons if enabled */
 @keyframes whatsapp-blink {
   0%, 100% { opacity: 1; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15); }
   50% { opacity: 0.85; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25); }
@@ -340,6 +375,10 @@
   }
   .animate-whatsapp-blink {
     animation: none !important;
+  }
+  .whatsapp-fab-pulse-ring {
+    animation: none !important;
+    opacity: 0 !important;
   }
   .enquiry-fab {
     animation: none !important;
