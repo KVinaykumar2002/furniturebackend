@@ -1,17 +1,58 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { api } from "@/lib/api";
-import { useSiteSettings, type SiteSettings } from "@/hooks/useApi";
-
-type SiteSettingsForm = Omit<SiteSettings, "completedProjectStats" | "testimonials">;
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  useSiteSettings,
+  type SiteSettings,
+  getDefaultPromoStrip,
+  type PromoStripStat,
+  type PromoStripIconKey,
+} from "@/hooks/useApi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { LoadingSection } from "@/components/ui/loader";
 import { Plus, Trash2, Upload, Link as LinkIcon } from "lucide-react";
 import { cn, readFileAsDataUrl } from "@/lib/utils";
+
+type SiteSettingsForm = Omit<SiteSettings, "completedProjectStats" | "testimonials">;
+
+function isoToDatetimeLocal(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function datetimeLocalToISO(s: string): string {
+  if (!s.trim()) return "";
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? "" : d.toISOString();
+}
+
+const PROMO_ICON_OPTIONS: { value: PromoStripIconKey; label: string }[] = [
+  { value: "users", label: "People (customers)" },
+  { value: "truck", label: "Truck (delivery)" },
+  { value: "shield", label: "Shield (warranty)" },
+  { value: "factory", label: "Factory (mfg.)" },
+];
+
+const emptyPromoStat = (): PromoStripStat => ({
+  iconKey: "users",
+  value: "",
+  label: "",
+});
 
 export default function AdminSiteSettingsPage() {
   const queryClient = useQueryClient();
@@ -19,6 +60,7 @@ export default function AdminSiteSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingStoreImage, setUploadingStoreImage] = useState(false);
   const [storeImageDropZoneActive, setStoreImageDropZoneActive] = useState(false);
+  const [promoSaleEndLocal, setPromoSaleEndLocal] = useState("");
   const [form, setForm] = useState<SiteSettingsForm>({
     contactPhone: "",
     contactEmail: "",
@@ -27,6 +69,7 @@ export default function AdminSiteSettingsPage() {
     ourStoresImage: "",
     heroSlides: [],
     socialLinks: [],
+    promoStrip: getDefaultPromoStrip(),
   });
 
   useEffect(() => {
@@ -39,7 +82,12 @@ export default function AdminSiteSettingsPage() {
         ourStoresImage: settings.ourStoresImage ?? "",
         heroSlides: settings.heroSlides?.length ? [...settings.heroSlides] : [],
         socialLinks: settings.socialLinks?.length ? [...settings.socialLinks] : [],
+        promoStrip: {
+          ...settings.promoStrip,
+          stats: settings.promoStrip.stats.map((s) => ({ ...s })),
+        },
       });
+      setPromoSaleEndLocal(isoToDatetimeLocal(settings.promoStrip.saleEndsAt));
     }
   }, [settings]);
 
@@ -119,8 +167,55 @@ export default function AdminSiteSettingsPage() {
     }));
   };
 
+  const updatePromoStat = (index: number, field: keyof PromoStripStat, value: string) => {
+    setForm((prev) => {
+      const stats = [...prev.promoStrip.stats];
+      if (!stats[index]) return prev;
+      if (field === "iconKey") {
+        stats[index] = { ...stats[index], iconKey: value as PromoStripIconKey };
+      } else {
+        stats[index] = { ...stats[index], [field]: value };
+      }
+      return { ...prev, promoStrip: { ...prev.promoStrip, stats } };
+    });
+  };
+
+  const addPromoStat = () => {
+    setForm((prev) => ({
+      ...prev,
+      promoStrip: { ...prev.promoStrip, stats: [...prev.promoStrip.stats, emptyPromoStat()] },
+    }));
+  };
+
+  const removePromoStat = (index: number) => {
+    setForm((prev) => ({
+      ...prev,
+      promoStrip: {
+        ...prev.promoStrip,
+        stats: prev.promoStrip.stats.filter((_, i) => i !== index),
+      },
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const saleEndsAt =
+      datetimeLocalToISO(promoSaleEndLocal) || form.promoStrip.saleEndsAt;
+    const promoStrip = {
+      ...form.promoStrip,
+      saleEndsAt,
+      stats: form.promoStrip.stats
+        .map((s) => ({
+          iconKey: s.iconKey,
+          value: s.value.trim(),
+          label: s.label.trim(),
+        }))
+        .filter((s) => s.value || s.label),
+    };
+    if (!promoStrip.stats.length) {
+      toast.error("Promo strip: add at least one stat (value or label).");
+      return;
+    }
     setSaving(true);
     try {
       await api.siteSettings.update({
@@ -131,6 +226,7 @@ export default function AdminSiteSettingsPage() {
         ourStoresImage: form.ourStoresImage.trim(),
         heroSlides: form.heroSlides.filter((s) => s.image.trim()),
         socialLinks: form.socialLinks.filter((l) => l.name.trim()),
+        promoStrip,
       });
       queryClient.invalidateQueries({ queryKey: ["siteSettings"] });
       toast.success("Site settings saved");
@@ -153,7 +249,12 @@ export default function AdminSiteSettingsPage() {
     <div>
       <h1 className="font-display text-2xl font-light text-foreground mb-2">Site Settings</h1>
       <p className="text-muted-foreground text-sm mb-8">
-        Manage contact details, store image, hero carousel, and footer links for the storefront.
+        Manage contact details, store image, promo banner, hero carousel, and footer links. The same promo
+        fields are on the{" "}
+        <Link to="/admin/promo-strip" className="text-foreground underline hover:no-underline">
+          Promo strip
+        </Link>{" "}
+        page.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-10">
@@ -277,6 +378,164 @@ export default function AdminSiteSettingsPage() {
                 </div>
               </div>
             )}
+          </div>
+        </section>
+
+        {/* Promo strip (homepage banner) */}
+        <section className="rounded-lg border bg-card p-6 space-y-6">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground mb-1">Promo strip (homepage banner)</h2>
+            <p className="text-sm text-muted-foreground">
+              Sale countdown, store callout, and trust stats below the hero.
+            </p>
+          </div>
+
+          <div className="space-y-4 border-b pb-6">
+            <h3 className="text-sm font-medium text-foreground">Sale countdown</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="site-promo-saleTitle">Sale title (large)</Label>
+                <Input
+                  id="site-promo-saleTitle"
+                  value={form.promoStrip.saleTitle}
+                  onChange={(e) =>
+                    setForm((p) => ({
+                      ...p,
+                      promoStrip: { ...p.promoStrip, saleTitle: e.target.value },
+                    }))
+                  }
+                  placeholder="SALE"
+                />
+              </div>
+              <div>
+                <Label htmlFor="site-promo-saleSubtitle">Sale subtitle</Label>
+                <Input
+                  id="site-promo-saleSubtitle"
+                  value={form.promoStrip.saleSubtitle}
+                  onChange={(e) =>
+                    setForm((p) => ({
+                      ...p,
+                      promoStrip: { ...p.promoStrip, saleSubtitle: e.target.value },
+                    }))
+                  }
+                  placeholder="Ends In"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="site-promo-saleEndsAt">Sale ends at (local time)</Label>
+                <Input
+                  id="site-promo-saleEndsAt"
+                  type="datetime-local"
+                  value={promoSaleEndLocal}
+                  onChange={(e) => setPromoSaleEndLocal(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4 border-b pb-6">
+            <h3 className="text-sm font-medium text-foreground">Store callout</h3>
+            <div>
+              <Label htmlFor="site-promo-storeLine1">First line</Label>
+              <Input
+                id="site-promo-storeLine1"
+                value={form.promoStrip.storeLine1}
+                onChange={(e) =>
+                  setForm((p) => ({
+                    ...p,
+                    promoStrip: { ...p.promoStrip, storeLine1: e.target.value },
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="site-promo-storeLine2">Second line (emphasized)</Label>
+              <Input
+                id="site-promo-storeLine2"
+                value={form.promoStrip.storeLine2}
+                onChange={(e) =>
+                  setForm((p) => ({
+                    ...p,
+                    promoStrip: { ...p.promoStrip, storeLine2: e.target.value },
+                  }))
+                }
+              />
+            </div>
+            <div>
+              <Label htmlFor="site-promo-storeHref">Link</Label>
+              <Input
+                id="site-promo-storeHref"
+                value={form.promoStrip.storeHref}
+                onChange={(e) =>
+                  setForm((p) => ({
+                    ...p,
+                    promoStrip: { ...p.promoStrip, storeHref: e.target.value },
+                  }))
+                }
+                placeholder="/stores"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium text-foreground">Trust stats</h3>
+            {form.promoStrip.stats.map((row, index) => (
+              <div
+                key={index}
+                className="grid gap-3 sm:grid-cols-12 items-end p-4 border rounded-lg bg-muted/30"
+              >
+                <div className="sm:col-span-3">
+                  <Label>Icon</Label>
+                  <Select
+                    value={row.iconKey}
+                    onValueChange={(v) => updatePromoStat(index, "iconKey", v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PROMO_ICON_OPTIONS.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="sm:col-span-4">
+                  <Label htmlFor={`site-promo-stat-val-${index}`}>Value (bold)</Label>
+                  <Input
+                    id={`site-promo-stat-val-${index}`}
+                    value={row.value}
+                    onChange={(e) => updatePromoStat(index, "value", e.target.value)}
+                  />
+                </div>
+                <div className="sm:col-span-4">
+                  <Label htmlFor={`site-promo-stat-lab-${index}`}>Label</Label>
+                  <Input
+                    id={`site-promo-stat-lab-${index}`}
+                    value={row.label}
+                    onChange={(e) => updatePromoStat(index, "label", e.target.value)}
+                  />
+                </div>
+                <div className="sm:col-span-1 flex justify-end pb-0.5">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive"
+                    onClick={() => removePromoStat(index)}
+                    aria-label="Remove stat"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+            <Button type="button" variant="outline" onClick={addPromoStat}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add stat
+            </Button>
           </div>
         </section>
 

@@ -2,25 +2,14 @@ import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { MapPin } from "lucide-react";
-import { useStore } from "@/hooks/useApi";
-import { LoadingSection } from "@/components/ui/loader";
+import { getStoreById } from "@/data/stores";
+import { storeAddressLine, storeMapEmbedSrc, storeOpenInMapsUrl } from "@/lib/storeMap";
 
 export default function StoreDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { store, isPending, isError } = useStore(id);
+  const store = id ? getStoreById(id) : undefined;
 
-  if (isPending) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container py-32">
-          <LoadingSection label="Loading store…" size="lg" />
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-  if (isError || !store) {
+  if (!store) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -44,13 +33,13 @@ export default function StoreDetailPage() {
           </div>
           <div>
             <h1 className="font-display text-2xl font-light text-foreground">{store.name}</h1>
-            <p className="text-muted-foreground">{store.address}, {store.city}</p>
+            <p className="text-muted-foreground">{storeAddressLine(store)}</p>
           </div>
         </div>
         <div className="overflow-hidden border border-border bg-muted">
           <iframe
             title={`Map for ${store.name}`}
-            src={store.mapEmbedUrl}
+            src={storeMapEmbedSrc(store)}
             width="100%"
             height="400"
             style={{ border: 0 }}
@@ -60,7 +49,7 @@ export default function StoreDetailPage() {
           />
         </div>
         <a
-          href={store.mapLink}
+          href={storeOpenInMapsUrl(store)}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center h-12 px-8 bg-neutral-900 text-white font-medium hover:bg-neutral-800 transition-colors uppercase tracking-wide text-sm mt-6"

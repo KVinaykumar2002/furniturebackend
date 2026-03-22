@@ -9,6 +9,7 @@ import CartDrawer from "@/components/CartDrawer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import ScrollToTop from "@/components/ScrollToTop";
 import EnquiryModal from "@/components/EnquiryModal";
+import { EnquiryModalProvider } from "@/context/EnquiryModalContext";
 import Index from "./pages/Index";
 import LivingPage from "./pages/LivingPage";
 import DiningPage from "./pages/DiningPage";
@@ -34,6 +35,7 @@ import AdminCategoryFormPage from "./pages/AdminCategoryFormPage";
 import AdminSiteSettingsPage from "./pages/AdminSiteSettingsPage";
 import AdminCompletedProjectsPage from "./pages/AdminCompletedProjectsPage";
 import AdminTestimonialsPage from "./pages/AdminTestimonialsPage";
+import AdminPromoStripPage from "./pages/AdminPromoStripPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 
@@ -41,6 +43,7 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <EnquiryModalProvider>
     <TooltipProvider>
       <CartProvider>
         <WishlistProvider>
@@ -79,6 +82,7 @@ const App = () => (
                 <Route path="site-settings" element={<AdminSiteSettingsPage />} />
                 <Route path="completed-projects" element={<AdminCompletedProjectsPage />} />
                 <Route path="testimonials" element={<AdminTestimonialsPage />} />
+                <Route path="promo-strip" element={<AdminPromoStripPage />} />
                 <Route path="images" element={<AdminImageManagerPage />} />
               </Route>
               <Route path="/404" element={<NotFoundPage />} />
@@ -89,6 +93,7 @@ const App = () => (
         </WishlistProvider>
       </CartProvider>
     </TooltipProvider>
+    </EnquiryModalProvider>
   </QueryClientProvider>
 );
 

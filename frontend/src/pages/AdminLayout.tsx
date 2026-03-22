@@ -9,6 +9,7 @@ import {
   Settings,
   ClipboardList,
   MessageSquareQuote,
+  Megaphone,
 } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { Button } from "@/components/ui/button";
@@ -55,7 +56,8 @@ export default function AdminLayout() {
                     (to === "/admin/site-settings" && location.pathname.startsWith("/admin/site-settings")) ||
                     (to === "/admin/completed-projects" &&
                       location.pathname.startsWith("/admin/completed-projects")) ||
-                    (to === "/admin/testimonials" && location.pathname.startsWith("/admin/testimonials")))
+                    (to === "/admin/testimonials" && location.pathname.startsWith("/admin/testimonials")) ||
+                    (to === "/admin/promo-strip" && location.pathname.startsWith("/admin/promo-strip")))
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 }`}

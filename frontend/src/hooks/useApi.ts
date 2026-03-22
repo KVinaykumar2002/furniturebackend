@@ -42,6 +42,12 @@ function mapCategory(c: Record<string, unknown>): Category {
 }
 
 function mapStore(s: Record<string, unknown>): Store {
+  const mapLat = s.mapLat != null ? Number(s.mapLat) : undefined;
+  const mapLng = s.mapLng != null ? Number(s.mapLng) : undefined;
+  const mapSearchQuery =
+    s.mapSearchQuery != null && String(s.mapSearchQuery).trim() !== ""
+      ? String(s.mapSearchQuery).trim()
+      : undefined;
   return {
     id: String(s.id),
     name: String(s.name),
@@ -49,6 +55,9 @@ function mapStore(s: Record<string, unknown>): Store {
     city: String(s.city),
     mapEmbedUrl: String(s.mapEmbedUrl),
     mapLink: String(s.mapLink),
+    mapLat: Number.isFinite(mapLat) ? mapLat : undefined,
+    mapLng: Number.isFinite(mapLng) ? mapLng : undefined,
+    mapSearchQuery,
     phone: s.phone != null ? String(s.phone) : undefined,
     hours: s.hours != null ? String(s.hours) : undefined,
   };
@@ -356,6 +365,100 @@ function normalizeTestimonials(r: Record<string, unknown>): Testimonial[] {
   return mapped;
 }
 
+export type PromoStripIconKey = "users" | "truck" | "shield" | "factory";
+
+export type PromoStripStat = {
+  iconKey: PromoStripIconKey;
+  value: string;
+  label: string;
+};
+
+export type PromoStripConfig = {
+  saleTitle: string;
+  saleSubtitle: string;
+  /** ISO 8601 — countdown target */
+  saleEndsAt: string;
+  storeLine1: string;
+  storeLine2: string;
+  storeHref: string;
+  stats: PromoStripStat[];
+};
+
+const DEFAULT_PROMO_STRIP_STATS: PromoStripStat[] = [
+  { iconKey: "users", value: "20 Lakh+", label: "Customers" },
+  { iconKey: "truck", value: "Free", label: "Delivery" },
+  { iconKey: "shield", value: "Best", label: "Warranty*" },
+  { iconKey: "factory", value: "15 Lakh sq. ft.", label: "Mfg. Unit" },
+];
+
+function defaultPromoSaleEndsISO(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 2);
+  d.setHours(d.getHours() + 8);
+  d.setMinutes(d.getMinutes() + 11);
+  return d.toISOString();
+}
+
+/** Fresh defaults (countdown end is “now + ~2d”) */
+export function getDefaultPromoStrip(): PromoStripConfig {
+  return {
+    saleTitle: "SALE",
+    saleSubtitle: "Ends In",
+    saleEndsAt: defaultPromoSaleEndsISO(),
+    storeLine1: "Visit Your Nearest Store &",
+    storeLine2: "Get Extra Instant Discount",
+    storeHref: "/stores",
+    stats: DEFAULT_PROMO_STRIP_STATS.map((s) => ({ ...s })),
+  };
+}
+
+function parsePromoStripStat(row: Record<string, unknown>): PromoStripStat {
+  const k = row && typeof row.iconKey === "string" ? row.iconKey : "users";
+  const iconKey: PromoStripIconKey = ["users", "truck", "shield", "factory"].includes(k)
+    ? (k as PromoStripIconKey)
+    : "users";
+  return {
+    iconKey,
+    value: row && typeof row.value === "string" ? row.value : "",
+    label: row && typeof row.label === "string" ? row.label : "",
+  };
+}
+
+function normalizePromoStrip(r: Record<string, unknown>): PromoStripConfig {
+  const base = getDefaultPromoStrip();
+  const p = r.promoStrip;
+  if (p == null || typeof p !== "object") {
+    return base;
+  }
+  const po = p as Record<string, unknown>;
+  let saleEndsAt =
+    typeof po.saleEndsAt === "string" && po.saleEndsAt.trim()
+      ? po.saleEndsAt.trim()
+      : defaultPromoSaleEndsISO();
+  if (Number.isNaN(Date.parse(saleEndsAt))) {
+    saleEndsAt = defaultPromoSaleEndsISO();
+  }
+  const stats = Array.isArray(po.stats)
+    ? (po.stats as Array<Record<string, unknown>>)
+        .map(parsePromoStripStat)
+        .filter((s) => s.value.trim() || s.label.trim())
+    : [];
+  return {
+    saleTitle:
+      typeof po.saleTitle === "string" && po.saleTitle.trim() ? po.saleTitle.trim() : base.saleTitle,
+    saleSubtitle:
+      typeof po.saleSubtitle === "string" && po.saleSubtitle.trim()
+        ? po.saleSubtitle.trim()
+        : base.saleSubtitle,
+    saleEndsAt,
+    storeLine1: typeof po.storeLine1 === "string" ? po.storeLine1 : base.storeLine1,
+    storeLine2: typeof po.storeLine2 === "string" ? po.storeLine2 : base.storeLine2,
+    storeHref:
+      typeof po.storeHref === "string" && po.storeHref.trim() ? po.storeHref.trim() : base.storeHref,
+    stats: stats.length > 0 ? stats : base.stats.map((s) => ({ ...s })),
+  };
+}
+
 export type SiteSettings = {
   contactPhone: string;
   contactEmail: string;
@@ -366,6 +469,7 @@ export type SiteSettings = {
   socialLinks: { name: string; href: string }[];
   completedProjectStats: CompletedProjectStat[];
   testimonials: Testimonial[];
+  promoStrip: PromoStripConfig;
 };
 
 function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
@@ -392,6 +496,7 @@ function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
     socialLinks: links,
     completedProjectStats: normalizeCompletedProjectStats(r.completedProjectStats),
     testimonials: normalizeTestimonials(r),
+    promoStrip: normalizePromoStrip(r),
   };
 }
 

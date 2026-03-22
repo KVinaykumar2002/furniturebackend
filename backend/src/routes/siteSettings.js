@@ -1,6 +1,7 @@
 import { Router } from "express";
 import SiteSettings from "../models/SiteSettings.js";
 import { DEFAULT_TESTIMONIALS } from "../data/defaultTestimonials.js";
+import { buildDefaultPromoStrip } from "../data/defaultPromoStrip.js";
 
 const router = Router();
 const ID = "default";
@@ -27,6 +28,7 @@ router.get("/", async (req, res) => {
         socialLinks: [],
         completedProjectStats: DEFAULT_COMPLETED_PROJECT_STATS,
         testimonials: DEFAULT_TESTIMONIALS,
+        promoStrip: buildDefaultPromoStrip(),
       });
       doc = await SiteSettings.findOne({ id: ID }).lean();
     }
@@ -76,6 +78,38 @@ router.put("/", async (req, res) => {
             videoUrl: t && typeof t.videoUrl === "string" ? t.videoUrl : "",
           }))
         : undefined,
+      promoStrip:
+        body.promoStrip != null && typeof body.promoStrip === "object"
+          ? {
+              saleTitle:
+                typeof body.promoStrip.saleTitle === "string" ? body.promoStrip.saleTitle : "",
+              saleSubtitle:
+                typeof body.promoStrip.saleSubtitle === "string" ? body.promoStrip.saleSubtitle : "",
+              saleEndsAt:
+                typeof body.promoStrip.saleEndsAt === "string" ? body.promoStrip.saleEndsAt : "",
+              storeLine1:
+                typeof body.promoStrip.storeLine1 === "string" ? body.promoStrip.storeLine1 : "",
+              storeLine2:
+                typeof body.promoStrip.storeLine2 === "string" ? body.promoStrip.storeLine2 : "",
+              storeHref:
+                typeof body.promoStrip.storeHref === "string" && body.promoStrip.storeHref.trim()
+                  ? body.promoStrip.storeHref.trim()
+                  : "/stores",
+              stats: Array.isArray(body.promoStrip.stats)
+                ? body.promoStrip.stats.map((s) => {
+                    const k = s && typeof s.iconKey === "string" ? s.iconKey : "users";
+                    const iconKey = ["users", "truck", "shield", "factory"].includes(k)
+                      ? k
+                      : "users";
+                    return {
+                      iconKey,
+                      value: s && typeof s.value === "string" ? s.value : "",
+                      label: s && typeof s.label === "string" ? s.label : "",
+                    };
+                  })
+                : [],
+            }
+          : undefined,
     };
     const filtered = Object.fromEntries(Object.entries(update).filter(([, v]) => v !== undefined));
     const doc = await SiteSettings.findOneAndUpdate(

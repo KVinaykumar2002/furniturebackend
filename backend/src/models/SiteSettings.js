@@ -39,6 +39,28 @@ const testimonialSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const promoStripStatSchema = new mongoose.Schema(
+  {
+    iconKey: { type: String, default: "users" },
+    value: { type: String, default: "" },
+    label: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
+const promoStripSchema = new mongoose.Schema(
+  {
+    saleTitle: { type: String, default: "SALE" },
+    saleSubtitle: { type: String, default: "Ends In" },
+    saleEndsAt: { type: String, default: "" },
+    storeLine1: { type: String, default: "" },
+    storeLine2: { type: String, default: "" },
+    storeHref: { type: String, default: "/stores" },
+    stats: { type: [promoStripStatSchema], default: [] },
+  },
+  { _id: false }
+);
+
 const siteSettingsSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true, default: "default" },
@@ -51,6 +73,7 @@ const siteSettingsSchema = new mongoose.Schema(
     socialLinks: { type: [socialLinkSchema], default: [] },
     completedProjectStats: { type: [completedProjectStatSchema], default: [] },
     testimonials: { type: [testimonialSchema], default: [] },
+    promoStrip: { type: promoStripSchema, default: undefined },
   },
   { timestamps: true }
 );

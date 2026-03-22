@@ -8,6 +8,10 @@ const storeSchema = new mongoose.Schema(
     city: { type: String, required: true },
     mapEmbedUrl: { type: String, required: true },
     mapLink: { type: String, required: true },
+    mapLat: { type: Number, required: false },
+    mapLng: { type: Number, required: false },
+    /** Search string that matches the Google Maps place (same pin as mapLink share URL) */
+    mapSearchQuery: { type: String, required: false },
     phone: String,
     hours: String,
   },

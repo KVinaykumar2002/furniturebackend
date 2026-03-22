@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, Instagram, Facebook, Twitter } from "lucide-react";
-import { useStores, useSiteSettings } from "@/hooks/useApi";
+import { useSiteSettings } from "@/hooks/useApi";
+import { stores } from "@/data/stores";
+import { useEnquiryModal } from "@/context/EnquiryModalContext";
 
 const DEFAULT_TAGLINE = "Premium furniture for inspired living. Quality craftsmanship and timeless design.";
 
@@ -12,7 +14,7 @@ const SOCIAL_LINKS = [
 ] as const;
 
 export default function Footer() {
-  const { stores } = useStores();
+  const { openEnquiry } = useEnquiryModal();
   const { settings } = useSiteSettings();
   const contactPhone = settings?.contactPhone ?? "";
   const contactEmail = settings?.contactEmail ?? "";
@@ -86,14 +88,22 @@ export default function Footer() {
           <div>
             <h4 className="font-medium text-[#2c2c2c] text-sm mb-4">Customer Support</h4>
             <ul className="space-y-1 text-sm text-[#5a5a5a]">
-              <li><a href="/#contact" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Contact Us</a></li>
+              <li>
+                <button
+                  type="button"
+                  onClick={openEnquiry}
+                  className="block w-full text-left py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center"
+                >
+                  Contact Us
+                </button>
+              </li>
               <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">FAQs</a></li>
               <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Shipping Policy</a></li>
               <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Return Policy</a></li>
             </ul>
           </div>
 
-          {/* Stores — from API only (no hardcoded duplicates) */}
+          {/* Stores — static list (same as Store Locator) */}
           <div>
             <h4 className="font-medium text-[#2c2c2c] text-sm mb-4">Stores</h4>
             <ul className="space-y-1 text-sm text-[#5a5a5a]">

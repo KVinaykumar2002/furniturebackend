@@ -1,5 +1,11 @@
 // Seed data matching frontend static data (with existing image URLs)
 
+import {
+  STORE_GOOGLE_SHARE_LINKS,
+  STORE_KONDAPUR,
+  STORE_KOTHAPET,
+} from "./data/storeLocations.js";
+
 export const seedCategories = [
   { slug: "all", title: "All", description: "Browse all products across every category.", image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=800" },
   { slug: "furniture", title: "Furniture", description: "Sofas, chairs, tables, and living room essentials. Timeless designs for every home.", image: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=800" },
@@ -23,8 +29,26 @@ export const seedShopCategories = [
 ];
 
 export const seedStores = [
-  { id: "kondapur", name: "Kondapur", address: "Survey No. 64, Kondapur", city: "Hyderabad", mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.0!2d78.39!3d17.48!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTfCsDI4JzQ4LjAiTiA3OMKwMjMnMjQuMCJF!5e0!3m2!1sen!2sin!4v1", mapLink: "https://maps.google.com/?q=Kondapur+Hyderabad" },
-  { id: "kothapet", name: "Kothapet", address: "Kothapet, Hyderabad", city: "Hyderabad", mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.5!2d78.56!3d17.37!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTfCsDIyJzEyLjAiTiA3OMKwMzMnMzYuMCJF!5e0!3m2!1sen!2sin!4v1", mapLink: "https://maps.google.com/?q=Kothapet+Hyderabad" },
+  {
+    id: "kondapur",
+    name: "Kondapur",
+    address: "F963+88F, Kondapur Main Road, Block - B, Sri Ram Nagar, Laxmi Nagar, Gachibowli",
+    city: "Hyderabad",
+    mapEmbedUrl: `https://www.google.com/maps?q=${STORE_KONDAPUR.lat},${STORE_KONDAPUR.lng}&z=17&output=embed&hl=en`,
+    mapLink: STORE_GOOGLE_SHARE_LINKS.kondapur,
+    mapLat: STORE_KONDAPUR.lat,
+    mapLng: STORE_KONDAPUR.lng,
+  },
+  {
+    id: "kothapet",
+    name: "Kothapet",
+    address: "Kothapet",
+    city: "Hyderabad",
+    mapEmbedUrl: `https://www.google.com/maps?q=${STORE_KOTHAPET.lat},${STORE_KOTHAPET.lng}&z=17&output=embed&hl=en`,
+    mapLink: STORE_GOOGLE_SHARE_LINKS.kothapet,
+    mapLat: STORE_KOTHAPET.lat,
+    mapLng: STORE_KOTHAPET.lng,
+  },
 ];
 
 export const seedProducts = [

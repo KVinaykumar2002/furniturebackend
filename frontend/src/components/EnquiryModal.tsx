@@ -13,11 +13,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useEnquiryModal } from "@/context/EnquiryModalContext";
 
 const ENQUIRY_SHOWN_KEY = "enquiry-modal-shown";
 
 export default function EnquiryModal() {
-  const [open, setOpen] = useState(false);
+  const { open, setOpen, openEnquiry } = useEnquiryModal();
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
 
   useEffect(() => {
@@ -28,11 +29,11 @@ export default function EnquiryModal() {
       }
     }, 800);
     return () => clearTimeout(timer);
-  }, []);
+  }, [setOpen]);
 
-  const handleClose = (open: boolean) => {
-    setOpen(open);
-    if (!open) sessionStorage.setItem(ENQUIRY_SHOWN_KEY, "true");
+  const handleClose = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) sessionStorage.setItem(ENQUIRY_SHOWN_KEY, "true");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -47,7 +48,7 @@ export default function EnquiryModal() {
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={openEnquiry}
         className="enquiry-fab fixed bottom-24 right-6 z-50 w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-200 ring-2 ring-amber-400/90 ring-offset-2 ring-offset-background"
         aria-label="Open enquiry form"
       >

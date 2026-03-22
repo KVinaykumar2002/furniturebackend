@@ -1,10 +1,23 @@
+import {
+  STORE_GOOGLE_SHARE_LINKS,
+  STORE_KONDAPUR,
+  STORE_KOTHAPET,
+} from "./storeLocations";
+
 export interface Store {
   id: string;
   name: string;
   address: string;
   city: string;
+  /** Legacy field; iframe uses {@link storeMapEmbedSrc} with mapLat/mapLng or address. */
   mapEmbedUrl: string;
   mapLink: string;
+  /** Optional WGS84 latitude for the embedded map pin */
+  mapLat?: number;
+  /** Optional WGS84 longitude for the embedded map pin */
+  mapLng?: number;
+  /** Google Maps search text for the same place as mapLink (share URL) */
+  mapSearchQuery?: string;
   phone?: string;
   hours?: string;
 }
@@ -13,18 +26,22 @@ export const stores: Store[] = [
   {
     id: "kondapur",
     name: "Kondapur",
-    address: "Survey No. 64, Kondapur",
+    address: "F963+88F, Kondapur Main Road, Block - B, Sri Ram Nagar, Laxmi Nagar, Gachibowli",
     city: "Hyderabad",
-    mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.0!2d78.39!3d17.48!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTfCsDI4JzQ4LjAiTiA3OMKwMjMnMjQuMCJF!5e0!3m2!1sen!2sin!4v1",
-    mapLink: "https://maps.google.com/?q=Kondapur+Hyderabad",
+    mapEmbedUrl: `https://www.google.com/maps?q=${STORE_KONDAPUR.lat},${STORE_KONDAPUR.lng}&z=17&output=embed&hl=en`,
+    mapLink: STORE_GOOGLE_SHARE_LINKS.kondapur,
+    mapLat: STORE_KONDAPUR.lat,
+    mapLng: STORE_KONDAPUR.lng,
   },
   {
     id: "kothapet",
     name: "Kothapet",
-    address: "Kothapet, Hyderabad",
+    address: "Kothapet",
     city: "Hyderabad",
-    mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.5!2d78.56!3d17.37!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTfCsDIyJzEyLjAiTiA3OMKwMzMnMzYuMCJF!5e0!3m2!1sen!2sin!4v1",
-    mapLink: "https://maps.google.com/?q=Kothapet+Hyderabad",
+    mapEmbedUrl: `https://www.google.com/maps?q=${STORE_KOTHAPET.lat},${STORE_KOTHAPET.lng}&z=17&output=embed&hl=en`,
+    mapLink: STORE_GOOGLE_SHARE_LINKS.kothapet,
+    mapLat: STORE_KOTHAPET.lat,
+    mapLng: STORE_KOTHAPET.lng,
   },
 ];
 
