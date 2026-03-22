@@ -65,6 +65,10 @@ export default {
           DEFAULT: "hsl(var(--nav-bg))",
           foreground: "hsl(var(--nav-foreground))",
         },
+        /** Hero overlay / placeholder — matches `--hero-overlay` in `index.css` */
+        hero: {
+          DEFAULT: "hsl(var(--hero-overlay))",
+        },
         badge: {
           DEFAULT: "hsl(var(--badge-bg))",
           foreground: "hsl(var(--badge-foreground))",

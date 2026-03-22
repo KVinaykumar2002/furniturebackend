@@ -32,6 +32,7 @@ router.get("/", async (req, res) => {
       });
       doc = await SiteSettings.findOne({ id: ID }).lean();
     }
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate");
     res.json(doc);
   } catch (err) {
     res.status(500).json({ error: err.message });

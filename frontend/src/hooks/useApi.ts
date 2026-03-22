@@ -507,6 +507,10 @@ export function useSiteSettings() {
       const r = await api.siteSettings.get();
       return mapSiteSettings(r);
     },
+    staleTime: 0,
+    refetchOnMount: "always",
+    /** Avoid flashing a stale hero while refetching when the user returns to the tab */
+    refetchOnWindowFocus: false,
   });
   return { ...q, settings: q.data ?? null };
 }

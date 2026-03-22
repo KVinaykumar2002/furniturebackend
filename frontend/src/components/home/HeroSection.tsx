@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { Loader2 } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useApi";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import hero2 from "@/assets/hero-2.jpg";
 import heroNewFirst from "@/assets/hero-new-first.jpg";
@@ -13,15 +15,32 @@ const DEFAULT_SLIDES = [
 
 const SLIDE_DURATION = 6000;
 
+/** Avoid browser showing an old image for the same URL after CMS updates */
+function cacheBustImageUrl(url: string, version: number) {
+  if (!version || !url.trim()) return url;
+  const sep = url.includes("?") ? "&" : "?";
+  return `${url}${sep}v=${version}`;
+}
+
 export default function HeroSection() {
-  const { settings } = useSiteSettings();
+  const { settings, isFetching, dataUpdatedAt } = useSiteSettings();
+
+  /** Wait for the network round-trip so we never flash stale React Query cache or default slides before fresh API data */
+  const heroReady = !isFetching;
+
   const slides = useMemo(() => {
+    if (!heroReady) return [];
     const fromApi = settings?.heroSlides?.filter((s) => s?.image?.trim()) ?? [];
     if (fromApi.length > 0) {
-      return fromApi.map((s) => ({ image: s.image, title: s.title || "", subtitle: s.subtitle || "" }));
+      const v = dataUpdatedAt ?? 0;
+      return fromApi.map((s) => ({
+        image: cacheBustImageUrl(s.image, v),
+        title: s.title || "",
+        subtitle: s.subtitle || "",
+      }));
     }
     return DEFAULT_SLIDES;
-  }, [settings?.heroSlides]);
+  }, [heroReady, settings?.heroSlides, dataUpdatedAt]);
 
   const [current, setCurrent] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -45,6 +64,7 @@ export default function HeroSection() {
 
   // Auto-advance with progress
   useEffect(() => {
+    if (slides.length === 0) return;
     const interval = setInterval(() => {
       setProgress((p) => {
         if (p >= 100) {
@@ -60,12 +80,36 @@ export default function HeroSection() {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (slides.length === 0) return;
       if (e.key === "ArrowLeft") goPrev();
       if (e.key === "ArrowRight") goNext();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   });
+
+  if (slides.length === 0) {
+    return (
+      <section
+        className="relative w-full overflow-hidden min-h-[200px] aspect-[16/9] max-h-[70svh] sm:aspect-auto sm:max-h-none sm:h-[calc(100svh-64px)] sm:min-h-[calc(100svh-64px)]"
+        aria-label="Hero carousel"
+        aria-busy="true"
+      >
+        <div className="absolute inset-0 bg-hero" aria-hidden />
+        <Skeleton className="absolute inset-0 h-full w-full rounded-none bg-primary/15 animate-pulse" />
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-hero/95 via-hero/45 to-hero/88"
+          aria-hidden
+        />
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 z-10 px-4 safe-top safe-bottom">
+          <Skeleton className="h-9 sm:h-11 md:h-12 w-full max-w-[18rem] sm:max-w-[28rem] rounded-md border border-primary/15 bg-nav/30 shadow-sm shadow-primary/10" />
+          <Skeleton className="h-4 sm:h-5 w-full max-w-[14rem] sm:max-w-[22rem] rounded-md border border-primary/10 bg-nav/22" />
+          <Loader2 className="h-7 w-7 text-primary-foreground/55 animate-spin mt-2" aria-hidden />
+        </div>
+        <span className="sr-only">Loading hero carousel…</span>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -85,7 +129,9 @@ export default function HeroSection() {
           <img
             src={slide.image}
             alt=""
-            className={`w-full bg-[#081536] object-center sm:absolute sm:inset-0 sm:h-full sm:w-full sm:object-cover ${
+            fetchPriority={i === current ? "high" : "low"}
+            decoding="async"
+            className={`w-full bg-hero object-center sm:absolute sm:inset-0 sm:h-full sm:w-full sm:object-cover ${
               i === current ? "relative block h-auto" : "absolute inset-0 h-full object-cover"
             }`}
           />
