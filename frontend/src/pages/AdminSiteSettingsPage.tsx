@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { useSiteSettings, type SiteSettings } from "@/hooks/useApi";
 
-type SiteSettingsForm = Omit<SiteSettings, "completedProjectStats">;
+type SiteSettingsForm = Omit<SiteSettings, "completedProjectStats" | "testimonials">;
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

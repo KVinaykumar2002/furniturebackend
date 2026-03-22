@@ -1,5 +1,6 @@
 import { Router } from "express";
 import SiteSettings from "../models/SiteSettings.js";
+import { DEFAULT_TESTIMONIALS } from "../data/defaultTestimonials.js";
 
 const router = Router();
 const ID = "default";
@@ -25,6 +26,7 @@ router.get("/", async (req, res) => {
         heroSlides: [],
         socialLinks: [],
         completedProjectStats: DEFAULT_COMPLETED_PROJECT_STATS,
+        testimonials: DEFAULT_TESTIMONIALS,
       });
       doc = await SiteSettings.findOne({ id: ID }).lean();
     }
@@ -61,6 +63,17 @@ router.put("/", async (req, res) => {
         ? body.completedProjectStats.map((row) => ({
             label: row && typeof row.label === "string" ? row.label : "",
             value: row && typeof row.value === "string" ? row.value : "",
+          }))
+        : undefined,
+      testimonials: Array.isArray(body.testimonials)
+        ? body.testimonials.map((t) => ({
+            name: t && typeof t.name === "string" ? t.name : "",
+            role: t && typeof t.role === "string" ? t.role : "",
+            rating: Math.min(5, Math.max(1, Number(t?.rating) || 5)),
+            text: t && typeof t.text === "string" ? t.text : "",
+            avatar: t && typeof t.avatar === "string" ? t.avatar : "",
+            imageUrl: t && typeof t.imageUrl === "string" ? t.imageUrl : "",
+            videoUrl: t && typeof t.videoUrl === "string" ? t.videoUrl : "",
           }))
         : undefined,
     };

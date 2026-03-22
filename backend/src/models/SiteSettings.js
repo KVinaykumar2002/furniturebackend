@@ -26,6 +26,19 @@ const completedProjectStatSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const testimonialSchema = new mongoose.Schema(
+  {
+    name: { type: String, default: "" },
+    role: { type: String, default: "" },
+    rating: { type: Number, default: 5, min: 1, max: 5 },
+    text: { type: String, default: "" },
+    avatar: { type: String, default: "" },
+    imageUrl: { type: String, default: "" },
+    videoUrl: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
 const siteSettingsSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true, default: "default" },
@@ -37,6 +50,7 @@ const siteSettingsSchema = new mongoose.Schema(
     heroSlides: { type: [heroSlideSchema], default: [] },
     socialLinks: { type: [socialLinkSchema], default: [] },
     completedProjectStats: { type: [completedProjectStatSchema], default: [] },
+    testimonials: { type: [testimonialSchema], default: [] },
   },
   { timestamps: true }
 );

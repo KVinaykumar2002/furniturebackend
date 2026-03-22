@@ -258,6 +258,104 @@ function normalizeCompletedProjectStats(raw: unknown): CompletedProjectStat[] {
   });
 }
 
+export type Testimonial = {
+  name: string;
+  role: string;
+  rating: number;
+  text: string;
+  avatar: string;
+  imageUrl: string;
+  videoUrl: string;
+};
+
+/** Matches seeded backend defaults / former static homepage copy */
+export const DEFAULT_TESTIMONIALS: Testimonial[] = [
+  {
+    name: "Priya S.",
+    role: "Hyderabad",
+    rating: 5,
+    text: "DesignerZhub transformed our living room. Exceptional quality and great team.",
+    avatar: "PS",
+    imageUrl: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=400&h=300&fit=crop",
+    videoUrl: "",
+  },
+  {
+    name: "Rahul M.",
+    role: "Mumbai",
+    rating: 5,
+    text: "Smooth ordering and delivery. Furniture looks even better in person.",
+    avatar: "RM",
+    imageUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=300&fit=crop",
+    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+  },
+  {
+    name: "Anita K.",
+    role: "Chennai",
+    rating: 5,
+    text: "Beautiful designs and sturdy construction. Highly recommend.",
+    avatar: "AK",
+    imageUrl: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
+    videoUrl: "",
+  },
+  {
+    name: "Sara M.",
+    role: "",
+    rating: 5,
+    text: "My client and I loved the product very much! It adds a luxurious and comfy feel to the room.",
+    avatar: "SM",
+    imageUrl: "https://images.unsplash.com/photo-1617325247661-675ab4b64ae2?w=400&h=300&fit=crop",
+    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+  },
+  {
+    name: "Ahmed M.",
+    role: "",
+    rating: 5,
+    text: "No sofa in the world can beat this sofa beauty. My whole house furniture from DesignerZhub.",
+    avatar: "AM",
+    imageUrl: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?w=400&h=300&fit=crop",
+    videoUrl: "",
+  },
+  {
+    name: "Asya M.",
+    role: "",
+    rating: 5,
+    text: "We love it so much. Classic sofa, retro style, amazing material, comfortable!",
+    avatar: "AM",
+    imageUrl: "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&h=300&fit=crop",
+    videoUrl: "https://www.w3schools.com/html/mov_bbb.mp4",
+  },
+];
+
+function parseTestimonialRow(row: Record<string, unknown>): Testimonial {
+  const rating = Number(row?.rating);
+  return {
+    name: row && typeof row.name === "string" ? row.name : "",
+    role: row && typeof row.role === "string" ? row.role : "",
+    rating: Number.isFinite(rating) ? Math.min(5, Math.max(1, Math.round(rating))) : 5,
+    text: row && typeof row.text === "string" ? row.text : "",
+    avatar: row && typeof row.avatar === "string" ? row.avatar : "",
+    imageUrl: row && typeof row.imageUrl === "string" ? row.imageUrl : "",
+    videoUrl: row && typeof row.videoUrl === "string" ? row.videoUrl : "",
+  };
+}
+
+function normalizeTestimonials(r: Record<string, unknown>): Testimonial[] {
+  if (!("testimonials" in r) || r.testimonials === undefined || r.testimonials === null) {
+    return DEFAULT_TESTIMONIALS.map((t) => ({ ...t }));
+  }
+  if (!Array.isArray(r.testimonials)) {
+    return DEFAULT_TESTIMONIALS.map((t) => ({ ...t }));
+  }
+  const mapped = (r.testimonials as Array<Record<string, unknown>>)
+    .map(parseTestimonialRow)
+    .filter((t) => t.name.trim() && t.text.trim());
+  /** Empty [] from DB / Mongoose default — treat like “not configured yet” */
+  if (mapped.length === 0) {
+    return DEFAULT_TESTIMONIALS.map((t) => ({ ...t }));
+  }
+  return mapped;
+}
+
 export type SiteSettings = {
   contactPhone: string;
   contactEmail: string;
@@ -267,6 +365,7 @@ export type SiteSettings = {
   heroSlides: { image: string; title: string; subtitle: string }[];
   socialLinks: { name: string; href: string }[];
   completedProjectStats: CompletedProjectStat[];
+  testimonials: Testimonial[];
 };
 
 function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
@@ -292,6 +391,7 @@ function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
     heroSlides: slides,
     socialLinks: links,
     completedProjectStats: normalizeCompletedProjectStats(r.completedProjectStats),
+    testimonials: normalizeTestimonials(r),
   };
 }
 

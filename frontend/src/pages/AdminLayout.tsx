@@ -8,6 +8,7 @@ import {
   LogOut,
   Settings,
   ClipboardList,
+  MessageSquareQuote,
 } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ const nav = [
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/categories", label: "Categories", icon: FolderTree },
   { to: "/admin/completed-projects", label: "Completed projects", icon: ClipboardList },
+  { to: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
   { to: "/admin/images", label: "Images", icon: Image },
   { to: "/admin/site-settings", label: "Site Settings", icon: Settings },
 ];
@@ -52,7 +54,8 @@ export default function AdminLayout() {
                     (to === "/admin/categories" && location.pathname.startsWith("/admin/categories")) ||
                     (to === "/admin/site-settings" && location.pathname.startsWith("/admin/site-settings")) ||
                     (to === "/admin/completed-projects" &&
-                      location.pathname.startsWith("/admin/completed-projects")))
+                      location.pathname.startsWith("/admin/completed-projects")) ||
+                    (to === "/admin/testimonials" && location.pathname.startsWith("/admin/testimonials")))
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"
                 }`}
