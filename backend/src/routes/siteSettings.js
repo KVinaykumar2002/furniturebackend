@@ -2,7 +2,12 @@ import { Router } from "express";
 import SiteSettings from "../models/SiteSettings.js";
 import { DEFAULT_TESTIMONIALS } from "../data/defaultTestimonials.js";
 import { buildDefaultPromoStrip } from "../data/defaultPromoStrip.js";
-import { DEFAULT_ABOUT_PAGE_HTML, DEFAULT_FAQS } from "../data/defaultAboutAndFaqs.js";
+import {
+  DEFAULT_ABOUT_PAGE_HTML,
+  DEFAULT_ABOUT_SECTIONS,
+  DEFAULT_FAQS,
+  aboutSectionsToHtml,
+} from "../data/defaultAboutAndFaqs.js";
 import { validFaqCount, coerceFaqsToArray } from "../data/faqUtils.js";
 
 const router = Router();
@@ -18,8 +23,18 @@ const DEFAULT_COMPLETED_PROJECT_STATS = [
 async function ensureDefaultAboutAndFaqs(leanDoc) {
   if (!leanDoc) return leanDoc;
   const patch = {};
+  const hasAboutSections =
+    Array.isArray(leanDoc.aboutSections) &&
+    leanDoc.aboutSections.some(
+      (s) => String(s?.title ?? "").trim() || String(s?.body ?? "").trim()
+    );
+  if (!hasAboutSections) {
+    patch.aboutSections = DEFAULT_ABOUT_SECTIONS.map((s) => ({ ...s }));
+  }
   if (!String(leanDoc.aboutPageHtml ?? "").trim()) {
-    patch.aboutPageHtml = DEFAULT_ABOUT_PAGE_HTML;
+    patch.aboutPageHtml = hasAboutSections
+      ? aboutSectionsToHtml(leanDoc.aboutSections)
+      : DEFAULT_ABOUT_PAGE_HTML;
   }
   if (validFaqCount(leanDoc.faqs) === 0) {
     patch.faqs = DEFAULT_FAQS.map((f) => ({ ...f }));
@@ -46,6 +61,7 @@ router.get("/", async (req, res) => {
         completedProjectStats: DEFAULT_COMPLETED_PROJECT_STATS,
         testimonials: DEFAULT_TESTIMONIALS,
         promoStrip: buildDefaultPromoStrip(),
+        aboutSections: DEFAULT_ABOUT_SECTIONS.map((s) => ({ ...s })),
         aboutPageHtml: DEFAULT_ABOUT_PAGE_HTML,
         blogsFooterLabel: "Blogs",
         blogsFooterHref: "/blogs",
@@ -73,6 +89,12 @@ router.get("/", async (req, res) => {
 router.put("/", async (req, res) => {
   try {
     const body = req.body;
+    const aboutSections = Array.isArray(body.aboutSections)
+      ? body.aboutSections.map((s) => ({
+          title: s && typeof s.title === "string" ? s.title : "",
+          body: s && typeof s.body === "string" ? s.body : "",
+        }))
+      : undefined;
     const update = {
       contactPhone: body.contactPhone != null ? String(body.contactPhone) : undefined,
       contactEmail: body.contactEmail != null ? String(body.contactEmail) : undefined,
@@ -141,7 +163,13 @@ router.put("/", async (req, res) => {
                 : [],
             }
           : undefined,
-      aboutPageHtml: body.aboutPageHtml != null ? String(body.aboutPageHtml) : undefined,
+      aboutSections,
+      aboutPageHtml:
+        aboutSections !== undefined
+          ? aboutSectionsToHtml(aboutSections)
+          : body.aboutPageHtml != null
+            ? String(body.aboutPageHtml)
+            : undefined,
       blogsFooterLabel:
         body.blogsFooterLabel != null ? String(body.blogsFooterLabel) : undefined,
       blogsFooterHref:

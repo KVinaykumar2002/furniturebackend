@@ -460,6 +460,7 @@ function normalizePromoStrip(r: Record<string, unknown>): PromoStripConfig {
 }
 
 export type FaqItem = { question: string; answer: string };
+export type AboutSection = { title: string; body: string };
 
 export type SiteSettings = {
   contactPhone: string;
@@ -472,6 +473,7 @@ export type SiteSettings = {
   completedProjectStats: CompletedProjectStat[];
   testimonials: Testimonial[];
   promoStrip: PromoStripConfig;
+  aboutSections: AboutSection[];
   aboutPageHtml: string;
   blogsFooterLabel: string;
   blogsFooterHref: string;
@@ -514,6 +516,16 @@ function normalizeFaqs(r: Record<string, unknown>): FaqItem[] {
     .filter((item) => item.question.trim() || item.answer.trim());
 }
 
+function normalizeAboutSections(r: Record<string, unknown>): AboutSection[] {
+  if (!Array.isArray(r.aboutSections)) return [];
+  return (r.aboutSections as Array<Record<string, unknown>>)
+    .map((s) => ({
+      title: s?.title != null ? String(s.title) : "",
+      body: s?.body != null ? String(s.body) : "",
+    }))
+    .filter((s) => s.title.trim() || s.body.trim());
+}
+
 function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
   const slides = Array.isArray(r.heroSlides)
     ? (r.heroSlides as Array<Record<string, unknown>>).map((s) => ({
@@ -543,6 +555,7 @@ function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
     completedProjectStats: normalizeCompletedProjectStats(r.completedProjectStats),
     testimonials: normalizeTestimonials(r),
     promoStrip: normalizePromoStrip(r),
+    aboutSections: normalizeAboutSections(r),
     aboutPageHtml: r.aboutPageHtml != null ? String(r.aboutPageHtml) : "",
     blogsFooterLabel:
       r.blogsFooterLabel != null && String(r.blogsFooterLabel).trim()

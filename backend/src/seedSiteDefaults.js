@@ -7,7 +7,11 @@
 import "dotenv/config";
 import mongoose from "mongoose";
 import SiteSettings from "./models/SiteSettings.js";
-import { DEFAULT_ABOUT_PAGE_HTML, DEFAULT_FAQS } from "./data/defaultAboutAndFaqs.js";
+import {
+  DEFAULT_ABOUT_PAGE_HTML,
+  DEFAULT_ABOUT_SECTIONS,
+  DEFAULT_FAQS,
+} from "./data/defaultAboutAndFaqs.js";
 import { validFaqCount } from "./data/faqUtils.js";
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/furniture";
@@ -27,6 +31,9 @@ async function main() {
   }
 
   const patch = {};
+  if (!Array.isArray(doc.aboutSections) || doc.aboutSections.length === 0) {
+    patch.aboutSections = DEFAULT_ABOUT_SECTIONS.map((s) => ({ ...s }));
+  }
   if (!String(doc.aboutPageHtml ?? "").trim()) {
     patch.aboutPageHtml = DEFAULT_ABOUT_PAGE_HTML;
   }

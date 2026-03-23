@@ -1,20 +1,52 @@
-/** Default About page HTML and FAQs — SiteSettings seed, seed scripts, and GET backfill when empty. */
+/** Default About + FAQs for SiteSettings seed and GET backfill. */
 
-export const DEFAULT_ABOUT_PAGE_HTML = `
-<section>
-  <h2>Brand Story</h2>
-  <p>DesignerZhub is your destination for premium furniture and luxury home interiors. We curate pieces and full-room solutions that balance comfort, durability, and timeless design—so your space tells your story with clarity and style.</p>
-  <p>Based in Hyderabad, we work with homeowners and professionals across India who expect honest materials, careful finishing, and support from selection to delivery.</p>
-</section>
-<section>
-  <h2>What We Offer</h2>
-  <p>Living, dining, bedroom, office, outdoor, lighting, décor, and more—plus guidance on layout, finishes, and fit-out when you need it. Shop online or visit our showrooms to experience textures and proportions in person.</p>
-</section>
-<section>
-  <h2>Our Philosophy</h2>
-  <p>Whether you prefer modern minimalism or classic warmth, we help you build a home that feels right every day. Explore the catalog, book a visit, or reach out—we are here to help you design the space you have always imagined.</p>
-</section>
-`.trim();
+export const DEFAULT_ABOUT_SECTIONS = [
+  {
+    title: "Brand Story",
+    body:
+      "DesignerZhub is your destination for premium furniture and luxury home interiors. We curate pieces and full-room solutions that balance comfort, durability, and timeless design, so your space tells your story with clarity and style.\n\nBased in Hyderabad, we work with homeowners and professionals across India who expect honest materials, careful finishing, and support from selection to delivery.",
+  },
+  {
+    title: "What We Offer",
+    body:
+      "Living, dining, bedroom, office, outdoor, lighting, decor, and more, plus guidance on layout, finishes, and fit-out when you need it. Shop online or visit our showrooms to experience textures and proportions in person.",
+  },
+  {
+    title: "Our Philosophy",
+    body:
+      "Whether you prefer modern minimalism or classic warmth, we help you build a home that feels right every day. Explore the catalog, book a visit, or reach out. We are here to help you design the space you have always imagined.",
+  },
+];
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+export function aboutSectionsToHtml(sections) {
+  if (!Array.isArray(sections) || sections.length === 0) return "";
+  return sections
+    .map((section) => {
+      const title = escapeHtml(section?.title ?? "");
+      const body = String(section?.body ?? "")
+        .split(/\n{2,}/)
+        .map((p) => p.trim())
+        .filter(Boolean)
+        .map((p) => `<p>${escapeHtml(p)}</p>`)
+        .join("");
+      if (!title && !body) return "";
+      const headingHtml = title ? `<h2>${title}</h2>` : "";
+      return `<section>${headingHtml}${body}</section>`;
+    })
+    .filter(Boolean)
+    .join("");
+}
+
+export const DEFAULT_ABOUT_PAGE_HTML = aboutSectionsToHtml(DEFAULT_ABOUT_SECTIONS);
 
 export const DEFAULT_FAQS = [
   {

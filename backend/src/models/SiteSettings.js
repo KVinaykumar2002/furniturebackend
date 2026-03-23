@@ -69,6 +69,14 @@ const faqItemSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const aboutSectionSchema = new mongoose.Schema(
+  {
+    title: { type: String, default: "" },
+    body: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
 const siteSettingsSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true, default: "default" },
@@ -82,7 +90,9 @@ const siteSettingsSchema = new mongoose.Schema(
     completedProjectStats: { type: [completedProjectStatSchema], default: [] },
     testimonials: { type: [testimonialSchema], default: [] },
     promoStrip: { type: promoStripSchema, default: undefined },
-    /** Rich HTML from admin (About page) */
+    /** Structured editor data from admin About page */
+    aboutSections: { type: [aboutSectionSchema], default: [] },
+    /** Derived HTML (kept for compatibility with old pages) */
     aboutPageHtml: { type: String, default: "" },
     /** Footer “Blogs” link + /blogs page body */
     blogsFooterLabel: { type: String, default: "Blogs" },
