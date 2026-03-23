@@ -2,7 +2,6 @@ import { Link, Outlet, useLocation, Navigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
-  Image,
   FolderTree,
   ArrowLeft,
   LogOut,
@@ -20,7 +19,6 @@ const nav = [
   { to: "/admin/categories", label: "Categories", icon: FolderTree },
   { to: "/admin/completed-projects", label: "Completed projects", icon: ClipboardList },
   { to: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
-  { to: "/admin/images", label: "Images", icon: Image },
   { to: "/admin/site-settings", label: "Site Settings", icon: Settings },
 ];
 

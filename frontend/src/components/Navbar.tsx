@@ -1,17 +1,11 @@
 import { useMemo, useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Search, Heart, ShoppingBag, User, ChevronDown, Menu, X } from "lucide-react";
+import { Search, Heart, ShoppingBag, ChevronDown, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useShopCategories } from "@/hooks/useApi";
 import { aboutDropdown, mainNavLinks } from "@/data/nav";
 import type { NavItemWithDropdown } from "@/data/nav";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -192,21 +186,6 @@ const Navbar = () => {
               </span>
             )}
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="rounded-none" aria-label="Account">
-                <User className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 rounded-none">
-              {/* <DropdownMenuItem asChild>
-                <Link to="/login">Login</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link to="/register">Register</Link>
-              </DropdownMenuItem> */}
-            </DropdownMenuContent>
-          </DropdownMenu>
           <Button
             variant="ghost"
             size="icon"

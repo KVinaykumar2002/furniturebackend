@@ -17,8 +17,10 @@ async function seed() {
   await ShopCategory.deleteMany({});
   await Store.deleteMany({});
 
-  await Product.insertMany(seedProducts);
-  console.log("Products:", seedProducts.length);
+  if (seedProducts.length > 0) {
+    await Product.insertMany(seedProducts);
+  }
+  console.log("Products seeded:", seedProducts.length, "(add products in Admin for production)");
 
   await Category.insertMany(seedCategories);
   console.log("Categories:", seedCategories.length);

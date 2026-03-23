@@ -27,7 +27,6 @@ import WishlistPage from "./pages/WishlistPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import AdminLayout from "./pages/AdminLayout";
 import AdminPage from "./pages/AdminPage";
-import AdminImageManagerPage from "./pages/AdminImageManagerPage";
 import AdminProductsPage from "./pages/AdminProductsPage";
 import AdminProductFormPage from "./pages/AdminProductFormPage";
 import AdminCategoriesPage from "./pages/AdminCategoriesPage";
@@ -83,7 +82,6 @@ const App = () => (
                 <Route path="completed-projects" element={<AdminCompletedProjectsPage />} />
                 <Route path="testimonials" element={<AdminTestimonialsPage />} />
                 <Route path="promo-strip" element={<AdminPromoStripPage />} />
-                <Route path="images" element={<AdminImageManagerPage />} />
               </Route>
               <Route path="/404" element={<NotFoundPage />} />
               <Route path="*" element={<Navigate to="/404" replace />} />

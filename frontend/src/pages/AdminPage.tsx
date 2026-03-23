@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Package, Image, FolderTree } from "lucide-react";
+import { Package, FolderTree } from "lucide-react";
 import { useMemo } from "react";
 import { useProducts, useCategories, useStores } from "@/hooks/useApi";
 import { LoadingSection } from "@/components/ui/loader";
@@ -82,18 +82,6 @@ export default function AdminPage() {
           <div>
             <h2 className="font-semibold">Categories</h2>
             <p className="text-sm text-muted-foreground">Add, edit, delete main categories (Rugs, Furniture, Curtains, etc.).</p>
-          </div>
-        </Link>
-        <Link
-          to="/admin/images"
-          className="flex items-center gap-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm transition-colors hover:bg-muted/50"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-            <Image className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h2 className="font-semibold">Images</h2>
-            <p className="text-sm text-muted-foreground">Upload and reorder images with drag & drop.</p>
           </div>
         </Link>
       </div>
