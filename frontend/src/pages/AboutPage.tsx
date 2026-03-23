@@ -28,7 +28,7 @@ export default function AboutPage() {
     <CmsPageLayout title="About Us">
       {sections.length === 0 ? (
         <p className="text-muted-foreground">
-          No about content yet. Add sections in Admin → About page.
+          No content yet.
         </p>
       ) : (
         <div className="space-y-10">

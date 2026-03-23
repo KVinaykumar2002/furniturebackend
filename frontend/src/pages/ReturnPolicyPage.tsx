@@ -25,7 +25,7 @@ export default function ReturnPolicyPage() {
     <CmsPageLayout title="Return Policy">
       <CmsHtmlBody
         html={settings.returnPolicyHtml}
-        emptyMessage="No return policy yet. Add it in Admin → Site Settings."
+        emptyMessage="No return policy yet."
       />
     </CmsPageLayout>
   );

@@ -25,7 +25,7 @@ export default function ShippingPolicyPage() {
     <CmsPageLayout title="Shipping Policy">
       <CmsHtmlBody
         html={settings.shippingPolicyHtml}
-        emptyMessage="No shipping policy yet. Add it in Admin → Site Settings."
+        emptyMessage="No shipping policy yet."
       />
     </CmsPageLayout>
   );
