@@ -1,15 +1,28 @@
 import { useParams, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { LoadingSection } from "@/components/ui/loader";
 import { MapPin } from "lucide-react";
-import { getStoreById } from "@/data/stores";
+import { useStore } from "@/hooks/useApi";
 import { storeAddressLine, storeMapEmbedSrc, storeOpenInMapsUrl } from "@/lib/storeMap";
 
 export default function StoreDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const store = id ? getStoreById(id) : undefined;
+  const { store, isPending, isError } = useStore(id);
 
-  if (!store) {
+  if (isPending) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container py-32 flex justify-center">
+          <LoadingSection label="Loading store…" size="md" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isError || !store) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />

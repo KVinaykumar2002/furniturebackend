@@ -35,6 +35,8 @@ import AdminSiteSettingsPage from "./pages/AdminSiteSettingsPage";
 import AdminCompletedProjectsPage from "./pages/AdminCompletedProjectsPage";
 import AdminTestimonialsPage from "./pages/AdminTestimonialsPage";
 import AdminPromoStripPage from "./pages/AdminPromoStripPage";
+import AdminStoresPage from "./pages/AdminStoresPage";
+import AdminStoreFormPage from "./pages/AdminStoreFormPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 
@@ -78,6 +80,9 @@ const App = () => (
                 <Route path="categories" element={<AdminCategoriesPage />} />
                 <Route path="categories/new" element={<AdminCategoryFormPage />} />
                 <Route path="categories/:slug/edit" element={<AdminCategoryFormPage />} />
+                <Route path="stores" element={<AdminStoresPage />} />
+                <Route path="stores/new" element={<AdminStoreFormPage />} />
+                <Route path="stores/:id/edit" element={<AdminStoreFormPage />} />
                 <Route path="site-settings" element={<AdminSiteSettingsPage />} />
                 <Route path="completed-projects" element={<AdminCompletedProjectsPage />} />
                 <Route path="testimonials" element={<AdminTestimonialsPage />} />

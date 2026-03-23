@@ -2,11 +2,13 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SectionWrapper from "@/components/SectionWrapper";
+import { LoadingSection } from "@/components/ui/loader";
 import { MapPin, ArrowLeft } from "lucide-react";
-import { stores } from "@/data/stores";
+import { useStores } from "@/hooks/useApi";
 import { storeAddressLine, storeMapEmbedSrc, storeOpenInMapsUrl } from "@/lib/storeMap";
 
 export default function StoresPage() {
+  const { stores, isPending, isError } = useStores();
 
   return (
     <div className="min-h-screen bg-background">
@@ -23,6 +25,15 @@ export default function StoresPage() {
         </div>
       </div>
       <SectionWrapper subtitle="Find us" title="Store Locator" className="pt-0">
+        {isPending ? (
+          <div className="flex min-h-[40vh] items-center justify-center py-16">
+            <LoadingSection label="Loading stores…" size="md" />
+          </div>
+        ) : isError ? (
+          <p className="text-center text-destructive py-12">Unable to load stores. Please try again later.</p>
+        ) : stores.length === 0 ? (
+          <p className="text-center text-muted-foreground py-12">No stores listed yet.</p>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {stores.map((store) => (
             <article
@@ -68,6 +79,7 @@ export default function StoresPage() {
             </article>
           ))}
         </div>
+        )}
       </SectionWrapper>
       <Footer />
     </div>

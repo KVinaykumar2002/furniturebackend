@@ -69,7 +69,15 @@ export const api = {
   shopCategories: () => fetchApi<{ list: Array<Record<string, unknown>>; bySlug: Record<string, Record<string, unknown>> }>("/api/shop-categories"),
   stores: {
     list: () => fetchApi<Array<Record<string, unknown>>>("/api/stores"),
-    byId: (id: string) => fetchApi<Record<string, unknown>>(`/api/stores/${id}`),
+    byId: (id: string) => fetchApi<Record<string, unknown>>(`/api/stores/${encodeURIComponent(id)}`),
+    create: (data: Record<string, unknown>) =>
+      fetchApi<Record<string, unknown>>("/api/stores", { method: "POST", body: JSON.stringify(data) }),
+    update: (id: string, data: Record<string, unknown>) =>
+      fetchApi<Record<string, unknown>>(`/api/stores/${encodeURIComponent(id)}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    delete: (id: string) => fetchApi<void>(`/api/stores/${encodeURIComponent(id)}`, { method: "DELETE" }),
   },
   siteSettings: {
     get: () => fetchApi<Record<string, unknown>>("/api/site-settings"),

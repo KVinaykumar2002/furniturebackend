@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Phone, Mail, Instagram, Facebook, Twitter } from "lucide-react";
-import { useSiteSettings } from "@/hooks/useApi";
-import { stores } from "@/data/stores";
+import { useSiteSettings, useStores } from "@/hooks/useApi";
 import { useEnquiryModal } from "@/context/EnquiryModalContext";
 
 const DEFAULT_TAGLINE = "Premium furniture for inspired living. Quality craftsmanship and timeless design.";
@@ -16,6 +15,7 @@ const SOCIAL_LINKS = [
 export default function Footer() {
   const { openEnquiry } = useEnquiryModal();
   const { settings } = useSiteSettings();
+  const { stores, isPending: storesPending } = useStores();
   const contactPhone = settings?.contactPhone ?? "";
   const contactEmail = settings?.contactEmail ?? "";
   const address = settings?.address ?? "";
@@ -79,7 +79,6 @@ export default function Footer() {
             <h4 className="font-medium text-[#2c2c2c] text-sm mb-4">Company</h4>
             <ul className="space-y-1 text-sm text-[#5a5a5a]">
               <li><Link to="/about" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">About Us</Link></li>
-              <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Careers</a></li>
               <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Blogs</a></li>
             </ul>
           </div>
@@ -103,17 +102,21 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Stores — static list (same as Store Locator) */}
+          {/* Stores — from API (same list as Store Locator) */}
           <div>
             <h4 className="font-medium text-[#2c2c2c] text-sm mb-4">Stores</h4>
             <ul className="space-y-1 text-sm text-[#5a5a5a]">
-              {stores.map((store) => (
-                <li key={store.id}>
-                  <Link to={`/stores/${store.id}`} className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">
-                    {store.name}
-                  </Link>
-                </li>
-              ))}
+              {storesPending ? (
+                <li className="py-2.5 text-[#5a5a5a]/70">Loading stores…</li>
+              ) : (
+                stores.map((store) => (
+                  <li key={store.id}>
+                    <Link to={`/stores/${store.id}`} className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">
+                      {store.name}
+                    </Link>
+                  </li>
+                ))
+              )}
             </ul>
           </div>
         </div>

@@ -1,9 +1,4 @@
-import {
-  STORE_GOOGLE_SHARE_LINKS,
-  STORE_KONDAPUR,
-  STORE_KOTHAPET,
-} from "./storeLocations";
-
+/** Store row shape — matches API / MongoDB (see `mapStore` in useApi). */
 export interface Store {
   id: string;
   name: string;
@@ -20,31 +15,4 @@ export interface Store {
   mapSearchQuery?: string;
   phone?: string;
   hours?: string;
-}
-
-export const stores: Store[] = [
-  {
-    id: "kondapur",
-    name: "Kondapur",
-    address: "F963+88F, Kondapur Main Road, Block - B, Sri Ram Nagar, Laxmi Nagar, Gachibowli",
-    city: "Hyderabad",
-    mapEmbedUrl: `https://www.google.com/maps?q=${STORE_KONDAPUR.lat},${STORE_KONDAPUR.lng}&z=17&output=embed&hl=en`,
-    mapLink: STORE_GOOGLE_SHARE_LINKS.kondapur,
-    mapLat: STORE_KONDAPUR.lat,
-    mapLng: STORE_KONDAPUR.lng,
-  },
-  {
-    id: "kothapet",
-    name: "Kothapet",
-    address: "Kothapet",
-    city: "Hyderabad",
-    mapEmbedUrl: `https://www.google.com/maps?q=${STORE_KOTHAPET.lat},${STORE_KOTHAPET.lng}&z=17&output=embed&hl=en`,
-    mapLink: STORE_GOOGLE_SHARE_LINKS.kothapet,
-    mapLat: STORE_KOTHAPET.lat,
-    mapLng: STORE_KOTHAPET.lng,
-  },
-];
-
-export function getStoreById(id: string): Store | undefined {
-  return stores.find((s) => s.id === id);
 }
