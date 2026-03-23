@@ -16,6 +16,10 @@ import DiningPage from "./pages/DiningPage";
 import BedroomPage from "./pages/BedroomPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
 import AboutPage from "./pages/AboutPage";
+import BlogsPage from "./pages/BlogsPage";
+import ShippingPolicyPage from "./pages/ShippingPolicyPage";
+import ReturnPolicyPage from "./pages/ReturnPolicyPage";
+import FaqPage from "./pages/FaqPage";
 import StoresPage from "./pages/StoresPage";
 import StoreDetailPage from "./pages/StoreDetailPage";
 import CollectionsPage from "./pages/CollectionsPage";
@@ -32,10 +36,11 @@ import AdminProductFormPage from "./pages/AdminProductFormPage";
 import AdminCategoriesPage from "./pages/AdminCategoriesPage";
 import AdminCategoryFormPage from "./pages/AdminCategoryFormPage";
 import AdminSiteSettingsPage from "./pages/AdminSiteSettingsPage";
+import AdminAboutPage from "./pages/AdminAboutPage";
+import AdminFaqsPage from "./pages/AdminFaqsPage";
 import AdminCompletedProjectsPage from "./pages/AdminCompletedProjectsPage";
 import AdminTestimonialsPage from "./pages/AdminTestimonialsPage";
 import AdminPromoStripPage from "./pages/AdminPromoStripPage";
-import AdminStoresPage from "./pages/AdminStoresPage";
 import AdminStoreFormPage from "./pages/AdminStoreFormPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
@@ -63,6 +68,10 @@ const App = () => (
               <Route path="/bedroom" element={<BedroomPage />} />
               <Route path="/product/:id" element={<ProductDetailPage />} />
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/blogs" element={<BlogsPage />} />
+              <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+              <Route path="/return-policy" element={<ReturnPolicyPage />} />
+              <Route path="/faq" element={<FaqPage />} />
               <Route path="/stores" element={<StoresPage />} />
               <Route path="/stores/:id" element={<StoreDetailPage />} />
               <Route path="/collections" element={<CollectionsPage />} />
@@ -80,10 +89,11 @@ const App = () => (
                 <Route path="categories" element={<AdminCategoriesPage />} />
                 <Route path="categories/new" element={<AdminCategoryFormPage />} />
                 <Route path="categories/:slug/edit" element={<AdminCategoryFormPage />} />
-                <Route path="stores" element={<AdminStoresPage />} />
                 <Route path="stores/new" element={<AdminStoreFormPage />} />
                 <Route path="stores/:id/edit" element={<AdminStoreFormPage />} />
                 <Route path="site-settings" element={<AdminSiteSettingsPage />} />
+                <Route path="about-page" element={<AdminAboutPage />} />
+                <Route path="faqs" element={<AdminFaqsPage />} />
                 <Route path="completed-projects" element={<AdminCompletedProjectsPage />} />
                 <Route path="testimonials" element={<AdminTestimonialsPage />} />
                 <Route path="promo-strip" element={<AdminPromoStripPage />} />

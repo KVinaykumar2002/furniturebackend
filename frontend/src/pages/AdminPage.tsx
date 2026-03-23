@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Package, FolderTree, MapPin } from "lucide-react";
+import { Package, FolderTree } from "lucide-react";
 import { useMemo } from "react";
 import { useProducts, useCategories, useStores } from "@/hooks/useApi";
 import { LoadingSection } from "@/components/ui/loader";
@@ -59,7 +59,7 @@ export default function AdminPage() {
         ))}
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Link
           to="/admin/products"
           className="flex items-center gap-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm transition-colors hover:bg-muted/50"
@@ -82,18 +82,6 @@ export default function AdminPage() {
           <div>
             <h2 className="font-semibold">Categories</h2>
             <p className="text-sm text-muted-foreground">Add, edit, delete main categories (Rugs, Furniture, Curtains, etc.).</p>
-          </div>
-        </Link>
-        <Link
-          to="/admin/stores"
-          className="flex items-center gap-4 rounded-lg border bg-card p-6 text-card-foreground shadow-sm transition-colors hover:bg-muted/50"
-        >
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-            <MapPin className="h-6 w-6 text-primary" />
-          </div>
-          <div>
-            <h2 className="font-semibold">Stores</h2>
-            <p className="text-sm text-muted-foreground">Add and edit showroom locations, maps links, and addresses.</p>
           </div>
         </Link>
       </div>

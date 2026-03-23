@@ -2,6 +2,8 @@ import { Router } from "express";
 import SiteSettings from "../models/SiteSettings.js";
 import { DEFAULT_TESTIMONIALS } from "../data/defaultTestimonials.js";
 import { buildDefaultPromoStrip } from "../data/defaultPromoStrip.js";
+import { DEFAULT_ABOUT_PAGE_HTML, DEFAULT_FAQS } from "../data/defaultAboutAndFaqs.js";
+import { validFaqCount, coerceFaqsToArray } from "../data/faqUtils.js";
 
 const router = Router();
 const ID = "default";
@@ -11,6 +13,21 @@ const DEFAULT_COMPLETED_PROJECT_STATS = [
   { label: "Furnishing", value: "10,154" },
   { label: "Consultation", value: "756" },
 ];
+
+/** Persist default About + FAQs when missing or when faqs are all empty/invalid (so UI never stays blank). */
+async function ensureDefaultAboutAndFaqs(leanDoc) {
+  if (!leanDoc) return leanDoc;
+  const patch = {};
+  if (!String(leanDoc.aboutPageHtml ?? "").trim()) {
+    patch.aboutPageHtml = DEFAULT_ABOUT_PAGE_HTML;
+  }
+  if (validFaqCount(leanDoc.faqs) === 0) {
+    patch.faqs = DEFAULT_FAQS.map((f) => ({ ...f }));
+  }
+  if (Object.keys(patch).length === 0) return leanDoc;
+  await SiteSettings.updateOne({ id: ID }, { $set: patch });
+  return SiteSettings.findOne({ id: ID }).lean();
+}
 
 /** GET /api/site-settings — return single settings document (create with defaults if missing) */
 router.get("/", async (req, res) => {
@@ -29,8 +46,21 @@ router.get("/", async (req, res) => {
         completedProjectStats: DEFAULT_COMPLETED_PROJECT_STATS,
         testimonials: DEFAULT_TESTIMONIALS,
         promoStrip: buildDefaultPromoStrip(),
+        aboutPageHtml: DEFAULT_ABOUT_PAGE_HTML,
+        blogsFooterLabel: "Blogs",
+        blogsFooterHref: "/blogs",
+        blogsPageHtml: "",
+        shippingPolicyHtml: "",
+        returnPolicyHtml: "",
+        faqs: DEFAULT_FAQS.map((f) => ({ ...f })),
       });
       doc = await SiteSettings.findOne({ id: ID }).lean();
+    } else {
+      doc = { ...doc, faqs: coerceFaqsToArray(doc.faqs) };
+      doc = await ensureDefaultAboutAndFaqs(doc);
+    }
+    if (doc) {
+      doc = { ...doc, faqs: coerceFaqsToArray(doc.faqs) };
     }
     res.set("Cache-Control", "no-store, no-cache, must-revalidate");
     res.json(doc);
@@ -111,6 +141,22 @@ router.put("/", async (req, res) => {
                 : [],
             }
           : undefined,
+      aboutPageHtml: body.aboutPageHtml != null ? String(body.aboutPageHtml) : undefined,
+      blogsFooterLabel:
+        body.blogsFooterLabel != null ? String(body.blogsFooterLabel) : undefined,
+      blogsFooterHref:
+        body.blogsFooterHref != null ? String(body.blogsFooterHref) : undefined,
+      blogsPageHtml: body.blogsPageHtml != null ? String(body.blogsPageHtml) : undefined,
+      shippingPolicyHtml:
+        body.shippingPolicyHtml != null ? String(body.shippingPolicyHtml) : undefined,
+      returnPolicyHtml:
+        body.returnPolicyHtml != null ? String(body.returnPolicyHtml) : undefined,
+      faqs: Array.isArray(body.faqs)
+        ? body.faqs.map((f) => ({
+            question: f && typeof f.question === "string" ? f.question : "",
+            answer: f && typeof f.answer === "string" ? f.answer : "",
+          }))
+        : undefined,
     };
     const filtered = Object.fromEntries(Object.entries(update).filter(([, v]) => v !== undefined));
     const doc = await SiteSettings.findOneAndUpdate(

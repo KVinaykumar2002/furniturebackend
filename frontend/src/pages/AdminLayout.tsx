@@ -3,12 +3,13 @@ import {
   LayoutDashboard,
   Package,
   FolderTree,
-  MapPin,
   ArrowLeft,
   LogOut,
   Settings,
   ClipboardList,
   MessageSquareQuote,
+  FileText,
+  CircleHelp,
 } from "lucide-react";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { Button } from "@/components/ui/button";
@@ -17,9 +18,10 @@ const nav = [
   { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/categories", label: "Categories", icon: FolderTree },
-  { to: "/admin/stores", label: "Stores", icon: MapPin },
   { to: "/admin/completed-projects", label: "Completed projects", icon: ClipboardList },
   { to: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
+  { to: "/admin/about-page", label: "About page", icon: FileText },
+  { to: "/admin/faqs", label: "FAQs", icon: CircleHelp },
   { to: "/admin/site-settings", label: "Site Settings", icon: Settings },
 ];
 
@@ -52,11 +54,14 @@ export default function AdminLayout() {
                   (location.pathname === to ||
                     (to === "/admin/products" && location.pathname.startsWith("/admin/products")) ||
                     (to === "/admin/categories" && location.pathname.startsWith("/admin/categories")) ||
-                    (to === "/admin/stores" && location.pathname.startsWith("/admin/stores")) ||
-                    (to === "/admin/site-settings" && location.pathname.startsWith("/admin/site-settings")) ||
+                    (to === "/admin/site-settings" &&
+                      (location.pathname.startsWith("/admin/site-settings") ||
+                        location.pathname.startsWith("/admin/stores"))) ||
                     (to === "/admin/completed-projects" &&
                       location.pathname.startsWith("/admin/completed-projects")) ||
                     (to === "/admin/testimonials" && location.pathname.startsWith("/admin/testimonials")) ||
+                    (to === "/admin/about-page" && location.pathname.startsWith("/admin/about-page")) ||
+                    (to === "/admin/faqs" && location.pathname.startsWith("/admin/faqs")) ||
                     (to === "/admin/promo-strip" && location.pathname.startsWith("/admin/promo-strip")))
                     ? "bg-muted text-foreground"
                     : "text-muted-foreground hover:bg-muted/50 hover:text-foreground"

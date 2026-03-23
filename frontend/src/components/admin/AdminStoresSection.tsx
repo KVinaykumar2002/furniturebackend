@@ -26,7 +26,8 @@ import {
 import { toast } from "sonner";
 import { LoadingSection } from "@/components/ui/loader";
 
-export default function AdminStoresPage() {
+/** Store locations CRUD — embedded in Site Settings */
+export default function AdminStoresSection() {
   const { stores: allStores, isPending, isError, refetch } = useStores();
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -59,15 +60,16 @@ export default function AdminStoresPage() {
   };
 
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+    <section id="admin-store-locations" className="rounded-lg border bg-card p-6 scroll-mt-24">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-display text-2xl font-light text-foreground">Stores</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Showrooms listed in the footer, Store Locator, and store detail pages.
+          <h2 className="text-lg font-semibold text-foreground">Store locations</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Showrooms in the footer, Store Locator, and <span className="font-mono">/stores/…</span> pages. Add maps
+            links and addresses here.
           </p>
         </div>
-        <Button asChild>
+        <Button asChild className="shrink-0">
           <Link to="/admin/stores/new">
             <Plus className="h-4 w-4 mr-2" />
             Add store
@@ -82,6 +84,9 @@ export default function AdminStoresPage() {
             placeholder="Search by id, name, or city…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.preventDefault();
+            }}
             className="pl-9"
           />
         </div>
@@ -93,18 +98,16 @@ export default function AdminStoresPage() {
       </div>
 
       {isPending && (
-        <div className="flex min-h-[280px] items-center justify-center py-12">
+        <div className="flex min-h-[200px] items-center justify-center py-8">
           <LoadingSection label="Loading stores…" size="md" />
         </div>
       )}
-      {isError && (
-        <p className="text-destructive py-8">Failed to load stores. Is the API running?</p>
-      )}
+      {isError && <p className="text-destructive py-6">Failed to load stores. Is the API running?</p>}
 
       {!isPending && !isError && stores.length === 0 && (
-        <div className="rounded-lg border border-dashed bg-muted/30 p-12 text-center">
-          <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground mb-4">
+        <div className="rounded-lg border border-dashed bg-muted/30 p-10 text-center">
+          <MapPin className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+          <p className="text-muted-foreground mb-4 text-sm">
             {allStores.length === 0 ? "No stores yet." : "No stores match your search."}
           </p>
           {allStores.length === 0 && (
@@ -116,7 +119,7 @@ export default function AdminStoresPage() {
       )}
 
       {!isPending && !isError && stores.length > 0 && (
-        <div className="rounded-lg border bg-card overflow-hidden">
+        <div className="rounded-lg border overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -139,6 +142,7 @@ export default function AdminStoresPage() {
                       </Link>
                     </Button>
                     <Button
+                      type="button"
                       variant="ghost"
                       size="icon"
                       className="h-9 w-9 text-destructive hover:text-destructive"
@@ -175,6 +179,6 @@ export default function AdminStoresPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </section>
   );
 }

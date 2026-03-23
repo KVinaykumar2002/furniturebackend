@@ -66,7 +66,7 @@ export default function AdminStoreFormPage() {
         });
       } catch {
         toast.error("Failed to load store");
-        navigate("/admin/stores");
+        navigate("/admin/site-settings#admin-store-locations");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -125,7 +125,7 @@ export default function AdminStoreFormPage() {
       }
       await queryClient.invalidateQueries({ queryKey: ["stores"] });
       if (editId) await queryClient.invalidateQueries({ queryKey: ["store", editId] });
-      navigate("/admin/stores");
+      navigate("/admin/site-settings#admin-store-locations");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to save");
     } finally {
@@ -144,11 +144,11 @@ export default function AdminStoreFormPage() {
   return (
     <div className="max-w-2xl">
       <Link
-        to="/admin/stores"
+        to="/admin/site-settings#admin-store-locations"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to stores
+        Back to site settings
       </Link>
       <h1 className="font-display text-2xl font-light text-foreground mb-2">
         {isNew ? "Add store" : "Edit store"}
@@ -282,7 +282,7 @@ export default function AdminStoreFormPage() {
             {saving ? "Saving…" : isNew ? "Create store" : "Save changes"}
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link to="/admin/stores">Cancel</Link>
+            <Link to="/admin/site-settings#admin-store-locations">Cancel</Link>
           </Button>
         </div>
       </form>

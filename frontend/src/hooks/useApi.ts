@@ -459,6 +459,8 @@ function normalizePromoStrip(r: Record<string, unknown>): PromoStripConfig {
   };
 }
 
+export type FaqItem = { question: string; answer: string };
+
 export type SiteSettings = {
   contactPhone: string;
   contactEmail: string;
@@ -470,7 +472,47 @@ export type SiteSettings = {
   completedProjectStats: CompletedProjectStat[];
   testimonials: Testimonial[];
   promoStrip: PromoStripConfig;
+  aboutPageHtml: string;
+  blogsFooterLabel: string;
+  blogsFooterHref: string;
+  blogsPageHtml: string;
+  shippingPolicyHtml: string;
+  returnPolicyHtml: string;
+  faqs: FaqItem[];
 };
+
+function coerceFaqsRaw(raw: unknown): Array<Record<string, unknown>> {
+  if (raw == null) return [];
+  if (Array.isArray(raw)) return raw as Array<Record<string, unknown>>;
+  if (typeof raw === "string") {
+    const t = raw.trim();
+    if (!t) return [];
+    try {
+      const p = JSON.parse(t) as unknown;
+      if (Array.isArray(p)) return p as Array<Record<string, unknown>>;
+      if (p && typeof p === "object" && p !== null && ("question" in p || "answer" in p)) {
+        return [p as Record<string, unknown>];
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  }
+  if (typeof raw === "object" && raw !== null && !Array.isArray(raw)) {
+    const o = raw as Record<string, unknown>;
+    if ("question" in o || "answer" in o) return [o];
+  }
+  return [];
+}
+
+function normalizeFaqs(r: Record<string, unknown>): FaqItem[] {
+  return coerceFaqsRaw(r.faqs)
+    .map((f) => ({
+      question: f.question != null ? String(f.question) : "",
+      answer: f.answer != null ? String(f.answer) : "",
+    }))
+    .filter((item) => item.question.trim() || item.answer.trim());
+}
 
 function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
   const slides = Array.isArray(r.heroSlides)
@@ -486,6 +528,10 @@ function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
         href: l && typeof l.href === "string" ? l.href : "#",
       }))
     : [];
+  const blogsFooterHrefRaw =
+    r.blogsFooterHref != null && String(r.blogsFooterHref).trim()
+      ? String(r.blogsFooterHref).trim()
+      : "/blogs";
   return {
     contactPhone: r.contactPhone != null ? String(r.contactPhone) : "",
     contactEmail: r.contactEmail != null ? String(r.contactEmail) : "",
@@ -497,6 +543,16 @@ function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
     completedProjectStats: normalizeCompletedProjectStats(r.completedProjectStats),
     testimonials: normalizeTestimonials(r),
     promoStrip: normalizePromoStrip(r),
+    aboutPageHtml: r.aboutPageHtml != null ? String(r.aboutPageHtml) : "",
+    blogsFooterLabel:
+      r.blogsFooterLabel != null && String(r.blogsFooterLabel).trim()
+        ? String(r.blogsFooterLabel).trim()
+        : "Blogs",
+    blogsFooterHref: blogsFooterHrefRaw,
+    blogsPageHtml: r.blogsPageHtml != null ? String(r.blogsPageHtml) : "",
+    shippingPolicyHtml: r.shippingPolicyHtml != null ? String(r.shippingPolicyHtml) : "",
+    returnPolicyHtml: r.returnPolicyHtml != null ? String(r.returnPolicyHtml) : "",
+    faqs: normalizeFaqs(r),
   };
 }
 

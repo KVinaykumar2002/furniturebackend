@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -23,9 +23,13 @@ import {
 import { toast } from "sonner";
 import { LoadingSection } from "@/components/ui/loader";
 import { Plus, Trash2, Upload, Link as LinkIcon } from "lucide-react";
+import AdminStoresSection from "@/components/admin/AdminStoresSection";
 import { cn, readFileAsDataUrl } from "@/lib/utils";
 
-type SiteSettingsForm = Omit<SiteSettings, "completedProjectStats" | "testimonials">;
+type SiteSettingsForm = Omit<
+  SiteSettings,
+  "completedProjectStats" | "testimonials" | "aboutPageHtml" | "faqs"
+>;
 
 function isoToDatetimeLocal(iso: string): string {
   if (!iso) return "";
@@ -55,6 +59,7 @@ const emptyPromoStat = (): PromoStripStat => ({
 });
 
 export default function AdminSiteSettingsPage() {
+  const location = useLocation();
   const queryClient = useQueryClient();
   const { settings, isPending, isError } = useSiteSettings();
   const [saving, setSaving] = useState(false);
@@ -70,6 +75,11 @@ export default function AdminSiteSettingsPage() {
     heroSlides: [],
     socialLinks: [],
     promoStrip: getDefaultPromoStrip(),
+    blogsFooterLabel: "Blogs",
+    blogsFooterHref: "/blogs",
+    blogsPageHtml: "",
+    shippingPolicyHtml: "",
+    returnPolicyHtml: "",
   });
 
   useEffect(() => {
@@ -86,10 +96,23 @@ export default function AdminSiteSettingsPage() {
           ...settings.promoStrip,
           stats: settings.promoStrip.stats.map((s) => ({ ...s })),
         },
+        blogsFooterLabel: settings.blogsFooterLabel ?? "Blogs",
+        blogsFooterHref: settings.blogsFooterHref ?? "/blogs",
+        blogsPageHtml: settings.blogsPageHtml ?? "",
+        shippingPolicyHtml: settings.shippingPolicyHtml ?? "",
+        returnPolicyHtml: settings.returnPolicyHtml ?? "",
       });
       setPromoSaleEndLocal(isoToDatetimeLocal(settings.promoStrip.saleEndsAt));
     }
   }, [settings]);
+
+  useEffect(() => {
+    if (location.hash === "#admin-store-locations") {
+      requestAnimationFrame(() => {
+        document.getElementById("admin-store-locations")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }, [location.hash, location.pathname]);
 
   const update = <K extends keyof SiteSettingsForm>(key: K, value: SiteSettingsForm[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -227,6 +250,11 @@ export default function AdminSiteSettingsPage() {
         heroSlides: form.heroSlides.filter((s) => s.image.trim()),
         socialLinks: form.socialLinks.filter((l) => l.name.trim()),
         promoStrip,
+        blogsFooterLabel: form.blogsFooterLabel.trim() || "Blogs",
+        blogsFooterHref: form.blogsFooterHref.trim() || "/blogs",
+        blogsPageHtml: form.blogsPageHtml,
+        shippingPolicyHtml: form.shippingPolicyHtml,
+        returnPolicyHtml: form.returnPolicyHtml,
       });
       queryClient.invalidateQueries({ queryKey: ["siteSettings"] });
       toast.success("Site settings saved");
@@ -249,8 +277,8 @@ export default function AdminSiteSettingsPage() {
     <div>
       <h1 className="font-display text-2xl font-light text-foreground mb-2">Site Settings</h1>
       <p className="text-muted-foreground text-sm mb-8">
-        Manage contact details, store image, promo banner, hero carousel, and footer links. The same promo
-        fields are on the{" "}
+        Manage contact details, store locations, homepage store image, promo banner, hero carousel, and footer
+        links. The same promo fields are on the{" "}
         <Link to="/admin/promo-strip" className="text-foreground underline hover:no-underline">
           Promo strip
         </Link>{" "}
@@ -299,6 +327,69 @@ export default function AdminSiteSettingsPage() {
                 value={form.brandTagline}
                 onChange={(e) => update("brandTagline", e.target.value)}
                 placeholder="e.g. Premium furniture for inspired living."
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Footer: Blogs link + policy page content (About & FAQs have their own admin pages) */}
+        <section className="rounded-lg border bg-card p-6">
+          <h2 className="text-lg font-semibold text-foreground mb-1">Blogs & policy pages</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            Footer “Blogs” label and URL, plus HTML for <code className="text-xs">/blogs</code>,{" "}
+            <code className="text-xs">/shipping-policy</code>, and <code className="text-xs">/return-policy</code>.
+            Edit <strong>About</strong> and <strong>FAQs</strong> from the admin sidebar.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="blogsFooterLabel">Footer label (Blogs)</Label>
+              <Input
+                id="blogsFooterLabel"
+                value={form.blogsFooterLabel}
+                onChange={(e) => update("blogsFooterLabel", e.target.value)}
+                placeholder="Blogs"
+              />
+            </div>
+            <div>
+              <Label htmlFor="blogsFooterHref">Footer URL</Label>
+              <Input
+                id="blogsFooterHref"
+                value={form.blogsFooterHref}
+                onChange={(e) => update("blogsFooterHref", e.target.value)}
+                placeholder="/blogs or https://…"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="blogsPageHtml">Blogs page HTML</Label>
+              <Textarea
+                id="blogsPageHtml"
+                value={form.blogsPageHtml}
+                onChange={(e) => update("blogsPageHtml", e.target.value)}
+                placeholder="Content shown on /blogs"
+                rows={8}
+                className="font-mono text-sm"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="shippingPolicyHtml">Shipping policy HTML</Label>
+              <Textarea
+                id="shippingPolicyHtml"
+                value={form.shippingPolicyHtml}
+                onChange={(e) => update("shippingPolicyHtml", e.target.value)}
+                placeholder="Content shown on /shipping-policy"
+                rows={8}
+                className="font-mono text-sm"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <Label htmlFor="returnPolicyHtml">Return policy HTML</Label>
+              <Textarea
+                id="returnPolicyHtml"
+                value={form.returnPolicyHtml}
+                onChange={(e) => update("returnPolicyHtml", e.target.value)}
+                placeholder="Content shown on /return-policy"
+                rows={8}
+                className="font-mono text-sm"
               />
             </div>
           </div>
@@ -380,6 +471,8 @@ export default function AdminSiteSettingsPage() {
             )}
           </div>
         </section>
+
+        <AdminStoresSection />
 
         {/* Promo strip (homepage banner) */}
         <section className="rounded-lg border bg-card p-6 space-y-6">

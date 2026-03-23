@@ -61,6 +61,14 @@ const promoStripSchema = new mongoose.Schema(
   { _id: false }
 );
 
+const faqItemSchema = new mongoose.Schema(
+  {
+    question: { type: String, default: "" },
+    answer: { type: String, default: "" },
+  },
+  { _id: false }
+);
+
 const siteSettingsSchema = new mongoose.Schema(
   {
     id: { type: String, required: true, unique: true, default: "default" },
@@ -74,6 +82,15 @@ const siteSettingsSchema = new mongoose.Schema(
     completedProjectStats: { type: [completedProjectStatSchema], default: [] },
     testimonials: { type: [testimonialSchema], default: [] },
     promoStrip: { type: promoStripSchema, default: undefined },
+    /** Rich HTML from admin (About page) */
+    aboutPageHtml: { type: String, default: "" },
+    /** Footer “Blogs” link + /blogs page body */
+    blogsFooterLabel: { type: String, default: "Blogs" },
+    blogsFooterHref: { type: String, default: "/blogs" },
+    blogsPageHtml: { type: String, default: "" },
+    shippingPolicyHtml: { type: String, default: "" },
+    returnPolicyHtml: { type: String, default: "" },
+    faqs: { type: [faqItemSchema], default: [] },
   },
   { timestamps: true }
 );

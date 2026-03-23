@@ -80,7 +80,9 @@ export const api = {
     delete: (id: string) => fetchApi<void>(`/api/stores/${encodeURIComponent(id)}`, { method: "DELETE" }),
   },
   siteSettings: {
-    get: () => fetchApi<Record<string, unknown>>("/api/site-settings"),
+    /** Avoid stale FAQ/settings in browser or CDN caches after deploy. */
+    get: () =>
+      fetchApi<Record<string, unknown>>("/api/site-settings", { cache: "no-store" }),
     /** Use `minimal: true` to skip downloading the full document (avoids large base64 payloads on save). */
     update: (data: Record<string, unknown>, opts?: { minimal?: boolean }) => {
       const q = opts?.minimal ? "?minimal=1" : "";

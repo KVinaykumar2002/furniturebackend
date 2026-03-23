@@ -1,9 +1,8 @@
-import { Link } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/useApi";
 import CmsPageLayout, { CmsHtmlBody } from "@/components/CmsPageLayout";
 import { LoadingSection } from "@/components/ui/loader";
 
-export default function AboutPage() {
+export default function ShippingPolicyPage() {
   const { settings, isPending, isError } = useSiteSettings();
 
   if (isPending) {
@@ -16,26 +15,18 @@ export default function AboutPage() {
 
   if (isError || !settings) {
     return (
-      <CmsPageLayout title="About Us">
+      <CmsPageLayout title="Shipping Policy">
         <p className="text-muted-foreground">Could not load this page.</p>
       </CmsPageLayout>
     );
   }
 
-  const html = settings.aboutPageHtml.trim();
-
   return (
-    <CmsPageLayout title="About Us">
+    <CmsPageLayout title="Shipping Policy">
       <CmsHtmlBody
-        html={html}
-        emptyMessage="No about content yet. Add it in Admin → About page (saved to site settings)."
+        html={settings.shippingPolicyHtml}
+        emptyMessage="No shipping policy yet. Add it in Admin → Site Settings."
       />
-      <Link
-        to="/#contact"
-        className="inline-flex items-center justify-center h-12 px-8 border border-foreground/40 font-medium hover:bg-muted/50 uppercase tracking-wide text-sm mt-8"
-      >
-        Contact Us
-      </Link>
     </CmsPageLayout>
   );
 }

@@ -20,6 +20,9 @@ export default function Footer() {
   const contactEmail = settings?.contactEmail ?? "";
   const address = settings?.address ?? "";
   const brandTagline = (settings?.brandTagline ?? "").trim() || DEFAULT_TAGLINE;
+  const blogsLabel = (settings?.blogsFooterLabel ?? "").trim() || "Blogs";
+  const blogsHref = (settings?.blogsFooterHref ?? "").trim() || "/blogs";
+  const blogsExternal = /^https?:\/\//i.test(blogsHref);
 
   return (
     <footer className="bg-[#eae8e3] text-[#2c2c2c] safe-bottom">
@@ -79,7 +82,25 @@ export default function Footer() {
             <h4 className="font-medium text-[#2c2c2c] text-sm mb-4">Company</h4>
             <ul className="space-y-1 text-sm text-[#5a5a5a]">
               <li><Link to="/about" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">About Us</Link></li>
-              <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Blogs</a></li>
+              <li>
+                {blogsExternal ? (
+                  <a
+                    href={blogsHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center"
+                  >
+                    {blogsLabel}
+                  </a>
+                ) : (
+                  <Link
+                    to={blogsHref}
+                    className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center"
+                  >
+                    {blogsLabel}
+                  </Link>
+                )}
+              </li>
             </ul>
           </div>
 
@@ -96,9 +117,9 @@ export default function Footer() {
                   Contact Us
                 </button>
               </li>
-              <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">FAQs</a></li>
-              <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Shipping Policy</a></li>
-              <li><a href="#" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Return Policy</a></li>
+              <li><Link to="/faq" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">FAQs</Link></li>
+              <li><Link to="/shipping-policy" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Shipping Policy</Link></li>
+              <li><Link to="/return-policy" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Return Policy</Link></li>
             </ul>
           </div>
 
