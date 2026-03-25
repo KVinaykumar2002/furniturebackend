@@ -11,6 +11,8 @@ const productSchema = new mongoose.Schema(
     rating: { type: Number, default: 0 },
     reviews: { type: Number, default: 0 },
     image: { type: String, required: true },
+    /** Optional gallery; first item is primary. Kept alongside `image` for backward compatibility. */
+    images: { type: [String], default: [] },
     category: { type: String, required: true },
     mainCategory: { type: String, required: true },
     subcategory: String,

@@ -9,6 +9,12 @@ import type { Store } from "@/data/stores";
 import type { ShopCategory } from "@/data/shopCategories";
 
 function mapProduct(p: Record<string, unknown>): Product {
+  const images = Array.isArray(p.images)
+    ? (p.images as unknown[])
+        .map((u) => (u != null ? String(u) : "").trim())
+        .filter((u) => u)
+    : [];
+  const primary = String(p.image ?? "").trim() || images[0] || "";
   return {
     id: String(p.id),
     name: String(p.name),
@@ -18,7 +24,8 @@ function mapProduct(p: Record<string, unknown>): Product {
     save: p.save != null ? Number(p.save) : undefined,
     rating: Number(p.rating ?? 0),
     reviews: Number(p.reviews ?? 0),
-    image: String(p.image),
+    image: primary,
+    images: images.length ? images : primary ? [primary] : undefined,
     category: p.category as Product["category"],
     mainCategory: p.mainCategory as Product["mainCategory"],
     subcategory: p.subcategory as Product["subcategory"],

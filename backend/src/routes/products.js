@@ -129,6 +129,12 @@ router.post("/", async (req, res) => {
     let id = body.id || body.name?.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "") || "product";
     const existing = await Product.findOne({ id });
     if (existing) id = `${id}-${Date.now().toString(36).slice(-6)}`;
+    const images = Array.isArray(body.images)
+      ? body.images
+          .map((u) => (u != null ? String(u).trim() : ""))
+          .filter((u) => u)
+      : [];
+    const primaryImage = (String(body.image ?? "").trim() || images[0] || "").trim();
     const doc = await Product.create({
       id,
       name: body.name,
@@ -138,7 +144,8 @@ router.post("/", async (req, res) => {
       save: body.save != null ? Number(body.save) : undefined,
       rating: Number(body.rating) || 0,
       reviews: Number(body.reviews) || 0,
-      image: body.image,
+      image: primaryImage,
+      images: images.length ? images : primaryImage ? [primaryImage] : [],
       category: body.category,
       mainCategory: body.mainCategory,
       subcategory: body.subcategory || undefined,
@@ -160,6 +167,17 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   try {
     const body = req.body;
+    const images = Array.isArray(body.images)
+      ? body.images
+          .map((u) => (u != null ? String(u).trim() : ""))
+          .filter((u) => u)
+      : undefined;
+    const primaryImage =
+      images && images.length > 0
+        ? images[0]
+        : body.image != null
+          ? String(body.image).trim()
+          : undefined;
     const setFields = {
       name: body.name,
       description: body.description ?? "",
@@ -168,7 +186,8 @@ router.put("/:id", async (req, res) => {
       save: body.save != null ? Number(body.save) : undefined,
       rating: Number(body.rating) || 0,
       reviews: Number(body.reviews) || 0,
-      image: body.image,
+      image: primaryImage,
+      images,
       category: body.category,
       mainCategory: body.mainCategory,
       subcategory: body.subcategory || undefined,

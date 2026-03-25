@@ -19,7 +19,8 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   const { isInWishlist, toggle } = useWishlist();
   const inWishlist = isInWishlist(product.id);
   const ref = useScrollReveal<HTMLElement>();
-  const [imgSrc, setImgSrc] = useState(product.image);
+  const primary = product.images?.[0] || product.image;
+  const [imgSrc, setImgSrc] = useState(primary);
   const [imgError, setImgError] = useState(false);
 
   const handleImageError = () => {

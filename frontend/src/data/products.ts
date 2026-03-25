@@ -13,6 +13,8 @@ export interface Product {
   rating: number;
   reviews: number;
   image: string;
+  /** Optional gallery; first item is primary. */
+  images?: string[];
   category: string;
   mainCategory: MainCategorySlug;
   subcategory?: string;

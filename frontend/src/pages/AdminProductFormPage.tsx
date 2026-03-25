@@ -38,6 +38,7 @@ const defaultForm = {
   rating: "0",
   reviews: "0",
   image: "",
+  images: [] as string[],
   category: "furniture",
   mainCategory: "living",
   subcategory: "",
@@ -74,12 +75,20 @@ export default function AdminProductFormPage() {
     return fromApi;
   })();
 
-  const setImageFromFile = async (file: File) => {
+  const addImagesFromFiles = async (files: FileList | File[]) => {
     setUploading(true);
     try {
-      const dataUrl = await readFileAsDataUrl(file);
-      setForm((prev) => ({ ...prev, image: dataUrl }));
-      toast.success("Image set (stored as base64)");
+      const list = Array.from(files).slice(0, 10);
+      const dataUrls = await Promise.all(list.map((f) => readFileAsDataUrl(f)));
+      setForm((prev) => {
+        const nextImages = [...(prev.images ?? [])];
+        for (const u of dataUrls) {
+          if (u && !nextImages.includes(u)) nextImages.push(u);
+        }
+        const primary = (prev.image || "").trim() || nextImages[0] || "";
+        return { ...prev, images: nextImages, image: primary };
+      });
+      toast.success(`${dataUrls.length} image(s) added`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to read image");
     } finally {
@@ -90,8 +99,8 @@ export default function AdminProductFormPage() {
   const handleImageDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setDropZoneActive(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file) setImageFromFile(file);
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) void addImagesFromFiles(files);
   };
 
   const handleImageDragOver = (e: React.DragEvent) => {
@@ -124,6 +133,11 @@ export default function AdminProductFormPage() {
           rating: String(p.rating ?? 0),
           reviews: String(p.reviews ?? 0),
           image: String(p.image ?? ""),
+          images: Array.isArray((p as any).images)
+            ? ((p as any).images as unknown[]).map((u) => String(u)).filter((u) => u.trim())
+            : String(p.image ?? "").trim()
+              ? [String(p.image ?? "").trim()]
+              : [],
           category: String(p.category ?? "furniture"),
           mainCategory: String(p.mainCategory ?? "living"),
           subcategory: p.subcategory ? String(p.subcategory) : "",
@@ -160,12 +174,15 @@ export default function AdminProductFormPage() {
       toast.error("Price must be a number ≥ 0");
       return;
     }
-    if (!form.image.trim()) {
-      toast.error("Image is required");
+    const images = (form.images ?? []).map((u) => u.trim()).filter(Boolean);
+    if (images.length === 0 && !form.image.trim()) {
+      toast.error("Add at least one image");
       return;
     }
     setSaving(true);
     try {
+      const finalImages = images.length ? images : [form.image.trim()];
+      const primaryImage = finalImages[0] || form.image.trim();
       const payload = {
         name: form.name.trim(),
         description: form.description.trim(),
@@ -174,7 +191,8 @@ export default function AdminProductFormPage() {
         save: form.save ? Number(form.save) : undefined,
         rating: Number(form.rating) || 0,
         reviews: Number(form.reviews) || 0,
-        image: form.image.trim(),
+        image: primaryImage,
+        images: finalImages,
         category: form.category,
         mainCategory: form.mainCategory,
         subcategory: (form.subcategory || "").trim() || undefined,
@@ -304,7 +322,7 @@ export default function AdminProductFormPage() {
             />
           </div>
           <div className="sm:col-span-2 space-y-3">
-            <Label>Product image *</Label>
+            <Label>Product images *</Label>
             <div className="flex flex-col sm:flex-row gap-4">
               <div
                 className={cn(
@@ -320,13 +338,14 @@ export default function AdminProductFormPage() {
                   accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
                   className="hidden"
                   id="product-image-upload"
+                  multiple
                   onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) setImageFromFile(file);
+                    const files = e.target.files;
+                    if (files && files.length > 0) void addImagesFromFiles(files);
                     e.target.value = "";
                   }}
                 />
-                <p className="text-xs text-muted-foreground mb-1">Drag and drop an image here, or</p>
+                <p className="text-xs text-muted-foreground mb-1">Drag and drop images here, or</p>
                 <Button
                   type="button"
                   variant="outline"
@@ -336,31 +355,95 @@ export default function AdminProductFormPage() {
                   <Upload className="h-4 w-4 mr-2" />
                   {uploading ? "Reading…" : "Choose file"}
                 </Button>
-                <p className="text-xs text-muted-foreground">JPEG, PNG, GIF or WebP (max 5MB)</p>
+                <p className="text-xs text-muted-foreground">Up to 10 images. First image will be the main image.</p>
               </div>
               <div className="flex-1">
                 <Label htmlFor="image" className="text-muted-foreground font-normal flex items-center gap-1.5">
                   <LinkIcon className="h-3.5 w-3.5" />
-                  Or paste image URL
+                  Or paste image URL (adds to gallery)
                 </Label>
                 <Input
                   id="image"
                   type="text"
                   value={form.image.startsWith("data:") ? "" : form.image}
                   onChange={(e) => update("image", e.target.value)}
-                  placeholder={form.image.startsWith("data:") ? "Image from file (paste URL to replace)" : "https://..."}
+                  placeholder={form.image.startsWith("data:") ? "Image from file (paste URL to add another)" : "https://..."}
                   className="mt-1.5"
                 />
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      const url = form.image.trim();
+                      if (!url || url.startsWith("data:")) return;
+                      setForm((prev) => {
+                        const nextImages = [...(prev.images ?? [])];
+                        if (!nextImages.includes(url)) nextImages.push(url);
+                        return { ...prev, images: nextImages, image: nextImages[0] || url };
+                      });
+                      toast.success("Image URL added");
+                    }}
+                  >
+                    Add URL
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setForm((prev) => ({ ...prev, image: "" }))}
+                    className="text-muted-foreground"
+                  >
+                    Clear URL
+                  </Button>
+                </div>
               </div>
             </div>
-            {form.image && (
-              <img
-                src={form.image}
-                alt="Preview"
-                className="h-32 w-32 rounded object-cover border"
-                onError={(e) => (e.currentTarget.style.display = "none")}
-              />
-            )}
+            {form.images?.length ? (
+              <div className="rounded-lg border bg-muted/20 p-3">
+                <p className="text-xs text-muted-foreground mb-3">
+                  Main image is the first one. Use “Set as main” or remove images.
+                </p>
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                  {form.images.map((src, idx) => (
+                    <div key={`${src}-${idx}`} className="group relative rounded-md overflow-hidden border bg-background">
+                      <img src={src} alt={`Product image ${idx + 1}`} className="h-20 w-full object-cover" />
+                      <div className="absolute inset-x-0 bottom-0 flex gap-1 p-1 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 px-2 text-xs"
+                          onClick={() => {
+                            setForm((prev) => {
+                              const next = [...prev.images];
+                              const [picked] = next.splice(idx, 1);
+                              next.unshift(picked);
+                              return { ...prev, images: next, image: next[0] || "" };
+                            });
+                          }}
+                        >
+                          Set as main
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-xs text-destructive"
+                          onClick={() => {
+                            setForm((prev) => {
+                              const next = prev.images.filter((_, i) => i !== idx);
+                              return { ...prev, images: next, image: next[0] || "" };
+                            });
+                          }}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </div>
           <div>
             <Label>Category</Label>

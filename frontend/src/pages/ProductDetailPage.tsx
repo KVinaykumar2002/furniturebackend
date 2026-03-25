@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ShoppingCart, Heart, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -23,6 +23,14 @@ export default function ProductDetailPage() {
     if (String(product.id) !== String(id)) return;
     addRecentlyViewedId(product.id);
   }, [product?.id, id]);
+
+  const images = useMemo(() => {
+    if (!product) return [];
+    const list = product.images && product.images.length > 0 ? product.images : [product.image];
+    return [...new Set(list.filter((u) => u && String(u).trim()))];
+  }, [product]);
+  const [activeIndex, setActiveIndex] = useState(0);
+  useEffect(() => setActiveIndex(0), [product?.id]);
 
   if (productPending) {
     return (
@@ -91,12 +99,31 @@ export default function ProductDetailPage() {
         {/* Product Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 md:gap-16">
           {/* Image — square, sharp corners, no shadow */}
-          <div className="aspect-square overflow-hidden bg-muted">
+          <div className="space-y-3">
+            <div className="aspect-square overflow-hidden bg-muted">
             <img
-              src={product.image}
+              src={images[activeIndex] || product.image}
               alt={product.name}
               className="w-full h-full object-cover animate-fade-in-image"
             />
+            </div>
+            {images.length > 1 ? (
+              <div className="grid grid-cols-5 gap-2">
+                {images.slice(0, 10).map((src, idx) => (
+                  <button
+                    key={`${src}-${idx}`}
+                    type="button"
+                    onClick={() => setActiveIndex(idx)}
+                    className={`aspect-square overflow-hidden border bg-muted ${
+                      idx === activeIndex ? "border-foreground" : "border-border hover:border-foreground/60"
+                    }`}
+                    aria-label={`View image ${idx + 1}`}
+                  >
+                    <img src={src} alt="" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </div>
 
           {/* Product Info — flat, no card */}

@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import CartDrawer from "@/components/CartDrawer";
@@ -47,6 +47,59 @@ import { AdminAuthProvider } from "./context/AdminAuthContext";
 
 const queryClient = new QueryClient();
 
+function AppChrome() {
+  const location = useLocation();
+  const hideFloatingButtons = location.pathname.startsWith("/admin");
+  return (
+    <>
+      <ScrollToTop />
+      <CartDrawer />
+      {!hideFloatingButtons && <WhatsAppButton />}
+      {!hideFloatingButtons && <EnquiryModal />}
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/living" element={<LivingPage />} />
+        <Route path="/dining" element={<DiningPage />} />
+        <Route path="/bedroom" element={<BedroomPage />} />
+        <Route path="/product/:id" element={<ProductDetailPage />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/blogs" element={<BlogsPage />} />
+        <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
+        <Route path="/return-policy" element={<ReturnPolicyPage />} />
+        <Route path="/faq" element={<FaqPage />} />
+        <Route path="/stores" element={<StoresPage />} />
+        <Route path="/stores/:id" element={<StoreDetailPage />} />
+        <Route path="/collections" element={<CollectionsPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path="/checkout" element={<CheckoutPage />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminPage />} />
+          <Route path="products" element={<AdminProductsPage />} />
+          <Route path="products/new" element={<AdminProductFormPage />} />
+          <Route path="products/:id/edit" element={<AdminProductFormPage />} />
+          <Route path="categories" element={<AdminCategoriesPage />} />
+          <Route path="categories/new" element={<AdminCategoryFormPage />} />
+          <Route path="categories/:slug/edit" element={<AdminCategoryFormPage />} />
+          <Route path="stores/new" element={<AdminStoreFormPage />} />
+          <Route path="stores/:id/edit" element={<AdminStoreFormPage />} />
+          <Route path="site-settings" element={<AdminSiteSettingsPage />} />
+          <Route path="about-page" element={<AdminAboutPage />} />
+          <Route path="faqs" element={<AdminFaqsPage />} />
+          <Route path="completed-projects" element={<AdminCompletedProjectsPage />} />
+          <Route path="testimonials" element={<AdminTestimonialsPage />} />
+          <Route path="promo-strip" element={<AdminPromoStripPage />} />
+        </Route>
+        <Route path="/404" element={<NotFoundPage />} />
+        <Route path="*" element={<Navigate to="/404" replace />} />
+      </Routes>
+    </>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <EnquiryModalProvider>
@@ -57,50 +110,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <ScrollToTop />
-            <CartDrawer />
-            <WhatsAppButton />
-            <EnquiryModal />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/living" element={<LivingPage />} />
-              <Route path="/dining" element={<DiningPage />} />
-              <Route path="/bedroom" element={<BedroomPage />} />
-              <Route path="/product/:id" element={<ProductDetailPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/blogs" element={<BlogsPage />} />
-              <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
-              <Route path="/return-policy" element={<ReturnPolicyPage />} />
-              <Route path="/faq" element={<FaqPage />} />
-              <Route path="/stores" element={<StoresPage />} />
-              <Route path="/stores/:id" element={<StoreDetailPage />} />
-              <Route path="/collections" element={<CollectionsPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-              <Route path="/wishlist" element={<WishlistPage />} />
-              <Route path="/admin/login" element={<AdminLoginPage />} />
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<AdminPage />} />
-                <Route path="products" element={<AdminProductsPage />} />
-                <Route path="products/new" element={<AdminProductFormPage />} />
-                <Route path="products/:id/edit" element={<AdminProductFormPage />} />
-                <Route path="categories" element={<AdminCategoriesPage />} />
-                <Route path="categories/new" element={<AdminCategoryFormPage />} />
-                <Route path="categories/:slug/edit" element={<AdminCategoryFormPage />} />
-                <Route path="stores/new" element={<AdminStoreFormPage />} />
-                <Route path="stores/:id/edit" element={<AdminStoreFormPage />} />
-                <Route path="site-settings" element={<AdminSiteSettingsPage />} />
-                <Route path="about-page" element={<AdminAboutPage />} />
-                <Route path="faqs" element={<AdminFaqsPage />} />
-                <Route path="completed-projects" element={<AdminCompletedProjectsPage />} />
-                <Route path="testimonials" element={<AdminTestimonialsPage />} />
-                <Route path="promo-strip" element={<AdminPromoStripPage />} />
-              </Route>
-              <Route path="/404" element={<NotFoundPage />} />
-              <Route path="*" element={<Navigate to="/404" replace />} />
-            </Routes>
+            <AppChrome />
           </BrowserRouter>
           </AdminAuthProvider>
         </WishlistProvider>
