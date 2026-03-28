@@ -2,6 +2,7 @@ import "dotenv/config";
 import path from "path";
 import { fileURLToPath } from "url";
 import express from "express";
+import compression from "compression";
 import cors from "cors";
 import mongoose from "mongoose";
 import productRoutes from "./routes/products.js";
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 4000;
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://designerzhubkp_db_user:MCqtPeEIENL27Wcg@designerzhub.5o4tvce.mongodb.net/?appName=Designerzhub";
 
 const app = express();
+app.use(compression());
 const corsOrigin = process.env.CORS_ORIGIN;
 app.use(cors({ origin: corsOrigin ? corsOrigin.split(",").map((o) => o.trim()) : true }));
 // Allow larger payloads for base64 images

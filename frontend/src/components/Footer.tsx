@@ -1,16 +1,41 @@
 import { Link } from "react-router-dom";
-import { Phone, Mail, Instagram, Facebook, Twitter } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  Instagram,
+  Facebook,
+  Twitter,
+  Youtube,
+  Linkedin,
+  Link2,
+} from "lucide-react";
 import { useSiteSettings, useStores } from "@/hooks/useApi";
 import { useEnquiryModal } from "@/context/EnquiryModalContext";
 
 const DEFAULT_TAGLINE = "Premium furniture for inspired living. Quality craftsmanship and timeless design.";
 
-const SOCIAL_LINKS = [
-  { icon: Instagram, label: "Instagram", href: "https://instagram.com" },
-  { icon: Facebook, label: "Facebook", href: "https://facebook.com" },
-  { icon: Twitter, label: "Twitter", href: "https://twitter.com" },
-  { label: "Pinterest", href: "https://pinterest.com", letter: "P" },
-] as const;
+function normalizeSocialHref(href: string): string {
+  const t = href.trim();
+  if (!t || t === "#") return "#";
+  if (/^https?:\/\//i.test(t)) return t;
+  return `https://${t}`;
+}
+
+type Glyph =
+  | { kind: "lucide"; Icon: React.ComponentType<{ className?: string; strokeWidth?: number }> }
+  | { kind: "letter"; letter: string };
+
+function socialGlyph(name: string, href: string): Glyph {
+  const blob = `${name} ${href}`.toLowerCase();
+  if (blob.includes("instagram")) return { kind: "lucide", Icon: Instagram };
+  if (blob.includes("facebook")) return { kind: "lucide", Icon: Facebook };
+  if (blob.includes("twitter") || blob.includes("x.com") || /\bx\b/.test(name.toLowerCase().trim()))
+    return { kind: "lucide", Icon: Twitter };
+  if (blob.includes("pinterest")) return { kind: "letter", letter: "P" };
+  if (blob.includes("youtube")) return { kind: "lucide", Icon: Youtube };
+  if (blob.includes("linkedin")) return { kind: "lucide", Icon: Linkedin };
+  return { kind: "lucide", Icon: Link2 };
+}
 
 export default function Footer() {
   const { openEnquiry } = useEnquiryModal();
@@ -23,6 +48,9 @@ export default function Footer() {
   const blogsLabel = (settings?.blogsFooterLabel ?? "").trim() || "Blogs";
   const blogsHref = (settings?.blogsFooterHref ?? "").trim() || "/blogs";
   const blogsExternal = /^https?:\/\//i.test(blogsHref);
+  const footerSocialLinks = (settings?.socialLinks ?? []).filter(
+    (l) => l.name.trim() && l.href.trim() && l.href.trim() !== "#"
+  );
 
   return (
     <footer className="bg-[#eae8e3] text-[#2c2c2c] safe-bottom">
@@ -57,24 +85,31 @@ export default function Footer() {
                 {address}
               </p>
             )}
-            <div className="flex gap-2">
-              {SOCIAL_LINKS.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  aria-label={item.label}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-10 h-10 border border-[#c9c7c2] bg-white/60 flex items-center justify-center text-[#4a4a4a] hover:text-[#2c2c2c] hover:bg-white/80 transition-colors"
-                >
-                  {"icon" in item && item.icon ? (
-                    <item.icon className="h-4 w-4" strokeWidth={1.5} />
-                  ) : (
-                    <span className="font-semibold text-sm">{item.letter}</span>
-                  )}
-                </a>
-              ))}
-            </div>
+            {footerSocialLinks.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {footerSocialLinks.map((item, index) => {
+                  const href = normalizeSocialHref(item.href);
+                  const glyph = socialGlyph(item.name, item.href);
+                  const label = item.name.trim() || "Social link";
+                  return (
+                    <a
+                      key={`${label}-${href}-${index}`}
+                      href={href}
+                      aria-label={label}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 border border-[#c9c7c2] bg-white/60 flex items-center justify-center text-[#4a4a4a] hover:text-[#2c2c2c] hover:bg-white/80 transition-colors"
+                    >
+                      {glyph.kind === "lucide" ? (
+                        <glyph.Icon className="h-4 w-4" strokeWidth={1.5} />
+                      ) : (
+                        <span className="font-semibold text-sm">{glyph.letter}</span>
+                      )}
+                    </a>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Company */}

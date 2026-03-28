@@ -120,8 +120,7 @@ export function useProducts(params?: {
         return true;
       });
     },
-    /** Highlights grid is stable; avoid refetch on every navigation */
-    staleTime: params?.highlights ? 2 * 60 * 1000 : undefined,
+    staleTime: params?.highlights ? 3 * 60 * 1000 : 60 * 1000,
   });
   return { ...q, products: q.data ?? [] };
 }
@@ -175,6 +174,7 @@ export function useRecentlyViewedProducts() {
 export function useProduct(id: string | undefined) {
   const q = useQuery({
     queryKey: ["product", id],
+    staleTime: 2 * 60 * 1000,
     queryFn: async () => {
       if (!id) return null;
       const p = await api.products.byId(id);
@@ -188,6 +188,7 @@ export function useProduct(id: string | undefined) {
 export function useCategories() {
   const q = useQuery({
     queryKey: ["categories"],
+    staleTime: 10 * 60 * 1000,
     queryFn: async () => {
       const { list, bySlug } = await api.categories.list();
       return {
@@ -208,6 +209,7 @@ export function useCategories() {
 export function useShopCategories() {
   const q = useQuery({
     queryKey: ["shopCategories"],
+    staleTime: 10 * 60 * 1000,
     queryFn: async () => {
       const { list, bySlug } = await api.shopCategories();
       return {
@@ -228,6 +230,7 @@ export function useShopCategories() {
 export function useStores() {
   const q = useQuery({
     queryKey: ["stores"],
+    staleTime: 10 * 60 * 1000,
     queryFn: async () => {
       const list = await api.stores.list();
       return list.map(mapStore);
@@ -593,9 +596,10 @@ export function useSiteSettings() {
       const r = await api.siteSettings.get();
       return mapSiteSettings(r);
     },
-    staleTime: 0,
-    refetchOnMount: "always",
-    /** Avoid flashing a stale hero while refetching when the user returns to the tab */
+    /** Payload can be large (hero base64); cache aggressively — admin saves call invalidateQueries */
+    staleTime: 5 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    refetchOnMount: false,
     refetchOnWindowFocus: false,
   });
   return { ...q, settings: q.data ?? null };

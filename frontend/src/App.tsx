@@ -45,7 +45,17 @@ import AdminStoreFormPage from "./pages/AdminStoreFormPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      /** Reuse server data across navigations; mutations still invalidate as needed */
+      staleTime: 60 * 1000,
+      gcTime: 30 * 60 * 1000,
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 function AppChrome() {
   const location = useLocation();

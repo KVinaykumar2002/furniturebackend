@@ -27,4 +27,11 @@ const productSchema = new mongoose.Schema(
   { timestamps: true, suppressReservedKeysWarning: true }
 );
 
+productSchema.index({ reviews: -1, _id: 1 });
+productSchema.index({ featured: 1, reviews: -1 });
+productSchema.index({ isNew: 1, reviews: -1 });
+productSchema.index({ mainCategory: 1, subcategory: 1 });
+productSchema.index({ category: 1 });
+productSchema.index({ name: 1 });
+
 export default mongoose.model("Product", productSchema);

@@ -58,9 +58,34 @@ router.get("/", async (req, res) => {
     if (mainCategory && mainCategory !== "all") query.mainCategory = mainCategory;
     if (subcategory && subcategory !== "all") query.subcategory = subcategory;
     if (category && category !== "all") query.category = category;
+    if (featured === "true" || featured === "1") query.featured = true;
+    if (bestSellers === "true" || bestSellers === "1") query.isNew = true;
 
-    let list = await Product.find(query).lean();
-    // Remove duplicate products by id (keep first occurrence)
+    let sortSpec = { reviews: -1, _id: 1 };
+    switch (sort) {
+      case "price-asc":
+        sortSpec = { price: 1, _id: 1 };
+        break;
+      case "price-desc":
+        sortSpec = { price: -1, _id: 1 };
+        break;
+      case "new":
+        sortSpec = { isNew: -1, reviews: -1, _id: 1 };
+        break;
+      case "popularity":
+      default:
+        sortSpec = { reviews: -1, _id: 1 };
+        break;
+    }
+
+    const limRaw = limit != null && limit !== "" ? parseInt(String(limit), 10) : NaN;
+    const hasLimit = Number.isFinite(limRaw) && limRaw > 0;
+    const lim = hasLimit ? Math.min(limRaw, 200) : null;
+
+    let mongoQ = Product.find(query).sort(sortSpec).lean();
+    if (lim != null) mongoQ = mongoQ.limit(lim);
+    let list = await mongoQ;
+
     const seenIds = new Set();
     list = list.filter((p) => {
       const id = p && p.id;
@@ -69,32 +94,7 @@ router.get("/", async (req, res) => {
       return true;
     });
 
-    if (featured === "true") {
-      list = list.filter((p) => p.featured === true);
-    }
-    if (bestSellers === "true") {
-      list = list.filter((p) => p.isNew === true);
-      list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-    }
-
-    switch (sort) {
-      case "price-asc":
-        list.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        list.sort((a, b) => b.price - a.price);
-        break;
-      case "new":
-        list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-        break;
-      case "popularity":
-      default:
-        list.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
-        break;
-    }
-
-    const num = limit ? Math.min(parseInt(limit, 10) || 50, 200) : list.length;
-    res.json(list.slice(0, num));
+    res.json(list);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
