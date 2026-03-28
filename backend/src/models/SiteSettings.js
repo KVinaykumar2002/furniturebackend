@@ -97,6 +97,10 @@ const siteSettingsSchema = new mongoose.Schema(
     /** Footer “Blogs” link + /blogs page body */
     blogsFooterLabel: { type: String, default: "Blogs" },
     blogsFooterHref: { type: String, default: "/blogs" },
+    /** Structured CMS blocks; HTML fields below are derived on save for compatibility */
+    blogsSections: { type: [aboutSectionSchema], default: [] },
+    shippingPolicySections: { type: [aboutSectionSchema], default: [] },
+    returnPolicySections: { type: [aboutSectionSchema], default: [] },
     blogsPageHtml: { type: String, default: "" },
     shippingPolicyHtml: { type: String, default: "" },
     returnPolicyHtml: { type: String, default: "" },

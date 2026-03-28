@@ -1,5 +1,5 @@
 import { useSiteSettings } from "@/hooks/useApi";
-import CmsPageLayout, { CmsHtmlBody } from "@/components/CmsPageLayout";
+import CmsPageLayout, { CmsHtmlBody, CmsStructuredSections } from "@/components/CmsPageLayout";
 import { LoadingSection } from "@/components/ui/loader";
 
 export default function BlogsPage() {
@@ -21,9 +21,21 @@ export default function BlogsPage() {
     );
   }
 
+  const hasSections = settings.blogsSections.some((s) => s.title.trim() || s.body.trim());
+
   return (
     <CmsPageLayout title="Blogs">
-      <CmsHtmlBody html={settings.blogsPageHtml} emptyMessage="No blog content yet. Add it in Admin → Site Settings." />
+      {hasSections ? (
+        <CmsStructuredSections
+          sections={settings.blogsSections}
+          emptyMessage="No blog content yet. Add it in Admin → Site Settings."
+        />
+      ) : (
+        <CmsHtmlBody
+          html={settings.blogsPageHtml}
+          emptyMessage="No blog content yet. Add it in Admin → Site Settings."
+        />
+      )}
     </CmsPageLayout>
   );
 }

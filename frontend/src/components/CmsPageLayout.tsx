@@ -1,6 +1,43 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import hero2 from "@/assets/hero-2.jpg";
+import type { AboutSection } from "@/hooks/useApi";
+
+/** Plain-text CMS sections (title + paragraphs split on blank lines). No HTML. */
+export function CmsStructuredSections({
+  sections,
+  emptyMessage,
+}: {
+  sections: AboutSection[];
+  emptyMessage: string;
+}) {
+  const visible = sections.filter((s) => s.title.trim() || s.body.trim());
+  if (visible.length === 0) {
+    return <p className="text-muted-foreground">{emptyMessage}</p>;
+  }
+  return (
+    <div className="space-y-10">
+      {visible.map((section, i) => (
+        <section key={i}>
+          {section.title.trim() ? (
+            <h2 className="font-display text-2xl font-light text-foreground mb-4">{section.title}</h2>
+          ) : null}
+          <div className="space-y-4">
+            {section.body
+              .split(/\n{2,}/)
+              .map((p) => p.trim())
+              .filter(Boolean)
+              .map((p, pi) => (
+                <p key={pi} className="text-muted-foreground leading-relaxed">
+                  {p}
+                </p>
+              ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  );
+}
 
 export function CmsHtmlBody({
   html,

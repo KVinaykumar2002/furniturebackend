@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   useSiteSettings,
   type SiteSettings,
+  type AboutSection,
   getDefaultPromoStrip,
   type PromoStripStat,
   type PromoStripIconKey,
@@ -24,12 +25,108 @@ import { toast } from "sonner";
 import { LoadingSection } from "@/components/ui/loader";
 import { Plus, Trash2, Upload, Link as LinkIcon } from "lucide-react";
 import AdminStoresSection from "@/components/admin/AdminStoresSection";
-import { cn, readFileAsDataUrl } from "@/lib/utils";
+import { cn, readFileAsDataUrl, htmlToPlainText } from "@/lib/utils";
 
 type SiteSettingsForm = Omit<
   SiteSettings,
-  "completedProjectStats" | "testimonials" | "aboutPageHtml" | "faqs"
+  | "completedProjectStats"
+  | "testimonials"
+  | "aboutPageHtml"
+  | "aboutSections"
+  | "faqs"
+  | "blogsPageHtml"
+  | "shippingPolicyHtml"
+  | "returnPolicyHtml"
 >;
+
+const emptyCmsSection = (): AboutSection => ({ title: "", body: "" });
+
+function sectionsForForm(apiSections: AboutSection[], legacyHtml: string): AboutSection[] {
+  if (apiSections.length > 0) {
+    return apiSections.map((s) => ({ ...s }));
+  }
+  const html = legacyHtml.trim();
+  if (!html) return [emptyCmsSection()];
+  return [{ title: "", body: htmlToPlainText(html) }];
+}
+
+function packCmsSections(arr: AboutSection[]): AboutSection[] {
+  return arr
+    .map((s) => ({ title: s.title.trim(), body: s.body.trim() }))
+    .filter((s) => s.title || s.body);
+}
+
+function CmsPageSectionsEditor({
+  idPrefix,
+  heading,
+  description,
+  sections,
+  onChange,
+}: {
+  idPrefix: string;
+  heading: string;
+  description?: string;
+  sections: AboutSection[];
+  onChange: (next: AboutSection[]) => void;
+}) {
+  const updateSection = (index: number, field: keyof AboutSection, value: string) => {
+    const next = [...sections];
+    if (!next[index]) return;
+    next[index] = { ...next[index], [field]: value };
+    onChange(next);
+  };
+  const addSection = () => onChange([...sections, emptyCmsSection()]);
+  const removeSection = (index: number) => onChange(sections.filter((_, i) => i !== index));
+
+  return (
+    <div className="sm:col-span-2 space-y-4 rounded-lg border border-muted p-4 bg-muted/20">
+      <div>
+        <h3 className="text-base font-semibold text-foreground">{heading}</h3>
+        {description ? <p className="text-sm text-muted-foreground mt-1">{description}</p> : null}
+      </div>
+      {sections.map((section, index) => (
+        <div key={index} className="rounded-lg border bg-card p-4 space-y-3">
+          <div className="flex justify-between gap-2">
+            <span className="text-sm font-medium text-muted-foreground">Section {index + 1}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="shrink-0 text-muted-foreground hover:text-destructive"
+              onClick={() => removeSection(index)}
+              aria-label="Remove section"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+          <div>
+            <Label htmlFor={`${idPrefix}-title-${index}`}>Section title</Label>
+            <Input
+              id={`${idPrefix}-title-${index}`}
+              value={section.title}
+              onChange={(e) => updateSection(index, "title", e.target.value)}
+              placeholder="e.g. Delivery timelines"
+            />
+          </div>
+          <div>
+            <Label htmlFor={`${idPrefix}-body-${index}`}>Section content</Label>
+            <Textarea
+              id={`${idPrefix}-body-${index}`}
+              value={section.body}
+              onChange={(e) => updateSection(index, "body", e.target.value)}
+              rows={6}
+              placeholder="Plain text. Use a blank line between paragraphs."
+            />
+          </div>
+        </div>
+      ))}
+      <Button type="button" variant="outline" onClick={addSection}>
+        <Plus className="h-4 w-4 mr-2" />
+        Add section
+      </Button>
+    </div>
+  );
+}
 
 function isoToDatetimeLocal(iso: string): string {
   if (!iso) return "";
@@ -77,9 +174,9 @@ export default function AdminSiteSettingsPage() {
     promoStrip: getDefaultPromoStrip(),
     blogsFooterLabel: "Blogs",
     blogsFooterHref: "/blogs",
-    blogsPageHtml: "",
-    shippingPolicyHtml: "",
-    returnPolicyHtml: "",
+    blogsSections: [emptyCmsSection()],
+    shippingPolicySections: [emptyCmsSection()],
+    returnPolicySections: [emptyCmsSection()],
   });
 
   useEffect(() => {
@@ -98,9 +195,12 @@ export default function AdminSiteSettingsPage() {
         },
         blogsFooterLabel: settings.blogsFooterLabel ?? "Blogs",
         blogsFooterHref: settings.blogsFooterHref ?? "/blogs",
-        blogsPageHtml: settings.blogsPageHtml ?? "",
-        shippingPolicyHtml: settings.shippingPolicyHtml ?? "",
-        returnPolicyHtml: settings.returnPolicyHtml ?? "",
+        blogsSections: sectionsForForm(settings.blogsSections, settings.blogsPageHtml),
+        shippingPolicySections: sectionsForForm(
+          settings.shippingPolicySections,
+          settings.shippingPolicyHtml
+        ),
+        returnPolicySections: sectionsForForm(settings.returnPolicySections, settings.returnPolicyHtml),
       });
       setPromoSaleEndLocal(isoToDatetimeLocal(settings.promoStrip.saleEndsAt));
     }
@@ -252,9 +352,9 @@ export default function AdminSiteSettingsPage() {
         promoStrip,
         blogsFooterLabel: form.blogsFooterLabel.trim() || "Blogs",
         blogsFooterHref: form.blogsFooterHref.trim() || "/blogs",
-        blogsPageHtml: form.blogsPageHtml,
-        shippingPolicyHtml: form.shippingPolicyHtml,
-        returnPolicyHtml: form.returnPolicyHtml,
+        blogsSections: packCmsSections(form.blogsSections),
+        shippingPolicySections: packCmsSections(form.shippingPolicySections),
+        returnPolicySections: packCmsSections(form.returnPolicySections),
       });
       queryClient.invalidateQueries({ queryKey: ["siteSettings"] });
       toast.success("Site settings saved");
@@ -336,9 +436,10 @@ export default function AdminSiteSettingsPage() {
         <section className="rounded-lg border bg-card p-6">
           <h2 className="text-lg font-semibold text-foreground mb-1">Blogs & policy pages</h2>
           <p className="text-sm text-muted-foreground mb-4">
-            Footer “Blogs” label and URL, plus HTML for <code className="text-xs">/blogs</code>,{" "}
+            Footer “Blogs” link and structured content for <code className="text-xs">/blogs</code>,{" "}
             <code className="text-xs">/shipping-policy</code>, and <code className="text-xs">/return-policy</code>.
-            Edit <strong>About</strong> and <strong>FAQs</strong> from the admin sidebar.
+            Add sections with a title and plain text (blank line = new paragraph). Edit{" "}
+            <strong>About</strong> and <strong>FAQs</strong> from the admin sidebar.
           </p>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
@@ -359,39 +460,27 @@ export default function AdminSiteSettingsPage() {
                 placeholder="/blogs or https://…"
               />
             </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="blogsPageHtml">Blogs page HTML</Label>
-              <Textarea
-                id="blogsPageHtml"
-                value={form.blogsPageHtml}
-                onChange={(e) => update("blogsPageHtml", e.target.value)}
-                placeholder="Content shown on /blogs"
-                rows={8}
-                className="font-mono text-sm"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="shippingPolicyHtml">Shipping policy HTML</Label>
-              <Textarea
-                id="shippingPolicyHtml"
-                value={form.shippingPolicyHtml}
-                onChange={(e) => update("shippingPolicyHtml", e.target.value)}
-                placeholder="Content shown on /shipping-policy"
-                rows={8}
-                className="font-mono text-sm"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <Label htmlFor="returnPolicyHtml">Return policy HTML</Label>
-              <Textarea
-                id="returnPolicyHtml"
-                value={form.returnPolicyHtml}
-                onChange={(e) => update("returnPolicyHtml", e.target.value)}
-                placeholder="Content shown on /return-policy"
-                rows={8}
-                className="font-mono text-sm"
-              />
-            </div>
+            <CmsPageSectionsEditor
+              idPrefix="cms-blogs"
+              heading="Blogs page"
+              description="Shown on /blogs."
+              sections={form.blogsSections}
+              onChange={(next) => setForm((p) => ({ ...p, blogsSections: next }))}
+            />
+            <CmsPageSectionsEditor
+              idPrefix="cms-shipping"
+              heading="Shipping policy"
+              description="Shown on /shipping-policy."
+              sections={form.shippingPolicySections}
+              onChange={(next) => setForm((p) => ({ ...p, shippingPolicySections: next }))}
+            />
+            <CmsPageSectionsEditor
+              idPrefix="cms-return"
+              heading="Return policy"
+              description="Shown on /return-policy."
+              sections={form.returnPolicySections}
+              onChange={(next) => setForm((p) => ({ ...p, returnPolicySections: next }))}
+            />
           </div>
         </section>
 

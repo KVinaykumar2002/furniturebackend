@@ -13,7 +13,7 @@ import siteSettingsRoutes from "./routes/siteSettings.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 4000;
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/furniture";
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://designerzhubkp_db_user:MCqtPeEIENL27Wcg@designerzhub.5o4tvce.mongodb.net/?appName=Designerzhub";
 
 const app = express();
 const corsOrigin = process.env.CORS_ORIGIN;

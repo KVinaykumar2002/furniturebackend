@@ -65,6 +65,9 @@ router.get("/", async (req, res) => {
         aboutPageHtml: DEFAULT_ABOUT_PAGE_HTML,
         blogsFooterLabel: "Blogs",
         blogsFooterHref: "/blogs",
+        blogsSections: [],
+        shippingPolicySections: [],
+        returnPolicySections: [],
         blogsPageHtml: "",
         shippingPolicyHtml: "",
         returnPolicyHtml: "",
@@ -95,6 +98,16 @@ router.put("/", async (req, res) => {
           body: s && typeof s.body === "string" ? s.body : "",
         }))
       : undefined;
+    const mapCmsSections = (arr) =>
+      Array.isArray(arr)
+        ? arr.map((s) => ({
+            title: s && typeof s.title === "string" ? s.title : "",
+            body: s && typeof s.body === "string" ? s.body : "",
+          }))
+        : undefined;
+    const blogsSections = mapCmsSections(body.blogsSections);
+    const shippingPolicySections = mapCmsSections(body.shippingPolicySections);
+    const returnPolicySections = mapCmsSections(body.returnPolicySections);
     const update = {
       contactPhone: body.contactPhone != null ? String(body.contactPhone) : undefined,
       contactEmail: body.contactEmail != null ? String(body.contactEmail) : undefined,
@@ -174,11 +187,27 @@ router.put("/", async (req, res) => {
         body.blogsFooterLabel != null ? String(body.blogsFooterLabel) : undefined,
       blogsFooterHref:
         body.blogsFooterHref != null ? String(body.blogsFooterHref) : undefined,
-      blogsPageHtml: body.blogsPageHtml != null ? String(body.blogsPageHtml) : undefined,
+      blogsSections,
+      blogsPageHtml:
+        blogsSections !== undefined
+          ? aboutSectionsToHtml(blogsSections)
+          : body.blogsPageHtml != null
+            ? String(body.blogsPageHtml)
+            : undefined,
+      shippingPolicySections,
       shippingPolicyHtml:
-        body.shippingPolicyHtml != null ? String(body.shippingPolicyHtml) : undefined,
+        shippingPolicySections !== undefined
+          ? aboutSectionsToHtml(shippingPolicySections)
+          : body.shippingPolicyHtml != null
+            ? String(body.shippingPolicyHtml)
+            : undefined,
+      returnPolicySections,
       returnPolicyHtml:
-        body.returnPolicyHtml != null ? String(body.returnPolicyHtml) : undefined,
+        returnPolicySections !== undefined
+          ? aboutSectionsToHtml(returnPolicySections)
+          : body.returnPolicyHtml != null
+            ? String(body.returnPolicyHtml)
+            : undefined,
       faqs: Array.isArray(body.faqs)
         ? body.faqs.map((f) => ({
             question: f && typeof f.question === "string" ? f.question : "",

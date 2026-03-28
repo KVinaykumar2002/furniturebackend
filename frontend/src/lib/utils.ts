@@ -24,3 +24,18 @@ export function readFileAsDataUrl(file: File): Promise<string> {
     reader.readAsDataURL(file);
   });
 }
+
+/** Strip tags from saved HTML for one-time migration in admin (browser only). */
+export function htmlToPlainText(html: string): string {
+  if (typeof document === "undefined") {
+    return html
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  return (doc.body?.textContent || "")
+    .replace(/\u00a0/g, " ")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}

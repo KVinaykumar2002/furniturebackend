@@ -1,5 +1,5 @@
 import { useSiteSettings } from "@/hooks/useApi";
-import CmsPageLayout, { CmsHtmlBody } from "@/components/CmsPageLayout";
+import CmsPageLayout, { CmsHtmlBody, CmsStructuredSections } from "@/components/CmsPageLayout";
 import { LoadingSection } from "@/components/ui/loader";
 
 export default function ReturnPolicyPage() {
@@ -21,12 +21,15 @@ export default function ReturnPolicyPage() {
     );
   }
 
+  const hasSections = settings.returnPolicySections.some((s) => s.title.trim() || s.body.trim());
+
   return (
     <CmsPageLayout title="Return Policy">
-      <CmsHtmlBody
-        html={settings.returnPolicyHtml}
-        emptyMessage="No return policy yet."
-      />
+      {hasSections ? (
+        <CmsStructuredSections sections={settings.returnPolicySections} emptyMessage="No return policy yet." />
+      ) : (
+        <CmsHtmlBody html={settings.returnPolicyHtml} emptyMessage="No return policy yet." />
+      )}
     </CmsPageLayout>
   );
 }

@@ -1,5 +1,5 @@
 import { useSiteSettings } from "@/hooks/useApi";
-import CmsPageLayout, { CmsHtmlBody } from "@/components/CmsPageLayout";
+import CmsPageLayout, { CmsHtmlBody, CmsStructuredSections } from "@/components/CmsPageLayout";
 import { LoadingSection } from "@/components/ui/loader";
 
 export default function ShippingPolicyPage() {
@@ -21,12 +21,15 @@ export default function ShippingPolicyPage() {
     );
   }
 
+  const hasSections = settings.shippingPolicySections.some((s) => s.title.trim() || s.body.trim());
+
   return (
     <CmsPageLayout title="Shipping Policy">
-      <CmsHtmlBody
-        html={settings.shippingPolicyHtml}
-        emptyMessage="No shipping policy yet."
-      />
+      {hasSections ? (
+        <CmsStructuredSections sections={settings.shippingPolicySections} emptyMessage="No shipping policy yet." />
+      ) : (
+        <CmsHtmlBody html={settings.shippingPolicyHtml} emptyMessage="No shipping policy yet." />
+      )}
     </CmsPageLayout>
   );
 }

@@ -1,10 +1,20 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useProducts } from "@/hooks/useApi";
 import ProductCard from "@/components/ProductCard";
 import { ProductGridSkeleton } from "@/components/ProductCardSkeleton";
 
 export default function SneakPeek() {
   const { products, isPending, isError } = useProducts({ featured: true, limit: 8 });
+  const railRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollRail = (dir: -1 | 1) => {
+    const el = railRef.current;
+    if (!el) return;
+    const amount = Math.max(320, Math.floor(el.clientWidth * 0.9));
+    el.scrollBy({ left: dir * amount, behavior: "smooth" });
+  };
 
   if (isPending) {
     return (
@@ -62,19 +72,36 @@ export default function SneakPeek() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-12">
-          {products.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
-          ))}
-        </div>
-
-        <div className="text-center mt-12">
-          <Link
-            to="/collections"
-            className="inline-block border border-muted-foreground/30 text-muted-foreground text-sm tracking-[0.15em] uppercase px-10 py-3 hover:bg-muted-foreground/5 transition-colors min-h-[44px] flex items-center justify-center"
+        <div className="relative mt-12">
+          <button
+            type="button"
+            onClick={() => scrollRail(-1)}
+            className="flex absolute left-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white border border-[#D5CDC3] shadow-lg items-center justify-center text-foreground hover:bg-white transition-colors"
+            aria-label="Scroll left"
           >
-            View All
-          </Link>
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollRail(1)}
+            className="flex absolute right-2 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-white border border-[#D5CDC3] shadow-lg items-center justify-center text-foreground hover:bg-white transition-colors"
+            aria-label="Scroll right"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+          <div
+            ref={railRef}
+            className="flex gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 -mx-2 px-2 scrollbar-hide"
+          >
+            {products.map((product, index) => (
+              <div
+                key={product.id}
+                className="snap-start shrink-0 w-[min(220px,42vw)] sm:w-[240px] md:basis-[calc((100%-3.75rem)/4)] md:min-w-0"
+              >
+                <ProductCard product={product} index={index} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

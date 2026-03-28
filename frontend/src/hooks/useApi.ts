@@ -484,6 +484,9 @@ export type SiteSettings = {
   aboutPageHtml: string;
   blogsFooterLabel: string;
   blogsFooterHref: string;
+  blogsSections: AboutSection[];
+  shippingPolicySections: AboutSection[];
+  returnPolicySections: AboutSection[];
   blogsPageHtml: string;
   shippingPolicyHtml: string;
   returnPolicyHtml: string;
@@ -523,14 +526,18 @@ function normalizeFaqs(r: Record<string, unknown>): FaqItem[] {
     .filter((item) => item.question.trim() || item.answer.trim());
 }
 
-function normalizeAboutSections(r: Record<string, unknown>): AboutSection[] {
-  if (!Array.isArray(r.aboutSections)) return [];
-  return (r.aboutSections as Array<Record<string, unknown>>)
+function normalizeCmsSections(raw: unknown): AboutSection[] {
+  if (!Array.isArray(raw)) return [];
+  return (raw as Array<Record<string, unknown>>)
     .map((s) => ({
       title: s?.title != null ? String(s.title) : "",
       body: s?.body != null ? String(s.body) : "",
     }))
     .filter((s) => s.title.trim() || s.body.trim());
+}
+
+function normalizeAboutSections(r: Record<string, unknown>): AboutSection[] {
+  return normalizeCmsSections(r.aboutSections);
 }
 
 function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
@@ -569,6 +576,9 @@ function mapSiteSettings(r: Record<string, unknown>): SiteSettings {
         ? String(r.blogsFooterLabel).trim()
         : "Blogs",
     blogsFooterHref: blogsFooterHrefRaw,
+    blogsSections: normalizeCmsSections(r.blogsSections),
+    shippingPolicySections: normalizeCmsSections(r.shippingPolicySections),
+    returnPolicySections: normalizeCmsSections(r.returnPolicySections),
     blogsPageHtml: r.blogsPageHtml != null ? String(r.blogsPageHtml) : "",
     shippingPolicyHtml: r.shippingPolicyHtml != null ? String(r.shippingPolicyHtml) : "",
     returnPolicyHtml: r.returnPolicyHtml != null ? String(r.returnPolicyHtml) : "",
