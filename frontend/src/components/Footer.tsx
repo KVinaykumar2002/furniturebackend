@@ -153,8 +153,8 @@ export default function Footer() {
                 </button>
               </li>
               <li><Link to="/faq" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">FAQs</Link></li>
-              <li><Link to="/shipping-policy" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Shipping Policy</Link></li>
-              <li><Link to="/return-policy" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Return Policy</Link></li>
+              {/* <li><Link to="/shipping-policy" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Shipping Policy</Link></li> */}
+              {/* <li><Link to="/return-policy" className="block py-2.5 hover:text-[#2c2c2c] transition-colors min-h-[44px] flex items-center">Return Policy</Link></li> */}
             </ul>
           </div>
 

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SectionWrapper from "@/components/SectionWrapper";
 import ProductCard from "@/components/ProductCard";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
@@ -24,6 +24,53 @@ function ProductRail({
   products: Product[];
   railRef: React.RefObject<HTMLDivElement | null>;
 }) {
+  useEffect(() => {
+    const el = railRef.current;
+    if (!el || products.length <= 1) return;
+
+    let isPaused = false;
+    const getStep = () => {
+      const firstCard = el.firstElementChild as HTMLElement | null;
+      const gapValue = window.getComputedStyle(el).columnGap || window.getComputedStyle(el).gap || "0";
+      const gap = Number.parseFloat(gapValue) || 0;
+      const cardWidth = firstCard?.offsetWidth ?? 0;
+      return Math.max(cardWidth + gap, 200);
+    };
+
+    const tick = () => {
+      if (isPaused) return;
+      const step = getStep();
+      const maxScrollLeft = el.scrollWidth - el.clientWidth;
+      const nextLeft = el.scrollLeft + step;
+      if (nextLeft >= maxScrollLeft - 2) {
+        el.scrollTo({ left: 0, behavior: "smooth" });
+        return;
+      }
+      el.scrollBy({ left: step, behavior: "smooth" });
+    };
+
+    const onEnter = () => {
+      isPaused = true;
+    };
+    const onLeave = () => {
+      isPaused = false;
+    };
+
+    const timer = window.setInterval(tick, 2800);
+    el.addEventListener("mouseenter", onEnter);
+    el.addEventListener("mouseleave", onLeave);
+    el.addEventListener("focusin", onEnter);
+    el.addEventListener("focusout", onLeave);
+
+    return () => {
+      window.clearInterval(timer);
+      el.removeEventListener("mouseenter", onEnter);
+      el.removeEventListener("mouseleave", onLeave);
+      el.removeEventListener("focusin", onEnter);
+      el.removeEventListener("focusout", onLeave);
+    };
+  }, [products.length, railRef]);
+
   return (
     <div className="relative">
       <button
@@ -57,7 +104,7 @@ function ProductRail({
         className="flex gap-5 md:gap-7 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 px-12 sm:px-14 scrollbar-hide"
       >
         {products.map((product, index) => (
-          <div key={product.id} className={RAIL_CARD}>
+          <div key={product.id} className={RAIL_CARD} data-rail-item>
             <ProductCard product={product} index={index} />
           </div>
         ))}
