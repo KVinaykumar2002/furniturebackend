@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { getWhatsAppOrderUrl } from "@/lib/constants";
 
 export default function NewsletterSection() {
   const [formData, setFormData] = useState({ name: "", email: "", phone: "", message: "" });
@@ -14,7 +15,16 @@ export default function NewsletterSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Thank you! We'll get back to you soon.");
+    const message = [
+      "Hi, I have an enquiry from Stay in the loop section.",
+      `Name: ${formData.name.trim()}`,
+      `Email: ${formData.email.trim()}`,
+      `Phone: ${formData.phone.trim() || "N/A"}`,
+      `Message: ${formData.message.trim() || "N/A"}`,
+    ].join("\n");
+
+    window.open(getWhatsAppOrderUrl(message), "_blank", "noopener,noreferrer");
+    toast.success("Opening WhatsApp with your enquiry details.");
     setFormData({ name: "", email: "", phone: "", message: "" });
   };
 
