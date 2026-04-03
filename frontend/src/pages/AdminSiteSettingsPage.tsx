@@ -433,7 +433,7 @@ export default function AdminSiteSettingsPage() {
         </section>
 
         {/* Footer: Blogs link + policy page content (About & FAQs have their own admin pages) */}
-        <section className="rounded-lg border bg-card p-6">
+        {/* <section className="rounded-lg border bg-card p-6">
           <h2 className="text-lg font-semibold text-foreground mb-1">Blogs & policy pages</h2>
           <p className="text-sm text-muted-foreground mb-4">
             Footer “Blogs” link and structured content for <code className="text-xs">/blogs</code>,{" "}
@@ -482,7 +482,7 @@ export default function AdminSiteSettingsPage() {
               onChange={(next) => setForm((p) => ({ ...p, returnPolicySections: next }))}
             />
           </div>
-        </section>
+        </section> */}
 
         {/* Our Stores section */}
         <section className="rounded-lg border bg-card p-6">
